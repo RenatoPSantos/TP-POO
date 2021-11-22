@@ -12,6 +12,7 @@
 #include <cstring>
 
 #include "comandos.h"
+#include "map.h"
 
 
 using namespace std;
@@ -56,9 +57,21 @@ void fileLine(string* comandos){
 
 }
 
-void checkLinhasColunas(string basicString, string basicString1, string basicString2);
+/*
+void checkBuildings(vector<vector<cell>> &cells,string rows, string cols){
+    int irows = stoi(rows);
+    int icols = stoi(cols);
 
-int checkTypeBuildings(string* comandos){
+    if(cells[irows-1][icols-1].building == ""){
+        return 1;
+    }
+    else{
+        return 0;
+    }
+};
+*/
+
+int checkTypeBuildings(string* comandos,vector<vector<cell>> &cells){
 
     int i,vef=0;
 
@@ -75,28 +88,29 @@ int checkTypeBuildings(string* comandos){
     if(vef == 1){
         return 1;
     }
-    if(comandos[1] == buildings[1]){
-        checkLinhasColunas(comandos[2],comandos[3],buildings[1]);
+
+/*    if(comandos[1] == buildings[1]){
+        checkBuildings(cells,comandos[2],comandos[3]);
     }
     if(comandos[1] == buildings[2]){
-        checkLinhasColunas(comandos[2],comandos[3],buildings[1]);
+        checkBuildings(cells,comandos[2],comandos[3]);
     }
     if(comandos[1] == buildings[3]){
-        checkLinhasColunas(comandos[2],comandos[3],buildings[1]);
+        checkBuildings(cells,comandos[2],comandos[3]);
     }
     if(comandos[1] == buildings[4]){
-        checkLinhasColunas(comandos[2],comandos[3],buildings[1]);
+        checkBuildings(cells,comandos[2],comandos[3]);
     }
     if(comandos[1] == buildings[5]){
-        checkLinhasColunas(comandos[2],comandos[3],buildings[1]);
-    }
+        checkBuildings(cells,comandos[2],comandos[3]);
+    }*/
 }
 
-void checkLinhasColunas(string linha,string coluna,string tipo){
+/*void checkLinhasColunas(string linha,string coluna,string tipo){
 
-}
+}*/
 
-void commands(){
+void commands(vector<vector<cell>> &cells){
 
     int fase = 1;
     string* comandos;
@@ -136,7 +150,7 @@ void commands(){
                 continue;
             }
 /*            else{
- *              if(checkTipeBuilding(comandos) == 1){
+ *              if(checkTipeBuilding(comandos,cells) == 1){
  *                  continue;
  *              }
  *
