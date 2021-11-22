@@ -5,17 +5,22 @@
 #include <vector>
 #include <fstream>
 
-#include "ilha.h"
+#include "celula.h"
 #include "comandos.h"
 #include "trabalhadores.h"
 using namespace std;
 
 int main() {
+    
+    int rows,cols;
 
-  ilha mainIlha;
-  mainIlha.printIlha();
+    vector<vector<string*>> mapa;
+    mapa = createMap(mapa);
+    printMap(&mapa);
 
-  commands();
+
+
+    commands();
 
     return 0;
 }
