@@ -12,20 +12,22 @@ using namespace std;
 
 int main() {
 
-    int cols,rows;
+    srand(time(NULL));
+    int rows,cols;
     cout << "rows, cols" << endl;
     cin >> rows >> cols;
 
-    string a = "dfs";
-    string b = "abc";
-
     vector<vector<string*>> map;
-    vector<vector<cell>> cells;
-    createMap(map,rows,cols);
-    createCells(cells,rows,cols);
-    cell::changeInf(cells,0,0,a,b);
-    printMap(map);
-    cell::getInf(cells);
+    vector<vector<Cell>> cells;
+    createCells(cells, rows, cols);
+    createMap(map, cells);
+    printMap(map, cells);
+  /*  commands();*/
+
+   commands();
+   updateMap(map,cells);
+
+
 
 
     return 0;

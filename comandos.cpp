@@ -17,8 +17,37 @@
 
 using namespace std;
 
+bool isNumber(const string &s){
+
+    for (char i : s){
+        if (isdigit(i) == false){
+
+            cout << "As linhas/colunas devem ser numeros inteiros" << endl;
+            return false;
+        }
+    }
+
+
+
+    return true;
+}
+bool checkRowsCols(vector<vector<Cell>> &cells,const string& rows,const string& cols){
+
+    int irows = stoi(rows);
+    int icols = stoi(cols);
+
+    if(irows >= cells.size() || icols >= cells[0].size()){
+        cout << "Por favor introduza linha/colunas validas";
+        return false;
+    }
+    else{
+        return true;
+    }
+
+
+}
 bool checkArguments(int number, string* comandos){
-    if(comandos[number + 1] != ""){
+    if(!comandos[number + 1].empty()){
         cout << "Numero de argumentos invalido" << endl;
         cout << "Este comando utiliza " << number <<  " argumento(s)" << endl;
         return true;
@@ -26,7 +55,7 @@ bool checkArguments(int number, string* comandos){
     return false;
 }
 
-string* deconstructor(string comando) //recebe frase, descontroi-a em palavras, devolve ponteiro para array com palavras.
+string* deconstructor(const string& comando) //recebe frase, descontroi-a em palavras, devolve ponteiro para array com palavras.
 {
     int i = 0;
     string word;
@@ -35,7 +64,7 @@ string* deconstructor(string comando) //recebe frase, descontroi-a em palavras, 
     {
         if (x == ' ')
         {
-             if (word == "") //se espaços seguidos, avança para próximo caráter
+             if (word.empty()) //se espaços seguidos, avança para próximo caráter
                  continue;
 
             comandos[i] = word;
@@ -57,60 +86,50 @@ void fileLine(string* comandos){
 
 }
 
-/*
-void checkBuildings(vector<vector<cell>> &cells,string rows, string cols){
-    int irows = stoi(rows);
-    int icols = stoi(cols);
+bool Cell::checkBuildings(vector<vector<Cell>> &cells, int rows, int cols){
 
-    if(cells[irows-1][icols-1].building == ""){
-        return 1;
+    if(cells[rows][cols].building == ""){
+        return true;
     }
     else{
-        return 0;
+        return false;
     }
-};
-*/
-
-int checkTypeBuildings(string* comandos,vector<vector<cell>> &cells){
-
-    int i,vef=0;
-
-    string buildings[5] = {"mnf","mnc","elec","bat","fun"};
-
-    for(i=0;i<5;i++){
-        if(comandos[1] == buildings[i]){
-            continue;
-        }
-        else{
-            vef = 1;
-        }
-    }
-    if(vef == 1){
-        return 1;
-    }
-
-/*    if(comandos[1] == buildings[1]){
-        checkBuildings(cells,comandos[2],comandos[3]);
-    }
-    if(comandos[1] == buildings[2]){
-        checkBuildings(cells,comandos[2],comandos[3]);
-    }
-    if(comandos[1] == buildings[3]){
-        checkBuildings(cells,comandos[2],comandos[3]);
-    }
-    if(comandos[1] == buildings[4]){
-        checkBuildings(cells,comandos[2],comandos[3]);
-    }
-    if(comandos[1] == buildings[5]){
-        checkBuildings(cells,comandos[2],comandos[3]);
-    }*/
 }
 
-/*void checkLinhasColunas(string linha,string coluna,string tipo){
+bool Cell::checkTypeBuilding(string* comandos,vector<vector<Cell>> &cells){
 
-}*/
+    int i;
+    int rows = stoi(comandos[2]);
+    int cols = stoi(comandos[3]);
 
-void commands(vector<vector<cell>> &cells){
+    string buildings[6] = {"mnf","mnc","elec","bat","fun","edx"};
+
+    for(i=0;i<5;i++){
+
+        if(comandos[1] == buildings[i]){
+            if(checkBuildings(cells,rows,cols) == 1){
+
+                cells[rows-1][cols-1].building = comandos[1];
+                return true;
+            }
+            else{
+                cout << "Nesse local já se encontra uma construcao" << endl;
+                return false;
+            }
+        }
+        else{
+            continue;
+        }
+    }
+
+
+
+    return false;
+}
+
+
+
+void commands(vector<vector<Cell>> &cells){
 
     int fase = 1;
     string* comandos;
@@ -149,12 +168,24 @@ void commands(vector<vector<cell>> &cells){
             if (checkArguments(3, comandos) == 1) {
                 continue;
             }
-/*            else{
- *              if(checkTipeBuilding(comandos,cells) == 1){
- *                  continue;
- *              }
- *
-            }*/
+            else{
+                if(isNumber(comandos[2]) && isNumber(comandos[3])){
+                    if(checkRowsCols(cells,comandos[2],comandos[3])){
+                        if(Cell::checkTypeBuilding(comandos,cells) == false){
+                            continue;
+                        }
+                        else{
+                            break;
+                        }
+                    }
+                    else{
+                        continue;
+                    }
+                }
+                else{
+                    continue;
+                }
+            }
 
         }
         if (comandos[0] == "liga") {
@@ -227,6 +258,41 @@ void commands(vector<vector<cell>> &cells){
             if (checkArguments(1, comandos) == 1) {
                 continue;
             }
+            if (comandos[1].substr(comandos[1].length() - 4) != ".txt")
+            {
+                cout << "Tipo de ficheiro errado" << endl
+                << "Esperado (.txt)" << endl;
+                continue;
+            }
+                ifstream file (comandos[1]);
+
+                string reader;
+                vector<string> configs; //armazena dados da file | Formato: "<nome> <valor>"
+                while(file >> reader)
+                {
+                    configs.push_back(reader);
+                }
+                vector<string> name;
+                vector<int> value;
+                string word;
+                for(int i = 0; i < configs.size(); i++) //separa configs em devidos vetores
+                {
+                    for(auto c: configs[i])
+                    {
+                        if(c == ' ')
+                        {
+                            name.push_back(word);
+                            word = "";
+                        }
+                        if(c == '\n')
+                        {
+                            value.push_back(stoi(word));
+                            word = "";
+                        }
+                        else
+                            word += c;
+                    }
+                }
 
         }
         if (comandos[0] == "debcash") {
