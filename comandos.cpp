@@ -33,6 +33,43 @@ bool isNumber(const string &s){
 
     return true;
 }
+void list(const string& rows,const string& cols,vector<vector<Cell>> &cells){
+
+    int irows = stoi(rows);
+    int icols = stoi(cols);
+
+
+    cout << "\n--Informacoes--"<< endl;
+    cout << "Bioma -> " << cells[irows-1][icols-1].getBiome() << endl;
+
+    if(cells[irows-1][icols-1].getBuilding().empty()){
+        cout << "Construcao -> Vazio " << endl;
+    }
+    else{
+        cout << "Construcao -> " << cells[irows-1][icols-1].getBuilding() << endl;
+    }
+    if(cells[irows-1][icols-1].getWorkers().empty()){
+        cout << "Trabalhadores -> Vazio" << endl;
+    }
+    else{
+        cout << "Trabalhadores -> ";
+        for(int i = 0;i<cells[irows-1][icols-1].getWorkers().size();i++){
+            cout << cells[irows-1][icols-1].getWorkers()[i] << " ";
+        }
+        cout << endl;
+    }
+    cout << "Numero total de trabalhadores -> " << cells[irows-1][icols-1].countWorkers() << endl;
+
+    system("pause");
+
+
+}
+void list(){
+
+    cout << "lista geral // EM DESENVOLVIMENTO"<< endl;
+    system("pause");
+}
+
 bool checkRowsCols(vector<vector<Cell>> &cells, const string& rows, const string& cols){
 
     int irows = stoi(rows);
