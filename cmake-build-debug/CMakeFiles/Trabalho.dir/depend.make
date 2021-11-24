@@ -4,15 +4,17 @@
 CMakeFiles\Trabalho.dir\comandos.cpp.obj: ..\comandos.cpp
 CMakeFiles\Trabalho.dir\comandos.cpp.obj: ..\comandos.h
 CMakeFiles\Trabalho.dir\comandos.cpp.obj: ..\map.h
+CMakeFiles\Trabalho.dir\comandos.cpp.obj: ..\trabalhadores.h
 
 CMakeFiles\Trabalho.dir\main.cpp.obj: ..\comandos.h
 CMakeFiles\Trabalho.dir\main.cpp.obj: ..\main.cpp
 CMakeFiles\Trabalho.dir\main.cpp.obj: ..\map.h
-CMakeFiles\Trabalho.dir\main.cpp.obj: ..\trabalhadores.h
 
 CMakeFiles\Trabalho.dir\map.cpp.obj: ..\map.cpp
 CMakeFiles\Trabalho.dir\map.cpp.obj: ..\map.h
 
+CMakeFiles\Trabalho.dir\trabalhadores.cpp.obj: ..\comandos.h
+CMakeFiles\Trabalho.dir\trabalhadores.cpp.obj: ..\map.h
 CMakeFiles\Trabalho.dir\trabalhadores.cpp.obj: ..\trabalhadores.cpp
 CMakeFiles\Trabalho.dir\trabalhadores.cpp.obj: ..\trabalhadores.h
 

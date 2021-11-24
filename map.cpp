@@ -1,20 +1,21 @@
 #include <iostream>
 #include <string>
-#include <iostream>
-#include <sstream>
+#include <utility>
 #include <vector>
-#include <fstream>
 
 #include "map.h"
 using namespace std;
 
 
-Cell::Cell(string biome) : biome(biome) {
+Cell::Cell(string biome) : biome(biome),n_workers(0) {
 
 }
 
 void Cell::setBuilding(string type) {
     building = type;
+}
+void Cell::setBiome(string type) {
+    biome = type;
 }
 
 void Cell::destroyBuilding() {
@@ -23,6 +24,7 @@ void Cell::destroyBuilding() {
 
 void Cell::addWorker(char type) {
     workers.push_back(type);
+    n_workers += 1;
 }
 
 string Cell::getBiome() const {
@@ -45,31 +47,19 @@ Cell::~Cell() {
 
 }
 
-void Cell::getInf(vector<vector<Cell>> cells){ //usada para debug
-
-    for(int i = 0; i< cells.size();i++){
-        for(int j= 0; j < cells[i].size();j++){
-            cout << endl;
-            cout << cells[i][j].biome << " ";
-            cout << cells[i][j].building << " ";
-            cout << cells[i][j].n_workers << endl;
-        }
-    }
-}
-
-void Cell::changeInf(vector<vector<Cell>> &cells, int rows, int cols, string building){
-
-    cells[rows][cols].building = building;
-}
-
 string* stringController(string* str){ //controla dimensão da string de forma a ocupar 4 caráters por linha
 
     int counter;
     for(int i = 0; i < 4; i++)
     {
         counter = 0;
-        for(auto x: str[i])
+        for(auto x: str[i]) {
+
             counter++;
+            if(counter >= 4){
+                str[i].erase(4);
+            }
+        }
 
         for(int j = 0; j < 4 - counter; j++)
             str[i] += ' ';
@@ -85,10 +75,8 @@ void updateMap(vector<vector<string*>> &map, vector<vector<Cell>> &cells) //atua
         for (int j = 0; j < cells[0].size(); j++)
         {
             string* line = new string[4];
-            ostringstream oss;
-            string str(oss.str());
-            for(int x = 0; x < cells[i][j].getWorkers().size(); x++) //conversão de vetor de chars para string usando oss
-                oss << x;
+            vector<char> workers = cells[i][j].getWorkers();
+            string str(workers.begin(), workers.end());
             line[0] = cells[i][j].getBiome();
             line[1] = cells[i][j].getBuilding();
             line[2] = str;
@@ -122,10 +110,8 @@ void createMap(vector<vector<string*>> &map, vector<vector<Cell>> &cells) //cria
         for (int j = 0; j < cells[0].size(); j++)
         {
             string* line = new string[4];
-            ostringstream oss;
-            string str(oss.str());
-            for(int x = 0; x < cells[i][j].getWorkers().size(); x++) //conversão de vetor de chars para string usando oss
-                oss << x;
+            vector<char> workers = cells[i][j].getWorkers();
+            string str(workers.begin(), workers.end());
             line[0] = cells[i][j].getBiome();
             line[1] = cells[i][j].getBuilding();
             line[2] = str;
@@ -139,15 +125,93 @@ void createMap(vector<vector<string*>> &map, vector<vector<Cell>> &cells) //cria
 
 void createCells(vector<vector<Cell>> &cells, int rows, int cols) //cria duplo vetor de objetos (contêm informação)
 {
-    string random[] = {"mnt", "dsrt", "frst", "pst", "ptn"};
+    string random[] = {"mnt", "dsr", "flr", "pas", "ptn"};
 
     for (int i = 0; i < rows; i++) {
         vector<Cell> temp;
-        for (int j = 0; j < cols; j++) {
-            temp.push_back(Cell(random[rand() % 5])); //células declaradas com biomas aleatórios
-        }
+        for (int j = 0; j < cols; j++)
+            temp.emplace_back(random[rand() % 5]);
         cells.push_back(temp);
     }
+    cells[rand() % cells.size()][rand() % cells[0].size()].setBiome("pas");
+}
+
+bool checkBuildings(vector<vector<Cell>> &cells, int rows, int cols){
+
+    if(cells[rows-1][cols-1].getBuilding().empty()){
+        return true;
+    }
+    else{
+        return false;
+    }
+}
+
+void checkTypeBuilding(string *comandos, vector<vector<Cell>> &cells){
+
+    int i;
+    int rows = stoi(comandos[2]);
+    int cols = stoi(comandos[3]);
+
+    string buildings[6] = {"mnf","mnc","elec","bat","fun","edx"};
+
+
+    for(i=0;i<6;i++){
+        if(comandos[1] == buildings[i]){
+            if(checkBuildings(cells, rows, cols)){
+                cells[rows-1][cols-1].setBuilding(comandos[1]);
+                return;
+            }
+            else{
+                cout << "Nesse local ja se encontra uma construcao" << endl;
+                system("pause");
+
+                return;
+            }
+        }
+        else{
+            cout << "A construcao que inseriu e invalida" << endl;
+            system("pause");
+        }
+
+    }
+
+}
+
+void list(const string& rows,const string& cols,vector<vector<Cell>> &cells){
+
+    int irows = stoi(rows);
+    int icols = stoi(cols);
+
+
+    cout << "\n--Informacoes--"<< endl;
+    cout << "Bioma -> " << cells[irows-1][icols-1].getBiome() << endl;
+
+    if(cells[irows-1][icols-1].getBuilding().empty()){
+        cout << "Construcao -> Vazio " << endl;
+    }
+    else{
+        cout << "Construcao -> " << cells[irows-1][icols-1].getBuilding() << endl;
+    }
+    if(cells[irows-1][icols-1].getWorkers().empty()){
+        cout << "Trabalhadores -> Vazio" << endl;
+    }
+    else{
+        cout << "Trabalhadores -> ";
+        for(int i = 0;i<cells[irows-1][icols-1].getWorkers().size();i++){
+            cout << cells[irows-1][icols-1].getWorkers()[i] << " ";
+        }
+        cout << endl;
+    }
+    cout << "Numero total de trabalhadores -> " << cells[irows-1][icols-1].countWorkers() << endl;
+
+    system("pause");
+
+
+}
+void list(){
+
+    cout << "lista geral // EM DESENVOLVIMENTO"<< endl;
+    system("pause");
 }
 
 

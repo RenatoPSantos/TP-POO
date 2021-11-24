@@ -14,36 +14,28 @@ class Cell {
     string biome;
     string building;
     vector<char> workers;
-    int n_workers = workers.size();
+    int n_workers ;
 
 public:
 
-    static void getInf(vector<vector<Cell>>);
-    static void changeInf(vector<vector<Cell>> &cells, int rows, int cols,string building);
-
-
     Cell(string biome);
     ~Cell();
-    void setBuilding(string type);
-    void destroyBuilding();
-    void addWorker(char type);
-    string getBiome() const;
-    string getBuilding() const;
-    vector<char> getWorkers() const;
-    int countWorkers() const;
-
-    static bool checkBuildings(vector<vector<Cell>> &cells, int rows, int cols);
-    static bool checkTypeBuilding(string* comandos, vector<vector<Cell>> &cells);
-
-    bool checkRowsCols(vector<vector<Cell>> &cells,string rows,string cols);
+    void setBuilding(string type);   //altera a construção da célula
+    void setBiome(string type);      //altera o bioma da célula
+    void destroyBuilding();          //remove a construção da célula
+    void addWorker(char type);       //adiciona um trabalhador à célula
+    string getBiome() const;         //retorna o bioma
+    string getBuilding() const;      //retorna a construção de uma célula em específico
+    vector<char> getWorkers() const; //retorna os trabalhadores de uma celula em específico
+    int countWorkers() const;        //retorna o número total de trabalhadores em uma célula específica
 
 
 };
 
-void updateMap(vector<vector<string*>> &map, vector<vector<Cell>> &cells);
-void createMap(vector<vector<string*>> &map, vector<vector<Cell>> &cells);
-void createCells(vector<vector<Cell>> &cells,int rows,int cols);
-void printMap(vector<vector<string*>> &map,vector<vector<Cell>> &cells);
+void updateMap(vector<vector<string*>> &map, vector<vector<Cell>> &cells); //atualiza e dá print no mapa
+void createMap(vector<vector<string*>> &map, vector<vector<Cell>> &cells); //cria mapa
+void createCells(vector<vector<Cell>> &cells,int rows,int cols);           //cria as diversas partes do mapa
+void printMap(vector<vector<string*>> &map,vector<vector<Cell>> &cells);   //dá print ao mapa
 
 
 #endif //TRABALHO_MAP_H
