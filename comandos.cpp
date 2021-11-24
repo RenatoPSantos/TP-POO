@@ -6,8 +6,6 @@
 #include <string>
 #include <vector>
 
-
-
 #include "comandos.h"
 #include "trabalhadores.h"
 
@@ -118,7 +116,7 @@ int execCommands(vector<vector<Cell>> &cells, string *comandos) {
                     string reader;
                     vector<string> configs;
                     while (getline(file, reader)){
-                        cout << reader << endl;
+
                         configs.push_back(reader);
                     }
                     file.close();
@@ -126,10 +124,7 @@ int execCommands(vector<vector<Cell>> &cells, string *comandos) {
                     {
                         string* aux = new string[4];
                         deconstructor(configs[i], aux);
-                        cout << aux[0] << endl;
-                        cout << aux[1] << endl;
-                        cout << aux[2] << endl;
-                        cout << aux[3] << endl;
+
                             execFile(cells, aux);
 
                     }
