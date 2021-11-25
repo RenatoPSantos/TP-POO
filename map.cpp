@@ -7,9 +7,7 @@
 using namespace std;
 
 
-Cell::Cell(string biome) : biome(biome),n_workers(0) {
-
-}
+Cell::Cell(string biome) : biome(biome),n_workers(0){}
 
 void Cell::setBuilding(string type) {
     building = type;
@@ -177,42 +175,6 @@ void checkTypeBuilding(string *comandos, vector<vector<Cell>> &cells){
 
 }
 
-void list(const string& rows,const string& cols,vector<vector<Cell>> &cells){
-
-    int irows = stoi(rows);
-    int icols = stoi(cols);
-
-
-    cout << "\n--Informacoes--"<< endl;
-    cout << "Bioma -> " << cells[irows-1][icols-1].getBiome() << endl;
-
-    if(cells[irows-1][icols-1].getBuilding().empty()){
-        cout << "Construcao -> Vazio " << endl;
-    }
-    else{
-        cout << "Construcao -> " << cells[irows-1][icols-1].getBuilding() << endl;
-    }
-    if(cells[irows-1][icols-1].getWorkers().empty()){
-        cout << "Trabalhadores -> Vazio" << endl;
-    }
-    else{
-        cout << "Trabalhadores -> ";
-        for(int i = 0;i<cells[irows-1][icols-1].getWorkers().size();i++){
-            cout << cells[irows-1][icols-1].getWorkers()[i] << " ";
-        }
-        cout << endl;
-    }
-    cout << "Numero total de trabalhadores -> " << cells[irows-1][icols-1].countWorkers() << endl;
-
-    system("pause");
-
-
-}
-void list(){
-
-    cout << "lista geral // EM DESENVOLVIMENTO"<< endl;
-    system("pause");
-}
 
 
 
