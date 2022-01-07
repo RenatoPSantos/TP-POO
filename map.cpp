@@ -45,7 +45,70 @@ Cell::~Cell() {
 
 }
 
-string* stringController(string* str){ //controla dimensão da string de forma a ocupar 4 caráters por linha
+
+
+Map::Map(int rows, int cols) : rows(rows), cols(cols) {
+
+    string random[] = {"mnt", "dsr", "flr", "pas", "ptn"};
+
+    for (int i = 0; i < rows; i++) {
+        vector<Cell> temp;
+        for (int j = 0; j < cols; j++)
+            temp.emplace_back(random[rand() % 5]);
+        Cells.push_back(temp);
+    }
+
+    Cells[rand() % Cells.size()][rand() % Cells[0].size()].setBiome("pas");
+    for (int i = 0; i < Cells.size(); i++) {
+        vector<string*> temp;
+        for (int j = 0; j < Cells[0].size(); j++)
+        {
+            string* line = new string[4];
+            vector<char> workers = Cells[i][j].getWorkers();
+            string str(workers.begin(), workers.end());
+            line[0] = Cells[i][j].getBiome();
+            line[1] = Cells[i][j].getBuilding();
+            line[2] = str;
+            line[3] = to_string(Cells[i][j].countWorkers());
+            stringController(line);
+            temp.push_back(line);
+        }
+        Str.push_back(temp);
+    }
+}
+
+void Map::print() //atualiza e imprime ilha
+{
+    for (int i = 0; i < Cells.size(); i++) {
+        vector<string*> temp;
+        for (int j = 0; j < Cells[0].size(); j++)
+        {
+            string* line = new string[4];
+            vector<char> workers = Cells[i][j].getWorkers();
+            string str(workers.begin(), workers.end());
+            line[0] = Cells[i][j].getBiome();
+            line[1] = Cells[i][j].getBuilding();
+            line[2] = str;
+            line[3] = to_string(Cells[i][j].countWorkers());
+            Str[i][j] = stringController(line);
+        }
+    }
+
+    for (int h = 0; h < Str.size(); h++)
+    {
+        cout << endl;
+        for (int i = 0; i < 4; i++)
+        {
+            for (int j = 0; j < Str[0].size(); j++)
+            {
+                cout << "|" << (Str[h][j])[i] ;
+            }
+            cout << "|" << endl;
+        }
+    }
+
+}
+string* Map::stringController(string* str){ //controla dimensão da string de forma a ocupar 4 caráters por linha
 
     int counter;
     for(int i = 0; i < 4; i++)
@@ -65,86 +128,8 @@ string* stringController(string* str){ //controla dimensão da string de forma a
     }
     return str;
 }
-void updateMap(vector<vector<string*>> &map, vector<vector<Cell>> &cells) //atualiza informação do mapa com informação das cells
-{
 
-    for (int i = 0; i < cells.size(); i++) {
-        vector<string*> temp;
-        for (int j = 0; j < cells[0].size(); j++)
-        {
-            string* line = new string[4];
-            vector<char> workers = cells[i][j].getWorkers();
-            string str(workers.begin(), workers.end());
-            line[0] = cells[i][j].getBiome();
-            line[1] = cells[i][j].getBuilding();
-            line[2] = str;
-            line[3] = to_string(cells[i][j].countWorkers());
-            map[i][j] = stringController(line);
-        }
-    }
-}
-void printMap(vector<vector<string*>> &map, vector<vector<Cell>> &cells) //imprime ilha
-{
-    updateMap(map, cells);
-    for (int h = 0; h < map.size(); h++)
-    {
-        cout << endl;
-        for (int i = 0; i < 4; i++)
-        {
-            for (int j = 0; j < map[0].size(); j++)
-            {
-                cout << "|" << (map[h][j])[i] ;
-            }
-            cout << "|" << endl;
-        }
-    }
-
-}
-
-void createMap(vector<vector<string*>> &map, vector<vector<Cell>> &cells) //cria mapa inicial
-{
-    for (int i = 0; i < cells.size(); i++) {
-        vector<string*> temp;
-        for (int j = 0; j < cells[0].size(); j++)
-        {
-            string* line = new string[4];
-            vector<char> workers = cells[i][j].getWorkers();
-            string str(workers.begin(), workers.end());
-            line[0] = cells[i][j].getBiome();
-            line[1] = cells[i][j].getBuilding();
-            line[2] = str;
-            line[3] = to_string(cells[i][j].countWorkers());
-            stringController(line);
-            temp.push_back(line);
-        }
-        map.push_back(temp);
-    }
-}
-
-void createCells(vector<vector<Cell>> &cells, int rows, int cols) //cria duplo vetor de objetos (contêm informação)
-{
-    string random[] = {"mnt", "dsr", "flr", "pas", "ptn"};
-
-    for (int i = 0; i < rows; i++) {
-        vector<Cell> temp;
-        for (int j = 0; j < cols; j++)
-            temp.emplace_back(random[rand() % 5]);
-        cells.push_back(temp);
-    }
-    cells[rand() % cells.size()][rand() % cells[0].size()].setBiome("pas");
-}
-
-bool checkBuildings(vector<vector<Cell>> &cells, int rows, int cols){
-
-    if(cells[rows-1][cols-1].getBuilding().empty()){
-        return true;
-    }
-    else{
-        return false;
-    }
-}
-
-void checkTypeBuilding(string *comandos, vector<vector<Cell>> &cells){
+void Map::insertBuilding(string *comandos){
 
     int i;
     int rows = stoi(comandos[2]);
@@ -152,11 +137,11 @@ void checkTypeBuilding(string *comandos, vector<vector<Cell>> &cells){
 
     string buildings[6] = {"mnf","mnc","elec","bat","fun","edx"};
 
-
     for(i=0;i<6;i++){
         if(comandos[1] == buildings[i]){
-            if(checkBuildings(cells, rows, cols)){
-                cells[rows-1][cols-1].setBuilding(comandos[1]);
+            cout << "construindo" << endl;
+            if(Cells[rows-1][cols-1].getBuilding().empty() == 1){
+                Cells[rows-1][cols-1].setBuilding(comandos[1]);
                 return;
             }
             else{
@@ -170,11 +155,46 @@ void checkTypeBuilding(string *comandos, vector<vector<Cell>> &cells){
             cout << "A construcao que inseriu e invalida" << endl;
             system("pause");
         }
-
     }
+}
+
+void Map::printInfo(const string& rows,const string& cols){
+
+    int irows = stoi(rows);
+    int icols = stoi(cols);
+
+    cout << "\n--Informacoes--"<< endl;
+    cout << "Bioma -> " << Cells[irows-1][icols-1].getBiome() << endl;
+
+    if(Cells[irows-1][icols-1].getBuilding().empty()){
+        cout << "Construcao -> Vazio " << endl;
+    }
+    else{
+        cout << "Construcao -> " << Cells[irows-1][icols-1].getBuilding() << endl;
+    }
+    if(Cells[irows-1][icols-1].getWorkers().empty()){
+        cout << "Trabalhadores -> Vazio" << endl;
+    }
+    else{
+        cout << "Trabalhadores -> ";
+        for(int i = 0;i<Cells[irows-1][icols-1].getWorkers().size();i++){
+            cout << Cells[irows-1][icols-1].getWorkers()[i] << " ";
+        }
+        cout << endl;
+    }
+    cout << "Numero total de trabalhadores -> " << Cells[irows-1][icols-1].countWorkers() << endl;
+
+    system("pause");
+
 
 }
 
+void Map::printInfo() {
 
+    cout << "lista geral // EM DESENVOLVIMENTO"<< endl;
+    system("pause");
+}
 
-
+vector<vector<Cell>>& Map::getCells() {
+    return Cells;
+}

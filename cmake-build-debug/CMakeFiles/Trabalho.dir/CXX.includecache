@@ -6,7 +6,7 @@
 
 #IncludeRegexTransform: 
 
-C:/Users/User/Desktop/Universidade/POO/Trabalho/comandos.cpp
+C:/Users/ssasu/Desktop/Trabalho/comandos.cpp
 iostream
 -
 string
@@ -14,11 +14,11 @@ string
 vector
 -
 comandos.h
-C:/Users/User/Desktop/Universidade/POO/Trabalho/comandos.h
+C:/Users/ssasu/Desktop/Trabalho/comandos.h
 trabalhadores.h
-C:/Users/User/Desktop/Universidade/POO/Trabalho/trabalhadores.h
+C:/Users/ssasu/Desktop/Trabalho/trabalhadores.h
 
-C:/Users/User/Desktop/Universidade/POO/Trabalho/comandos.h
+C:/Users/ssasu/Desktop/Trabalho/comandos.h
 iostream
 -
 string
@@ -32,21 +32,9 @@ vector
 fstream
 -
 map.h
-C:/Users/User/Desktop/Universidade/POO/Trabalho/map.h
+C:/Users/ssasu/Desktop/Trabalho/map.h
 
-C:/Users/User/Desktop/Universidade/POO/Trabalho/map.cpp
-iostream
--
-string
--
-utility
--
-vector
--
-map.h
-C:/Users/User/Desktop/Universidade/POO/Trabalho/map.h
-
-C:/Users/User/Desktop/Universidade/POO/Trabalho/map.h
+C:/Users/ssasu/Desktop/Trabalho/map.h
 iostream
 -
 string
@@ -60,7 +48,7 @@ vector
 fstream
 -
 
-C:/Users/User/Desktop/Universidade/POO/Trabalho/trabalhadores.h
+C:/Users/ssasu/Desktop/Trabalho/trabalhadores.h
 iostream
 -
 string
@@ -74,7 +62,7 @@ vector
 fstream
 -
 map.h
-C:/Users/User/Desktop/Universidade/POO/Trabalho/map.h
+C:/Users/ssasu/Desktop/Trabalho/map.h
 comandos.h
-C:/Users/User/Desktop/Universidade/POO/Trabalho/comandos.h
+C:/Users/ssasu/Desktop/Trabalho/comandos.h
 

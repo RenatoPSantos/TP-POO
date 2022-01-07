@@ -10,8 +10,6 @@ using namespace std;
 void cont(vector<vector<Cell>> &cells, string type) {
     char type_char;
 
-
-
     if(type != "oper" && type != "len" && type != "miner"){
         return;
     }

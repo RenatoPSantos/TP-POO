@@ -10,26 +10,23 @@
 using namespace std;
 
 int main() {
-
     srand( (unsigned int) time(nullptr) );
     int rows,cols;
+    bool vef;
     cout << "rows, cols" << endl;
     cin >> rows >> cols;
+    Map mapa(rows, cols);
+    mapa.print();
 
-    vector<vector<string*>> map;
-    vector<vector<Cell>> cells;
+    while(vef = true) {
+        string command;
+        cout << "Comando: ";
+        getline(cin >> ws, command);
+        Commands commands(mapa, command);
+        mapa.print();
+    }
 
-    createCells(cells, rows, cols);
-    createMap(map, cells);
-    printMap(map, cells);
-  /*  commands();*/
-
-   commands(map,cells);
-   
-   cout << "\nJOGO EM DESENVOLVIMENTO" << endl;
-
-
-
+    cout << "\nJOGO EM DESENVOLVIMENTO" << endl;
 
     return 0;
 }

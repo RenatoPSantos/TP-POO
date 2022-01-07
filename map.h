@@ -28,14 +28,22 @@ public:
     string getBuilding() const;      //retorna a construção de uma célula em específico
     vector<char> getWorkers() const; //retorna os trabalhadores de uma celula em específico
     int countWorkers() const;        //retorna o número total de trabalhadores em uma célula específica
-
+    void printInfo();
 
 };
+class Map{
+    vector<vector<Cell>> Cells;
+    vector<vector<string*>> Str;
+    int rows, cols;
 
-void updateMap(vector<vector<string*>> &map, vector<vector<Cell>> &cells); //atualiza e dá print no mapa
-void createMap(vector<vector<string*>> &map, vector<vector<Cell>> &cells); //cria mapa
-void createCells(vector<vector<Cell>> &cells,int rows,int cols);           //cria as diversas partes do mapa
-void printMap(vector<vector<string*>> &map,vector<vector<Cell>> &cells);   //dá print ao mapa
-
+public:
+    Map(int rows, int cols); //createmap() e createCell()
+    void print(); //imprime mapa
+    void printInfo(); //equivale a list()
+    void printInfo(const string& rows,const string& cols); //equivale a list
+    string* stringController(string* str); //formata strings para impressão do mapa
+    void insertBuilding(string *comandos); //constroi edificio
+    vector<vector<Cell>>& getCells();
+};
 
 #endif //TRABALHO_MAP_H

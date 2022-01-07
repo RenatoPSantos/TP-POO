@@ -9,9 +9,238 @@
 #include "comandos.h"
 #include "trabalhadores.h"
 
-
-
 using namespace std;
+/*void commands(Map& mapa) { //main dos commands
+
+    int vef = 1;
+
+    while(vef){
+
+        string command;
+        cout << "Comando: ";
+        getline(cin >> ws, command);
+        Commands commands(mapa, command);
+        vef = commands.execCommands();
+        clsConsole();
+        mapa.print();
+    }
+}*/
+Commands::Commands(Map& mapa, string command) : mapa(mapa){
+    int i = 0;
+    string word;
+    istringstream iss(command);
+    while(iss >> word)
+    {
+        commands[i] = word;
+        if(i == 3)
+            break;
+        i++;
+    }
+    execCommands();
+};
+void Commands::update(string command){
+    int i = 0;
+    string word;
+    istringstream iss(command);
+    while(iss >> word)
+    {
+        commands[i] = word;
+        if(i == 3)
+            break;
+        i++;
+    }
+}
+int Commands::execCommands() {
+
+    if (commands[0] == "exec") {
+        if (checkArguments(1))
+        {
+            if (commands[1].substr(commands[1].length() - 4) != ".txt") {
+                commands[1]+=".txt";
+            }
+            fstream file;
+            file.open(commands[1].c_str(), ios::in);
+            if (file.is_open()) {
+                string reader;
+                vector<string> configs;
+                while (getline(file, reader)){
+
+                    configs.push_back(reader);
+                }
+                file.close();
+                for(int i = 0; i < configs.size(); i++)
+                {
+                    update(configs[i]);
+                    execFile();
+                }
+                return 1;
+            }
+            cout << "Falha ao abrir o ficheiro" << endl;
+            return 1;
+        }
+    }
+    if (commands[0] == "cons") {
+        if (checkArguments(3) == 1) {
+            if(isNumber(commands[2]) && isNumber(commands[3])){
+                if(checkRowsCols(mapa.getCells(),commands[2],commands[3])){
+                    mapa.insertBuilding(commands);
+                    return 1;
+                }
+                else{
+                    return 1;
+                }
+            }
+            else{
+                return 1;
+            }
+
+        }
+        else{
+            return 1;
+        }
+
+    }
+    if (commands[0] == "liga") {
+        if (checkArguments(2)) {
+            return 1;
+        }
+
+    }
+    if (commands[0] == "des") {
+        if (checkArguments(2)) {
+            return 1;
+        }
+
+    }
+    if (commands[0] == "move") {
+        if (checkArguments(3)) {
+            return 1;
+        }
+
+    }
+    if (commands[0] == "vende") {
+        if (checkArguments(2)) {
+            return 1;
+        }
+
+    }
+    if (commands[0] == "cont") {
+        if (checkArguments(1)){
+            cont(mapa.getCells(),commands[1]);
+            return 1;
+
+        }
+        return 1;
+
+    }
+    if (commands[0] == "list") {
+        if (commands[1].empty()) {
+            list();
+            return 1;
+        }
+        if (checkArguments(2)) {
+            if (isNumber(commands[1]) && isNumber(commands[2]) &&
+                checkRowsCols(mapa.getCells(), commands[1], commands[2])) {
+                list(commands[1], commands[2], mapa.getCells());
+                return 1;
+            }
+            return 1;
+        } else {
+            return 1;
+        }
+
+    }
+    if (commands[0] == "vende") {
+        if (checkArguments(2)) {
+            return 1;
+        }
+
+    }
+    if (commands[0] == "next") {
+        if (checkArguments(0)) {
+            return 0;
+        }
+        return 1;
+    }
+    if (commands[0] == "save") {
+        if (checkArguments(1)) {
+            return 1;
+        }
+
+    }
+    if (commands[0] == "load") {
+        if (checkArguments(1)) {
+            return 1;
+        }
+
+    }
+    if (commands[0] == "apaga") {
+        if (checkArguments(1)) {
+            return 1;
+        }
+
+    }
+    if (commands[0] == "config") {
+
+        if (checkArguments(1) == 1) {
+
+            if (commands[1].substr(commands[1].length() - 4) != ".txt") {
+                commands[1]+=".txt";
+                cout << commands[1] << endl;
+            }
+            fstream file;
+            file.open(commands[1].c_str(), ios::in);
+
+
+            if (file.is_open()) {
+                string reader;
+                vector<string> configs; //armazena dados da file | Formato: "<nome> <valor>"
+                while (file >> reader) {
+                    configs.push_back(reader);
+                }
+                file.close();
+
+                vector<string> names;
+                vector<int> values;
+                for (int i = 0;i < configs.size() / 2; i++) //cria dois vetores, um que contem os nomes das variaveis
+                {                                          //e outro que contém os valores das variáveis
+                    names.push_back(configs[2 * i]);
+                    values.push_back(stoi(configs[(2 * i + 1)]));
+                }
+                cout << "Ficheiro " << commands[1] << " lido com sucesso" << endl;
+                cout << "Mudanca a variaveis por implementar" << endl;
+
+            } else {
+                cout << "Erro ao verificar file (Requer que ficheiro esteja dentro da pasta cmake-build-debug)"
+                     << endl;
+            }
+        }
+    }
+    if (commands[0] == "debcash") {
+        if (checkArguments(1)) {
+            return 1;
+        }
+
+    }
+    if (commands[0] == "debed") {
+        if (checkArguments(3)) {
+            return 1;
+        }
+
+    }
+    if (commands[0] == "debkill") {
+        if (checkArguments(1)) {
+            return 1;
+        }
+
+        return 0;
+    }
+    cout << "O comando que inseriu esta errado"<< endl;
+    system("pause");
+    mapa.print();
+    return 1;
+}
+
 void clsConsole(){
     for(int i=0;i<30;i++){
         cout << endl;
@@ -88,8 +317,8 @@ bool checkRowsCols(vector<vector<Cell>> &cells, const string& rows, const string
 
 
 }
-bool checkArguments(int number, string *comandos ){
-    if(comandos[number].empty()){
+bool Commands::checkArguments(int number){
+    if(commands[number].empty()){
         cout << "Numero de argumentos invalido" << endl;
         cout << "Este comando utiliza " << number <<  " argumento(s)" << endl;
 
@@ -100,245 +329,13 @@ bool checkArguments(int number, string *comandos ){
     return true;
 }
 
-void deconstructor(const string& comando, string* comandos) //recebe frase, descontroi-a em palavras, devolve ponteiro para array que contém as palavras.
-{
-    int i = 0;
-    string word;
-    istringstream iss(comando);
-    while(iss >> word)
-    {
-        comandos[i] = word;
-        if(i == 3)
-            break;
-        i++;
-    }
-}
+int Commands::execFile() {
 
-void commands(vector<vector<string*>> map,vector<vector<Cell>> &cells) {
-
-    int vef = 1;
-
-    while(vef){
-
-        string *comandos = new string[4];
-        string comando;
-        cout << "Comando: ";
-        getline(cin >> ws, comando);
-
-        deconstructor(comando, comandos);
-
-        vef = execCommands(cells, comandos);
-
-        clsConsole();
-
-
-       /* clsConsole();*/
-
-        printMap(map,cells);
-
-    }
-}
-int execCommands(vector<vector<Cell>> &cells, string *comandos) {
-
-        if (comandos[0] == "exec") {
-            if (checkArguments(1, comandos) == 1)
-            {
-                if (comandos[1].substr(comandos[1].length() - 4) != ".txt") {
-                    comandos[1]+=".txt";
-                    cout << comandos[1] << endl;
-                }
-                fstream file;
-                file.open(comandos[1].c_str(), ios::in);
-                if (file.is_open()) {
-                    string reader;
-                    vector<string> configs;
-                    while (getline(file, reader)){
-
-                        configs.push_back(reader);
-                    }
-                    file.close();
-                    for(int i = 0; i < configs.size(); i++)
-                    {
-                        string* aux = new string[4];
-                        deconstructor(configs[i], aux);
-
-                            execFile(cells, aux);
-
-                    }
-                    return 1;
-                }
-                cout << "Falha ao abrir o ficheiro" << endl;
-                return 1;
-            }
-        }
-        if (comandos[0] == "cons") {
-                if (checkArguments(3, comandos) == 1) {
-                    if(isNumber(comandos[2]) && isNumber(comandos[3])){
-                        if(checkRowsCols(cells,comandos[2],comandos[3])){
-                            checkTypeBuilding(comandos,cells);
-                            return 1;
-                        }
-                        else{
-                            return 1;
-                        }
-                    }
-                    else{
-                        return 1;
-                    }
-
-                }
-                else{
-                    return 1;
-                }
-
-        }
-        if (comandos[0] == "liga") {
-            if (checkArguments(2, comandos)) {
-                return 1;
-            }
-
-        }
-        if (comandos[0] == "des") {
-            if (checkArguments(2, comandos)) {
-                return 1;
-            }
-
-        }
-        if (comandos[0] == "move") {
-            if (checkArguments(3, comandos)) {
-                return 1;
-            }
-
-        }
-        if (comandos[0] == "vende") {
-            if (checkArguments(2, comandos)) {
-                return 1;
-            }
-
-        }
-        if (comandos[0] == "cont") {
-            if (checkArguments(1, comandos)) {
-                cont(cells,comandos[1]);
-                return 1;
-
-            }
-            return 1;
-
-        }
-        if (comandos[0] == "list") {
-            if (comandos[1].empty()) {
-                list();
-                return 1;
-            }
-            if (checkArguments(2, comandos)) {
-                if (isNumber(comandos[1]) && isNumber(comandos[2]) &&
-                    checkRowsCols(cells, comandos[1], comandos[2])) {
-                    list(comandos[1], comandos[2], cells);
-                    return 1;
-                }
-                return 1;
-            } else {
-                return 1;
-            }
-
-        }
-        if (comandos[0] == "vende") {
-            if (checkArguments(2, comandos)) {
-                return 1;
-            }
-
-        }
-        if (comandos[0] == "next") {
-            if (checkArguments(0, comandos)) {
-                return 0;
-            }
-            return 1;
-        }
-        if (comandos[0] == "save") {
-            if (checkArguments(1, comandos)) {
-                return 1;
-            }
-
-        }
-        if (comandos[0] == "load") {
-            if (checkArguments(1, comandos)) {
-                return 1;
-            }
-
-        }
-        if (comandos[0] == "apaga") {
-            if (checkArguments(1, comandos)) {
-                return 1;
-            }
-
-        }
-        if (comandos[0] == "config") {
-
-            if (checkArguments(1, comandos) == 1) {
-
-            if (comandos[1].substr(comandos[1].length() - 4) != ".txt") {
-                comandos[1]+=".txt";
-                cout << comandos[1] << endl;
-            }
-            fstream file;
-            file.open(comandos[1].c_str(), ios::in);
-
-
-            if (file.is_open()) {
-                string reader;
-                vector<string> configs; //armazena dados da file | Formato: "<nome> <valor>"
-                while (file >> reader) {
-                    configs.push_back(reader);
-                }
-                file.close();
-
-                vector<string> names;
-                vector<int> values;
-                for (int i = 0;i < configs.size() / 2; i++) //cria dois vetores, um que contem os nomes das variaveis
-                {                                          //e outro que contém os valores das variáveis
-                    names.push_back(configs[2 * i]);
-                    values.push_back(stoi(configs[(2 * i + 1)]));
-                }
-                cout << "Ficheiro " << comandos[1] << " lido com sucesso" << endl;
-                cout << "Mudanca a variaveis por implementar" << endl;
-
-            } else {
-                cout << "Erro ao verificar file (Requer que ficheiro esteja dentro da pasta cmake-build-debug)"
-                     << endl;
-            }
-            }
-        }
-        if (comandos[0] == "debcash") {
-            if (checkArguments(1, comandos)) {
-                return 1;
-            }
-
-        }
-        if (comandos[0] == "debed") {
-            if (checkArguments(3, comandos)) {
-                return 1;
-            }
-
-        }
-        if (comandos[0] == "debkill") {
-            if (checkArguments(1, comandos)) {
-                return 1;
-            }
-
-         return 0;
-        }
-    cout << "O comando que inseriu esta errado"<< endl;
-    system("pause");
-    return 1;
-}
-int execFile(vector<vector<Cell>> &cells, string *comandos) {
-
-
-    if (comandos[0] == "cons") {
-        if (checkArguments(3, comandos) == 1) {
-            if(isNumber(comandos[2]) && isNumber(comandos[3])){
-                if(checkRowsCols(cells,comandos[2],comandos[3])){
-                    checkTypeBuilding(comandos,cells);
+    if (commands[0] == "cons") {
+        if (checkArguments(3)) {
+            if(isNumber(commands[2]) && isNumber(commands[3])){
+                if(checkRowsCols(mapa.getCells(),commands[2],commands[3])){
+                    mapa.insertBuilding(commands);
                     return 1;
                 }
                 else{
@@ -355,48 +352,48 @@ int execFile(vector<vector<Cell>> &cells, string *comandos) {
         }
 
     }
-    if (comandos[0] == "liga") {
-        if (checkArguments(2, comandos)) {
+    if (commands[0] == "liga") {
+        if (checkArguments(2)) {
             return 1;
         }
 
     }
-    if (comandos[0] == "des") {
-        if (checkArguments(2, comandos)) {
+    if (commands[0] == "des") {
+        if (checkArguments(2)) {
             return 1;
         }
 
     }
-    if (comandos[0] == "move") {
-        if (checkArguments(3, comandos)) {
+    if (commands[0] == "move") {
+        if (checkArguments(3)) {
             return 1;
         }
 
     }
-    if (comandos[0] == "vende") {
-        if (checkArguments(2, comandos)) {
+    if (commands[0] == "vende") {
+        if (checkArguments(2)) {
             return 1;
         }
 
     }
-    if (comandos[0] == "cont") {
-        if (checkArguments(1, comandos)) {
-            cont(cells,comandos[1]);
+    if (commands[0] == "cont") {
+        if (checkArguments(1)) {
+            cont(mapa.getCells(),commands[1]);
             return 1;
 
         }
         return 1;
 
     }
-    if (comandos[0] == "list") {
-        if (comandos[1].empty()) {
+    if (commands[0] == "list") {
+        if (commands[1].empty()) {
             list();
             return 1;
         }
-        if (checkArguments(2, comandos)) {
-            if (isNumber(comandos[1]) && isNumber(comandos[2]) &&
-                checkRowsCols(cells, comandos[1], comandos[2])) {
-                list(comandos[1], comandos[2], cells);
+        if (checkArguments(2)) {
+            if (isNumber(commands[1]) && isNumber(commands[2]) &&
+                checkRowsCols(mapa.getCells(), commands[1], commands[2])) {
+                list(commands[1], commands[2], mapa.getCells());
                 return 1;
             }
             return 1;
@@ -405,50 +402,50 @@ int execFile(vector<vector<Cell>> &cells, string *comandos) {
         }
 
     }
-    if (comandos[0] == "vende") {
-        if (checkArguments(2, comandos)) {
+    if (commands[0] == "vende") {
+        if (checkArguments(2)) {
             return 1;
         }
 
     }
-    if (comandos[0] == "next") {
-        if (checkArguments(0, comandos)) {
+    if (commands[0] == "next") {
+        if (checkArguments(0)) {
             return 0;
         }
         return 1;
     }
-    if (comandos[0] == "save") {
-        if (checkArguments(1, comandos)) {
+    if (commands[0] == "save") {
+        if (checkArguments(1)) {
             return 1;
         }
 
     }
-    if (comandos[0] == "load") {
-        if (checkArguments(1, comandos)) {
+    if (commands[0] == "load") {
+        if (checkArguments(1)) {
             return 1;
         }
 
     }
-    if (comandos[0] == "apaga") {
-        if (checkArguments(1, comandos)) {
+    if (commands[0] == "apaga") {
+        if (checkArguments(1)) {
             return 1;
         }
 
     }
-    if (comandos[0] == "debcash") {
-        if (checkArguments(1, comandos)) {
+    if (commands[0] == "debcash") {
+        if (checkArguments(1)) {
             return 1;
         }
 
     }
-    if (comandos[0] == "debed") {
-        if (checkArguments(3, comandos)) {
+    if (commands[0] == "debed") {
+        if (checkArguments(3)) {
             return 1;
         }
 
     }
-    if (comandos[0] == "debkill") {
-        if (checkArguments(1, comandos)) {
+    if (commands[0] == "debkill") {
+        if (checkArguments(1)) {
             return 1;
         }
 

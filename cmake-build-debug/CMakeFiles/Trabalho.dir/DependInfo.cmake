@@ -8,12 +8,15 @@ set(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_CXX
-  "C:/Users/User/Desktop/Universidade/POO/Trabalho/comandos.cpp" "C:/Users/User/Desktop/Universidade/POO/Trabalho/cmake-build-debug/CMakeFiles/Trabalho.dir/comandos.cpp.obj"
-  "C:/Users/User/Desktop/Universidade/POO/Trabalho/main.cpp" "C:/Users/User/Desktop/Universidade/POO/Trabalho/cmake-build-debug/CMakeFiles/Trabalho.dir/main.cpp.obj"
-  "C:/Users/User/Desktop/Universidade/POO/Trabalho/map.cpp" "C:/Users/User/Desktop/Universidade/POO/Trabalho/cmake-build-debug/CMakeFiles/Trabalho.dir/map.cpp.obj"
-  "C:/Users/User/Desktop/Universidade/POO/Trabalho/trabalhadores.cpp" "C:/Users/User/Desktop/Universidade/POO/Trabalho/cmake-build-debug/CMakeFiles/Trabalho.dir/trabalhadores.cpp.obj"
+  "C:/Users/ssasu/Desktop/Trabalho/comandos.cpp" "C:/Users/ssasu/Desktop/Trabalho/cmake-build-debug/CMakeFiles/Trabalho.dir/comandos.cpp.obj"
+  "C:/Users/ssasu/Desktop/Trabalho/edificios.cpp" "C:/Users/ssasu/Desktop/Trabalho/cmake-build-debug/CMakeFiles/Trabalho.dir/edificios.cpp.obj"
+  "C:/Users/ssasu/Desktop/Trabalho/main.cpp" "C:/Users/ssasu/Desktop/Trabalho/cmake-build-debug/CMakeFiles/Trabalho.dir/main.cpp.obj"
+  "C:/Users/ssasu/Desktop/Trabalho/map.cpp" "C:/Users/ssasu/Desktop/Trabalho/cmake-build-debug/CMakeFiles/Trabalho.dir/map.cpp.obj"
+  "C:/Users/ssasu/Desktop/Trabalho/recursos.cpp" "C:/Users/ssasu/Desktop/Trabalho/cmake-build-debug/CMakeFiles/Trabalho.dir/recursos.cpp.obj"
+  "C:/Users/ssasu/Desktop/Trabalho/trabalhadores.cpp" "C:/Users/ssasu/Desktop/Trabalho/cmake-build-debug/CMakeFiles/Trabalho.dir/trabalhadores.cpp.obj"
+  "C:/Users/ssasu/Desktop/Trabalho/zonas.cpp" "C:/Users/ssasu/Desktop/Trabalho/cmake-build-debug/CMakeFiles/Trabalho.dir/zonas.cpp.obj"
   )
-set(CMAKE_CXX_COMPILER_ID "MSVC")
+set(CMAKE_CXX_COMPILER_ID "GNU")
 
 # The include file search paths:
 set(CMAKE_CXX_TARGET_INCLUDE_PATH
