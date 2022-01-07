@@ -1,0 +1,14 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+C:/Users/ssasu/Desktop/Trabalho/recursos.cpp
+recursos.h
+C:/Users/ssasu/Desktop/Trabalho/recursos.h
+
+C:/Users/ssasu/Desktop/Trabalho/recursos.h
+
