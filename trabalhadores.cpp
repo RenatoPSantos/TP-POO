@@ -3,36 +3,32 @@
 
 #include "trabalhadores.h"
 #include "comandos.h"
+#include "recursos.h"
 
 using namespace std;
 
-Trabalhadores::Trabalhadores(int salario) :  salario(salario){
+int Trabalhadores::quantity = 0;
 
+Trabalhadores::Trabalhadores(int dia, int salario) :  salario(salario){
+
+        string stringDia,stringWorkers;
+
+        quantity++;
+
+        stringDia = to_string(dia);
+        stringWorkers = to_string(quantity);
+
+        id = stringWorkers + '.' + stringDia;
 
     //fazer resto (tem de gerar id)
 }
 
-void cont(vector<vector<Cell>> &cells, string type) {
-    char type_char;
+void Trabalhadores::setSalario(int valor) {
 
-    if(type != "oper" && type != "len" && type != "miner"){
-        return;
-    }
-    if(type == "oper"){
-        type_char = 'O';
-    }
-    if(type == "len"){
-        type_char = 'L';
-    }
-    if(type == "miner"){
-        type_char = 'M';
-    }
-    for (int i = 0; i < cells.size(); i++) {
-        for (int j = 0; j < cells[0].size(); j++) {
-            if (cells[i][j].getBiome() == "pas") {
-                cells[i][j].addWorker(type_char);
-                return;
-            }
-        }
-    }
+    salario = valor;
+
+}
+
+char Trabalhadores::designacao() {
+    return nome;
 }

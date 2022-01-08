@@ -1,3 +1,6 @@
+#ifndef TRABALHO_COMANDOS_H
+#define TRABALHO_COMANDOS_H
+
 #include <iostream>
 #include <string>
 #include <iostream>
@@ -6,17 +9,18 @@
 #include <fstream>
 
 #include "map.h"
+#include "recursos.h"
 
+using namespace std;
 
-#ifndef TRABALHO_COMANDOS_H
-#define TRABALHO_COMANDOS_H
 
 class Commands{
     string *commands = new string[4];
     Map& mapa;
-    int energy;
+    Data& data;
+    bool next;
 public:
-    Commands(Map& mapa);
+    Commands(Map& mapa, Data& data);
     void setCommands(string command);
     int execCommands(); //executa comandos obtidos na consola
     int execFile(); //executa comandos obtidos numa file (comando exec)
@@ -24,8 +28,11 @@ public:
     void update(string command); //atualiza comandos guardados pela classe
     void list(const string& rows,const string& cols) const; //obtém informação de uma Cell
     void list() const; //Obtém informação geral do jogo
-    void setEnergy(int number); //define número de jogadas que se tem por turno
-    int getEnergy(); //obtém energia restante
+    void setNext(bool state);
+    bool getNext() const;
+
+
+
 };
 
 bool isNumber(const string& s); //verifica se string introduzida pelo utilizador é um número inteiro

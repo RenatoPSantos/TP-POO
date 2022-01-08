@@ -3,11 +3,12 @@
 #include <vector>
 #include <ctime>
 
+#include "edificios.h"
+#include "recursos.h"
 #include "map.h"
 #include "comandos.h"
 
-//IDEIAS EDIFICIO X => "Gestor" => Dá mais energia por dia ao jogador
-//                  => "Administração" => Reduz chance de despedimento
+//IDEIAS EDIFICIO X => "Administração" => Reduz chance de despedimento
 
 using namespace std;
 
@@ -18,19 +19,18 @@ int main() {
     cout << "rows, cols" << endl;
     cin >> rows >> cols;
     Map mapa(rows, cols);
+    Data data;
     mapa.print();
-    Commands commands(mapa);
+    Commands commands(mapa, data);
 
-
-    commands.setEnergy(5);
-    while(commands.getEnergy() > 0) {
+    while(1) {
         string command;
         cout << "Comando: ";
         getline(cin >> ws, command);
         commands.setCommands(command);
         mapa.print();
-        if(commands.getEnergy() <= 0)
-            cout << "Energia acabou!" << endl;
+        if(commands.getNext() == true)
+            break;
     }
 
     cout << "Próximo dia" << endl; //Próximo dia

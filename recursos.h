@@ -6,10 +6,15 @@
 #define TRABALHO_RECURSOS_
 
 class Resources {
-    int preco;
+    float preco;
     int quantidade;
 public:
     Resources(float preco = 0,float quantidade = 0) : preco(preco) ,quantidade(quantidade){};
+    void adicionaResources(int quant);
+    int Preco() const;
+    int Quantidade() const;
+    void setPreco(float preco);
+    void setQuantidade(int quantidade);
 };
 
 class Ferro : public Resources{
@@ -35,7 +40,7 @@ public:
 
 class Vigas : public Resources{
 public:
-    Vigas(float pre = 2, float quant = 0) : Resources(pre, quant) {};
+    explicit Vigas(float pre = 2, float quant = 0) : Resources(pre, quant) {};
 };
 
 class Eletricidade: public Resources{
@@ -43,11 +48,24 @@ public:
     Eletricidade(float pre = 1, float quant = 0) : Resources(pre, quant) {};
 };
 
-
 class Data{
-    int day, money;
-    Resources resources;
+    int day;
+    float money;
+    Ferro ferro;
+    Aco aco;
+    Carvao carvao;
+    Madeira madeira;
+    Vigas vigas;
+    Eletricidade eletricidade;
 public:
     Data();
+    int getDia() const;
+    Ferro& getFerro() const;
+    Aco& getAco() const;
+    Carvao& getCarvao() const;
+    Madeira& getMadeira() const;
+    Vigas& getVigas() const;
+    Eletricidade& getEletricidade() const;
+
 };
 #endif //TRABALHO_RECURSOS_H

@@ -11,7 +11,7 @@
 
 using namespace std;
 
-Commands::Commands(Map& mapa) : mapa(mapa) {};
+Commands::Commands(Map& mapa, Data& data) : mapa(mapa), data(data), next(false){};
 
 void Commands::setCommands(string command){
     int i = 0;
@@ -38,12 +38,7 @@ void Commands::update(string command){
         i++;
     }
 }
-void Commands::setEnergy(int number) {
-    energy = number;
-}
-int Commands::getEnergy(){
-    return energy;
-}
+
 int Commands::execCommands() {
 
     if (commands[0] == "exec") {
@@ -77,9 +72,7 @@ int Commands::execCommands() {
         if (checkArguments(3) == 1) {
             if(isNumber(commands[2]) && isNumber(commands[3])){
                 if(mapa.checkRowsCols(commands[2],commands[3])){
-                    if (mapa.insertBuilding(commands) == true)
-                        energy--;
-                    return 1;
+                    mapa.insertBuilding(commands);
                 }
                 else{
                     return 1;
@@ -97,12 +90,47 @@ int Commands::execCommands() {
     }
     if (commands[0] == "liga") {
         if (checkArguments(2)) {
+            if(isNumber(commands[1]) && isNumber(commands[2])){
+                if(mapa.checkRowsCols(commands[1],commands[2])) {
+                    if (mapa.getCells()[stoi(commands[1])][stoi(commands[2])].getBuilding().designacao() != "") {
+                        mapa.getCells()[stoi(commands[1])][stoi(commands[2])].getBuilding().liga();
+                    } else {
+                        cout << "Não existe edificio nestas coordenadas" << endl;
+                        return 1;
+                    }
+                }
+                else{
+                    return 1;
+                }
+            }
+            else{
+                return 1;
+            }
+        }
+        else{
             return 1;
         }
-
     }
     if (commands[0] == "des") {
         if (checkArguments(2)) {
+            if(isNumber(commands[1]) && isNumber(commands[2])){
+                if(mapa.checkRowsCols(commands[1],commands[2])) {
+                    if (mapa.getCells()[stoi(commands[1])][stoi(commands[2])].getBuilding().designacao() != "") {
+                        mapa.getCells()[stoi(commands[1])][stoi(commands[2])].getBuilding().desliga();
+                    } else {
+                        cout << "Não existe edificio nestas coordenadas" << endl;
+                        return 1;
+                    }
+                }
+                else{
+                    return 1;
+                }
+            }
+            else{
+                return 1;
+            }
+        }
+        else{
             return 1;
         }
 
@@ -121,8 +149,43 @@ int Commands::execCommands() {
     }
     if (commands[0] == "cont") {
         if (checkArguments(1)){
-            cont(mapa.getCells(),commands[1]);
-            energy--;
+            if(commands[1] != "oper" && commands[1] != "len" && commands[1] != "miner"){
+                return 1;
+            }
+            if(commands[1] == "oper"){
+                Operario oper(data.getDia());
+                for (int i = 0; i < mapa.getCells().size(); i++) {
+                    for (int j = 0; j < mapa.getCells()[0].size(); j++) {
+                        if (mapa.getCells()[i][j].getBiome().designacao() == "pas") {
+                            mapa.getCells()[i][j].addWorker(&oper);
+                            return 1;
+                        }
+                    }
+                }
+            }
+            if(commands[1] == "len"){
+                Lenhador len(data.getDia());
+                for (int i = 0; i < mapa.getCells().size(); i++) {
+                    for (int j = 0; j < mapa.getCells()[0].size(); j++) {
+                        if (mapa.getCells()[i][j].getBiome().designacao() == "pas") {
+                            mapa.getCells()[i][j].addWorker(&len);
+                            return 1;
+                        }
+                    }
+                }
+            }
+            if(commands[1] == "miner"){
+                Mineiro min(data.getDia());
+                for (int i = 0; i < mapa.getCells().size(); i++) {
+                    for (int j = 0; j < mapa.getCells()[0].size(); j++) {
+                        if (mapa.getCells()[i][j].getBiome().designacao() == "pas") {
+                            mapa.getCells()[i][j].addWorker(&min);
+                            return 1;
+                        }
+                    }
+                }
+            }
+
             return 1;
 
         }
@@ -154,6 +217,7 @@ int Commands::execCommands() {
     }
     if (commands[0] == "next") {
         if (checkArguments(0)) {
+            next = true;
             return 0;
         }
         return 1;
@@ -247,6 +311,12 @@ bool Commands::checkArguments(int number) const{
         return false;
     }
     return true;
+}
+void Commands::setNext(bool state){
+    next = state;
+}
+bool Commands::getNext() const{
+    return next;
 }
 
 bool isNumber(const string &s){

@@ -4,26 +4,41 @@
 CMakeFiles/Trabalho.dir/comandos.cpp.obj: \
  ../comandos.cpp \
  ../comandos.h \
+ ../edificios.h \
  ../map.h \
- ../trabalhadores.h
+ ../recursos.h \
+ ../trabalhadores.h \
+ ../zonas.h
 CMakeFiles/Trabalho.dir/edificios.cpp.obj: \
  ../edificios.cpp \
  ../edificios.h
 CMakeFiles/Trabalho.dir/main.cpp.obj: \
  ../comandos.h \
+ ../edificios.h \
  ../main.cpp \
- ../map.h
+ ../map.h \
+ ../recursos.h \
+ ../trabalhadores.h \
+ ../zonas.h
 CMakeFiles/Trabalho.dir/map.cpp.obj: \
+ ../comandos.h \
+ ../edificios.h \
  ../map.cpp \
- ../map.h
+ ../map.h \
+ ../recursos.h \
+ ../trabalhadores.h \
+ ../zonas.h
 CMakeFiles/Trabalho.dir/recursos.cpp.obj: \
  ../recursos.cpp \
  ../recursos.h
 CMakeFiles/Trabalho.dir/trabalhadores.cpp.obj: \
  ../comandos.h \
+ ../edificios.h \
  ../map.h \
+ ../recursos.h \
  ../trabalhadores.cpp \
- ../trabalhadores.h
+ ../trabalhadores.h \
+ ../zonas.h
 CMakeFiles/Trabalho.dir/zonas.cpp.obj: \
  ../zonas.cpp \
  ../zonas.h

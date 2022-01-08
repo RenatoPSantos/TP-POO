@@ -2,46 +2,105 @@
 #include <string>
 #include <utility>
 #include <vector>
+#include <typeinfo>
 
 #include "map.h"
 using namespace std;
 
 
-Cell::Cell(string biome) : biome(biome),n_workers(0){}
+Cell::Cell() : n_workers(0){
+    Zona zona;
+    biome = zona;
+}
 
 void Cell::setBuilding(string type) {
-    building = type;
+    if(type == "mnf")
+    {
+        MinaFerro mnf;
+        building = mnf;
+    }
+    if(type == "mnc")
+    {
+        MinaCarvao mnc;
+        building = mnc;
+    }
+    if(type == "elec")
+    {
+        CentralEle elec;
+        building = elec;
+    }
+    if(type == "bat")
+    {
+        Bateria bat;
+        building = bat;
+    }
+    if(type == "fun")
+    {
+        Fundicao fun;
+        building = fun;
+    }
+    if(type == "edX")
+    {
+        EdificioX edx;
+        building = edx;
+    }
 }
 void Cell::setBiome(string type) {
-    biome = type;
+    if(type == "pnt")
+    {
+        Pantano pnt;
+        biome = pnt;
+    }
+    if(type == "dsr")
+    {
+        Deserto dsr;
+        biome = dsr;
+    }
+    if(type == "pas")
+    {
+        Pastagem pas;
+        biome = pas;
+    }
+    if(type == "flr")
+    {
+        Floresta flr;
+        biome = flr;
+    }
+    if(type == "pnt")
+    {
+        Pantano pnt;
+        biome = pnt;
+    }
+    if(type == "znx")
+    {
+        Zonax znx;
+        biome = znx;
+    }
 }
 
 void Cell::destroyBuilding() {
-    building = "";
+    building.~Edificios();
 }
-
-void Cell::addWorker(char type) {
-    workers.push_back(type);
-    n_workers += 1;
+void Cell::addWorker(Trabalhadores* worker) {
+    workers.push_back(worker);
 }
-
 void Cell::removeWorker(char type) {
     for(int i = workers.size(); i > 0; i--)
     {
         if(type == 'M')
-            if (workers[i] == type) {
+            if (typeid(workers[i]) == typeid(Mineiro)) {
                 workers.erase(workers.begin() + i);
                 n_workers--;
                 break;
             }
         if(type == 'L')
-            if (workers[i] == type) {
+            if (typeid(workers[i]) == typeid(Lenhador)) {
                 workers.erase(workers.begin() + i);
                 n_workers--;
                 break;
             }
         if(type == 'O')
-            if (workers[i] == type) {
+            if (typeid(workers[i]) == typeid(Operario)) {
                 workers.erase(workers.begin() + i);
                 n_workers--;
                 break;
@@ -49,15 +108,15 @@ void Cell::removeWorker(char type) {
     }
 }
 
-string Cell::getBiome() const {
+Zona& Cell::getBiome(){
     return biome;
 }
 
-string Cell::getBuilding() const {
+Edificios& Cell::getBuilding(){
     return building;
 }
 
-vector<char> Cell::getWorkers() const {
+vector<Trabalhadores>& Cell::getWorkers(){
     return workers;
 }
 
@@ -86,10 +145,10 @@ Map::Map(int rows, int cols) : rows(rows), cols(cols) {
         for (int j = 0; j < Cells[0].size(); j++)
         {
             string* line = new string[4];
-            vector<char> workers = Cells[i][j].getWorkers();
-            string str(workers.begin(), workers.end());
-            line[0] = Cells[i][j].getBiome();
-            line[1] = Cells[i][j].getBuilding();
+            vector<Trabalhadores> workers = Cells[i][j].getWorkers();
+            string str(workers.begin()->designacao(), workers.end()->designacao());
+            line[0] = Cells[i][j].getBiome().designacao();
+            line[1] = Cells[i][j].getBuilding().designacao();
             line[2] = str;
             line[3] = to_string(Cells[i][j].countWorkers());
             stringController(line);
@@ -106,10 +165,10 @@ void Map::print() //atualiza e imprime ilha
         for (int j = 0; j < Cells[0].size(); j++)
         {
             string* line = new string[4];
-            vector<char> workers = Cells[i][j].getWorkers();
-            string str(workers.begin(), workers.end());
-            line[0] = Cells[i][j].getBiome();
-            line[1] = Cells[i][j].getBuilding();
+            vector<Trabalhadores> workers = Cells[i][j].getWorkers();
+            string str(workers.begin()->designacao(), workers.end()->designacao());
+            line[0] = Cells[i][j].getBiome().designacao();
+            line[1] = Cells[i][j].getBuilding().designacao();
             line[2] = str;
             line[3] = to_string(Cells[i][j].countWorkers());
             Str[i][j] = stringController(line);
@@ -161,7 +220,7 @@ bool Map::insertBuilding(string *comandos){
 
     for(i=0;i<6;i++){
         if(comandos[1] == buildings[i]){
-            if(Cells[rows-1][cols-1].getBuilding().empty() == 1){
+            if(Cells[rows-1][cols-1].getBuilding().designacao() == ""){
                 Cells[rows-1][cols-1].setBuilding(comandos[1]);
                 return true;
             }
@@ -187,24 +246,24 @@ void Map::printInfo(const string& rows,const string& cols){
 
     cout << "\n--Informacoes--"<< endl;
 
-    if (Cells[irows-1][icols-1].getBiome() == "pas")
+    if (Cells[irows-1][icols-1].getBiome().designacao() == "pas")
         cout << "Bioma -> Pastagem" << endl;
-    if (Cells[irows-1][icols-1].getBiome() == "flr")
+    if (Cells[irows-1][icols-1].getBiome().designacao() == "flr")
         cout << "Bioma -> Floresta" << endl;
-    if (Cells[irows-1][icols-1].getBiome() == "mnt")
+    if (Cells[irows-1][icols-1].getBiome().designacao() == "mnt")
         cout << "Bioma -> Montanha" << endl;
-    if (Cells[irows-1][icols-1].getBiome() == "dsr")
+    if (Cells[irows-1][icols-1].getBiome().designacao() == "dsr")
         cout << "Bioma -> Deserto" << endl;
-    if (Cells[irows-1][icols-1].getBiome() == "pnt")
+    if (Cells[irows-1][icols-1].getBiome().designacao() == "pnt")
         cout << "Bioma -> Pantano" << endl;
-    if (Cells[irows-1][icols-1].getBiome() == "znX") //Desenvolver
+    if (Cells[irows-1][icols-1].getBiome().designacao() == "znX") //Desenvolver
         cout << "Bioma -> Zona X" << endl;
 
-    if(Cells[irows-1][icols-1].getBuilding().empty()){
+    if(Cells[irows-1][icols-1].getBuilding().designacao() == ""){
         cout << "Construcao -> Vazio " << endl;
     }
     else{
-        cout << "Construcao -> " << Cells[irows-1][icols-1].getBuilding() << endl;
+        cout << "Construcao -> " << Cells[irows-1][icols-1].getBuilding().designacao() << endl;
     }
     if(Cells[irows-1][icols-1].getWorkers().empty()){
         cout << "Trabalhadores -> Vazio" << endl;
@@ -213,17 +272,17 @@ void Map::printInfo(const string& rows,const string& cols){
         int m = 0, o = 0, l = 0;
         cout << "Lista Trabalhadores -> ";
         for(int i = 0;i<Cells[irows-1][icols-1].getWorkers().size();i++){
-            cout << Cells[irows-1][icols-1].getWorkers()[i] << " ";
-            if (Cells[irows-1][icols-1].getWorkers()[i] == 'M')
+            cout << Cells[irows-1][icols-1].getWorkers()[i].designacao() << " ";
+            if (Cells[irows-1][icols-1].getWorkers()[i].designacao() == 'M')
             {
                 m++;
                 continue;
             }
-            if (Cells[irows-1][icols-1].getWorkers()[i] == 'O') {
+            if (Cells[irows-1][icols-1].getWorkers()[i].designacao() == 'O') {
                 l++;
                 continue;
             }
-            if (Cells[irows-1][icols-1].getWorkers()[i] == 'L') {
+            if (Cells[irows-1][icols-1].getWorkers()[i].designacao() == 'L') {
                 o++;
                 continue;
             } // bruh
@@ -261,6 +320,4 @@ bool Map::checkRowsCols(const string& rows, const string& cols){
     else{
         return true;
     }
-
-
 }

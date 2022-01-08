@@ -7,27 +7,30 @@
 #include <vector>
 #include <fstream>
 
+#include "trabalhadores.h"
+#include "edificios.h"
+#include "zonas.h"
 using namespace std;
 
 class Cell {
 
-    string biome;
-    string building;
-    vector<char> workers;
+    Zona biome;
+    Edificios building;
+    vector<Trabalhadores*> workers;
     int n_workers ;
 
 public:
-    Cell(string biome);
+    Cell();
     ~Cell();
-    void setBuilding(string type);   //altera a construção da célula
-    void setBiome(string type);      //altera o bioma da célula
-    void destroyBuilding();          //remove a construção da célula
-    void addWorker(char type);       //adiciona um trabalhador à célula
-    void removeWorker(char type);    //remove trabalhador
-    string getBiome() const;         //retorna o bioma
-    string getBuilding() const;      //retorna a construção de uma célula em específico
-    vector<char> getWorkers() const; //retorna os trabalhadores de uma célula em específico
-    int countWorkers() const;        //retorna o número total de trabalhadores numa célula específica
+    void setBuilding(string type);        //altera a construção da célula
+    void setBiome(string type);           //altera o bioma da célula
+    void destroyBuilding();               //remove a construção da célula
+    void addWorker(Trabalhadores* worker);
+    void removeWorker(char type);         //remove trabalhador
+    Zona& getBiome();                     //retorna o bioma
+    Edificios& getBuilding();             //retorna a construção de uma célula em específico
+    vector<Trabalhadores>& getWorkers();  //retorna os trabalhadores de uma célula em específico
+    int countWorkers() const;             //retorna o número total de trabalhadores numa célula específica
 };
 
 class Map{
@@ -48,3 +51,5 @@ public:
 };
 
 #endif //TRABALHO_MAP_H
+
+
