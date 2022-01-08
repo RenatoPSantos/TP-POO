@@ -1,3 +1,0 @@
-cont miner
-cons mnf 1 1
-cons mnf 2 2
