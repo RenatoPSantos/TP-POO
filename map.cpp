@@ -25,6 +25,30 @@ void Cell::addWorker(char type) {
     n_workers += 1;
 }
 
+void Cell::removeWorker(char type) {
+    for(int i = workers.size(); i > 0; i--)
+    {
+        if(type == 'M')
+            if (workers[i] == type) {
+                workers.erase(workers.begin() + i);
+                n_workers--;
+                break;
+            }
+        if(type == 'L')
+            if (workers[i] == type) {
+                workers.erase(workers.begin() + i);
+                n_workers--;
+                break;
+            }
+        if(type == 'O')
+            if (workers[i] == type) {
+                workers.erase(workers.begin() + i);
+                n_workers--;
+                break;
+            }
+    }
+}
+
 string Cell::getBiome() const {
     return biome;
 }
@@ -44,8 +68,6 @@ int Cell::countWorkers() const {
 Cell::~Cell() {
 
 }
-
-
 
 Map::Map(int rows, int cols) : rows(rows), cols(cols) {
 
@@ -129,7 +151,7 @@ string* Map::stringController(string* str){ //controla dimensão da string de fo
     return str;
 }
 
-void Map::insertBuilding(string *comandos){
+bool Map::insertBuilding(string *comandos){
 
     int i;
     int rows = stoi(comandos[2]);
@@ -139,23 +161,23 @@ void Map::insertBuilding(string *comandos){
 
     for(i=0;i<6;i++){
         if(comandos[1] == buildings[i]){
-            cout << "construindo" << endl;
             if(Cells[rows-1][cols-1].getBuilding().empty() == 1){
                 Cells[rows-1][cols-1].setBuilding(comandos[1]);
-                return;
+                return true;
             }
             else{
-                cout << "Nesse local ja se encontra uma construcao" << endl;
+                cout << "Nesse local ja se encontra uma construção" << endl;
                 system("pause");
-
-                return;
+                return false;
             }
         }
         else{
-            cout << "A construcao que inseriu e invalida" << endl;
+            cout << "A construção que inseriu e invalida" << endl;
             system("pause");
+            return false;
         }
     }
+    return false;
 }
 
 void Map::printInfo(const string& rows,const string& cols){
@@ -164,7 +186,19 @@ void Map::printInfo(const string& rows,const string& cols){
     int icols = stoi(cols);
 
     cout << "\n--Informacoes--"<< endl;
-    cout << "Bioma -> " << Cells[irows-1][icols-1].getBiome() << endl;
+
+    if (Cells[irows-1][icols-1].getBiome() == "pas")
+        cout << "Bioma -> Pastagem" << endl;
+    if (Cells[irows-1][icols-1].getBiome() == "flr")
+        cout << "Bioma -> Floresta" << endl;
+    if (Cells[irows-1][icols-1].getBiome() == "mnt")
+        cout << "Bioma -> Montanha" << endl;
+    if (Cells[irows-1][icols-1].getBiome() == "dsr")
+        cout << "Bioma -> Deserto" << endl;
+    if (Cells[irows-1][icols-1].getBiome() == "pnt")
+        cout << "Bioma -> Pantano" << endl;
+    if (Cells[irows-1][icols-1].getBiome() == "znX") //Desenvolver
+        cout << "Bioma -> Zona X" << endl;
 
     if(Cells[irows-1][icols-1].getBuilding().empty()){
         cout << "Construcao -> Vazio " << endl;
@@ -176,25 +210,57 @@ void Map::printInfo(const string& rows,const string& cols){
         cout << "Trabalhadores -> Vazio" << endl;
     }
     else{
-        cout << "Trabalhadores -> ";
+        int m = 0, o = 0, l = 0;
+        cout << "Lista Trabalhadores -> ";
         for(int i = 0;i<Cells[irows-1][icols-1].getWorkers().size();i++){
             cout << Cells[irows-1][icols-1].getWorkers()[i] << " ";
+            if (Cells[irows-1][icols-1].getWorkers()[i] == 'M')
+            {
+                m++;
+                continue;
+            }
+            if (Cells[irows-1][icols-1].getWorkers()[i] == 'O') {
+                l++;
+                continue;
+            }
+            if (Cells[irows-1][icols-1].getWorkers()[i] == 'L') {
+                o++;
+                continue;
+            } // bruh
         }
         cout << endl;
+        cout << "Numero Mineiros -> " << m << endl;
+        cout << "Numero Lenhadores -> " << l << endl;
+        cout << "Numero Operarios -> " << o << endl;
     }
     cout << "Numero total de trabalhadores -> " << Cells[irows-1][icols-1].countWorkers() << endl;
-
     system("pause");
-
-
 }
 
 void Map::printInfo() {
-
     cout << "lista geral // EM DESENVOLVIMENTO"<< endl;
     system("pause");
 }
 
 vector<vector<Cell>>& Map::getCells() {
     return Cells;
+}
+
+bool Map::checkRowsCols(const string& rows, const string& cols){
+
+    int irows = stoi(rows);
+    int icols = stoi(cols);
+
+    if(irows > Cells.size() || icols > Cells[0].size()){
+        cout << "Por favor introduza linhas/colunas validas"<< endl;
+        cout << "Linhas totais: " << Cells.size() << " | Colunas totais: " << Cells[0].size() << endl;
+        system("pause");
+
+        return false;
+    }
+    else{
+        return true;
+    }
+
+
 }

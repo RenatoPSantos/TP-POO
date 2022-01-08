@@ -15,10 +15,11 @@
 
 class Trabalhadores {
     int salario;
+    static int quantity;
+    string id;
 public:
-    Trabalhadores(int sal = 0) : salario(sal){};
+    Trabalhadores(int salario = 0);
 };
-
 
 class Operario : public Trabalhadores{
     int diasDesp = 10;

@@ -5,45 +5,49 @@
 #ifndef TRABALHO_RECURSOS_H
 #define TRABALHO_RECURSOS_
 
-
-class Recursos {
+class Resources {
     int preco;
     int quantidade;
 public:
-    Recursos(float pre = 0,float quant = 0) : preco(pre),quantidade(quant){};
+    Resources(float preco = 0,float quantidade = 0) : preco(preco) ,quantidade(quantidade){};
 };
 
-
-class Ferro : public Recursos{
+class Ferro : public Resources{
     
 public:
-    Ferro(float pre = 1,float quant = 0) : Recursos(pre,quant){};
+    Ferro(float pre = 1,float quant = 0) : Resources(pre,quant){};
 };
 
-class Aco : public Recursos{
+class Aco : public Resources{
 public:
-    Aco(float pre = 2, float quant = 0) : Recursos(pre, quant) {};
+    Aco(float pre = 2, float quant = 0) : Resources(pre, quant) {};
 };
 
-class Carvao : public Recursos{
+class Carvao : public Resources{
 public:
-    Carvao(float pre = 1, float quant = 0) : Recursos(pre, quant) {};
+    Carvao(float pre = 1, float quant = 0) : Resources(pre, quant) {};
 };
 
-class Madeira : public Recursos{
+class Madeira : public Resources{
 public:
-    Madeira(float pre = 1, float quant = 0) : Recursos(pre, quant) {};
+    Madeira(float pre = 1, float quant = 0) : Resources(pre, quant) {};
 };
 
-class Vigas : public Recursos{
+class Vigas : public Resources{
 public:
-    Vigas(float pre = 2, float quant = 0) : Recursos(pre, quant) {};
+    Vigas(float pre = 2, float quant = 0) : Resources(pre, quant) {};
 };
 
-class Eletricidade: public Recursos{
+class Eletricidade: public Resources{
 public:
-    Eletricidade(float pre = 1, float quant = 0) : Recursos(pre, quant) {};
+    Eletricidade(float pre = 1, float quant = 0) : Resources(pre, quant) {};
 };
 
 
+class Data{
+    int day, money;
+    Resources resources;
+public:
+    Data();
+};
 #endif //TRABALHO_RECURSOS_H

@@ -14,21 +14,22 @@
 class Commands{
     string *commands = new string[4];
     Map& mapa;
+    int energy;
 public:
-    Commands(Map& mapa, string command);
-    int execCommands();
-    int execFile();
-    bool checkArguments(int number);
-    void update(string command);
+    Commands(Map& mapa);
+    void setCommands(string command);
+    int execCommands(); //executa comandos obtidos na consola
+    int execFile(); //executa comandos obtidos numa file (comando exec)
+    bool checkArguments(int number) const; //verifica se os comandos têm um número certo de argumentos
+    void update(string command); //atualiza comandos guardados pela classe
+    void list(const string& rows,const string& cols) const; //obtém informação de uma Cell
+    void list() const; //Obtém informação geral do jogo
+    void setEnergy(int number); //define número de jogadas que se tem por turno
+    int getEnergy(); //obtém energia restante
 };
 
-void commands(Map& mapa); // mostra e gere as verificações de cada comando
 bool isNumber(const string& s); //verifica se string introduzida pelo utilizador é um número inteiro
 void clsConsole(); //dá print em '/n' para limpar o ecrã
 
-bool checkArguments(int number, string *commands );//verifica se comando tem numero de argumentos certo
-bool checkRowsCols(vector<vector<Cell>> &cells, const string& rows, const string& cols); //verifica se as linhas/colunas introduzidas pelo utilizador existem no mapa
 
-void list(const string& rows,const string& cols,vector<vector<Cell>> &cells);
-void list();
 #endif //TRABALHO_COMANDOS_H

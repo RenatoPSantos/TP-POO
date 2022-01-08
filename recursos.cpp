@@ -3,3 +3,9 @@
 //
 
 #include "recursos.h"
+
+Data::Data(){
+    day = 1;
+    money = 50;
+
+}
