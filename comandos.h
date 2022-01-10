@@ -13,8 +13,10 @@
 
 using namespace std;
 
+class Map;
 
 class Commands{
+
     string *commands = new string[4];
     Map& mapa;
     Data& data;
@@ -30,12 +32,16 @@ public:
     void list() const; //Obtém informação geral do jogo
     void setNext(bool state);
     bool getNext() const;
-
+    void vende(string tipo,int quant);
+    void vende(int linha,int coluna);
+    void efeitos();
+    int cons(string* commands, int row, int col);
 
 
 };
 
 bool isNumber(const string& s); //verifica se string introduzida pelo utilizador é um número inteiro
+bool isInteger(const string& s);
 void clsConsole(); //dá print em '/n' para limpar o ecrã
 
 

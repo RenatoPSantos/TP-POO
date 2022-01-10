@@ -8,7 +8,9 @@ using namespace std;
 
 #include "edificios.h"
 
-Edificios::~Edificios() {}
+Edificios::~Edificios() {
+
+}
 
 void Edificios::upgradeEdificio(){
 
@@ -37,4 +39,34 @@ void Edificios::desliga(){
 }
 string Edificios::designacao() {
     return nome;
+}
+int Edificios::getUpgradePreco() const{
+    return upgradePreco;
+}
+int Edificios::getPreco() const{
+    return preco;
+}
+int Edificios::getNivel() const{
+    return nivel;
+}
+int Edificios::getPrecoVigas() const{
+    return precoVigas;
+}
+int Edificios::getEfeitos() {
+    return efeitos;
+}
+void Edificios::setProducao(int valor) {
+    producao = valor;
+}
+void Edificios::setUpgradeProducao(int valor) {
+    producao = valor;
+}
+int Edificios::getProducao() const {
+    return producao;
+}
+int Edificios::getUpgradeProducao() const {
+    return upgradeProducao;
+}
+void Edificios::setEfeitos(bool valor) {
+    efeitos = valor;
 }

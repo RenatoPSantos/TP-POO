@@ -8,9 +8,8 @@
 using namespace std;
 
 
-Cell::Cell() : n_workers(0){
-    Zona zona;
-    biome = zona;
+Cell::Cell() {
+    n_workers = 0;
 }
 
 void Cell::setBuilding(string type) {
@@ -46,10 +45,10 @@ void Cell::setBuilding(string type) {
     }
 }
 void Cell::setBiome(string type) {
-    if(type == "pnt")
+    if(type == "mnt")
     {
-        Pantano pnt;
-        biome = pnt;
+        Montanha mnt;
+        biome = mnt;
     }
     if(type == "dsr")
     {
@@ -79,9 +78,10 @@ void Cell::setBiome(string type) {
 }
 
 void Cell::destroyBuilding() {
-    building.~Edificios();
+    Edificios edificio;
+    building = edificio;
 }
-void Cell::addWorker(Trabalhadores* worker) {
+void Cell::addWorker(Trabalhadores& worker) {
     workers.push_back(worker);
 }
 void Cell::removeWorker(char type) {
@@ -108,6 +108,18 @@ void Cell::removeWorker(char type) {
     }
 }
 
+/*Trabalhadores& Cell::findWorker(string id) {
+
+    *//*
+    for(int i=0;i<workers.size();i++){
+        if(workers[i].getId() == id){
+            return workers[i];
+        }
+    }
+     *//*
+
+}*/
+
 Zona& Cell::getBiome(){
     return biome;
 }
@@ -130,23 +142,32 @@ Cell::~Cell() {
 
 Map::Map(int rows, int cols) : rows(rows), cols(cols) {
 
-    string random[] = {"mnt", "dsr", "flr", "pas", "ptn"};
+    string random[] = {"mnt", "dsr", "flr", "pas", "pnt"};
 
     for (int i = 0; i < rows; i++) {
         vector<Cell> temp;
         for (int j = 0; j < cols; j++)
-            temp.emplace_back(random[rand() % 5]);
+        {
+            temp.push_back(Cell());
+            temp[j].setBiome(random[rand() % 5]);
+        }
         Cells.push_back(temp);
     }
-
     Cells[rand() % Cells.size()][rand() % Cells[0].size()].setBiome("pas");
+
     for (int i = 0; i < Cells.size(); i++) {
         vector<string*> temp;
         for (int j = 0; j < Cells[0].size(); j++)
         {
             string* line = new string[4];
             vector<Trabalhadores> workers = Cells[i][j].getWorkers();
-            string str(workers.begin()->designacao(), workers.end()->designacao());
+
+            string str;
+            for(int h = 0; h < workers.size(); h++)
+            {
+                str.push_back(workers[h].designacao());
+            }
+
             line[0] = Cells[i][j].getBiome().designacao();
             line[1] = Cells[i][j].getBuilding().designacao();
             line[2] = str;
@@ -156,6 +177,8 @@ Map::Map(int rows, int cols) : rows(rows), cols(cols) {
         }
         Str.push_back(temp);
     }
+    cout << "Map created";
+    print();
 }
 
 void Map::print() //atualiza e imprime ilha
@@ -166,7 +189,13 @@ void Map::print() //atualiza e imprime ilha
         {
             string* line = new string[4];
             vector<Trabalhadores> workers = Cells[i][j].getWorkers();
-            string str(workers.begin()->designacao(), workers.end()->designacao());
+
+            string str;
+            for(int h = 0; h < workers.size(); h++)
+            {
+                str.push_back(workers[h].designacao());
+            }
+
             line[0] = Cells[i][j].getBiome().designacao();
             line[1] = Cells[i][j].getBuilding().designacao();
             line[2] = str;
@@ -230,14 +259,26 @@ bool Map::insertBuilding(string *comandos){
                 return false;
             }
         }
-        else{
-            cout << "A construção que inseriu e invalida" << endl;
-            system("pause");
-            return false;
-        }
     }
+    cout << "A construção que inseriu e invalida" << endl;
+    system("pause");
     return false;
 }
+
+void Map::moveWorker(int r,int c,string id) {
+    /*
+    for(int i=0;i<rows;i++){
+        for(int j=0;j<cols;j++){
+
+           if(Cells[i][j].findWorker(id) == 1){
+
+           }
+        }
+    }
+
+    */
+}
+
 
 void Map::printInfo(const string& rows,const string& cols){
 
@@ -320,4 +361,11 @@ bool Map::checkRowsCols(const string& rows, const string& cols){
     else{
         return true;
     }
+}
+int Map::getRows(){
+    return rows;
+
+}
+int Map::getCols(){
+    return cols;
 }

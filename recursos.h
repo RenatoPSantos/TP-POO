@@ -1,10 +1,13 @@
 //
 // Created by ssasu on 1/6/2022.
 //
-
 #ifndef TRABALHO_RECURSOS_H
-#define TRABALHO_RECURSOS_
+#define TRABALHO_RECURSOS_H
 
+#include <string>
+#include <iostream>
+
+using namespace std;
 class Resources {
     float preco;
     int quantidade;
@@ -15,6 +18,8 @@ public:
     int Quantidade() const;
     void setPreco(float preco);
     void setQuantidade(int quantidade);
+    void addQuantidade(int quantidade);
+    void subtractQuantidade(int quantidade);
 };
 
 class Ferro : public Resources{
@@ -51,21 +56,24 @@ public:
 class Data{
     int day;
     float money;
-    Ferro ferro;
-    Aco aco;
-    Carvao carvao;
-    Madeira madeira;
-    Vigas vigas;
-    Eletricidade eletricidade;
+    Ferro& ferro;
+    Aco& aco;
+    Carvao& carvao;
+    Madeira& madeira;
+    Vigas& vigas;
+    Eletricidade& eletricidade;
 public:
-    Data();
+    Data(Ferro& ferro, Aco& aco, Carvao& carvao, Madeira& madeira, Vigas& vigas, Eletricidade& eletricidade);
     int getDia() const;
-    Ferro& getFerro() const;
-    Aco& getAco() const;
-    Carvao& getCarvao() const;
-    Madeira& getMadeira() const;
-    Vigas& getVigas() const;
-    Eletricidade& getEletricidade() const;
+    void addMoney(float valor);
+    void removeMoney(float valor);
+    float getMoney();
+    Ferro& getFerro();
+    Aco& getAco();
+    Carvao& getCarvao();
+    Madeira& getMadeira();
+    Vigas& getVigas();
+    Eletricidade& getEletricidade();
 
 };
 #endif //TRABALHO_RECURSOS_H

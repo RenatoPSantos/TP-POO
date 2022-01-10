@@ -9,7 +9,7 @@ using namespace std;
 
 int Trabalhadores::quantity = 0;
 
-Trabalhadores::Trabalhadores(int dia, int salario) :  salario(salario){
+Trabalhadores::Trabalhadores(int dia, int salario,int diasTr) :  salario(salario){
 
         string stringDia,stringWorkers;
 
@@ -19,8 +19,9 @@ Trabalhadores::Trabalhadores(int dia, int salario) :  salario(salario){
         stringWorkers = to_string(quantity);
 
         id = stringWorkers + '.' + stringDia;
+        diasTrab = diasTr;
 
-    //fazer resto (tem de gerar id)
+
 }
 
 void Trabalhadores::setSalario(int valor) {
@@ -28,7 +29,15 @@ void Trabalhadores::setSalario(int valor) {
     salario = valor;
 
 }
-
+void Trabalhadores::addDias(int valor) {
+    diasTrab += valor;
+}
+int Trabalhadores::getDias() {
+    return diasTrab;
+}
 char Trabalhadores::designacao() {
     return nome;
+}
+string Trabalhadores::getId() {
+    return id;
 }
