@@ -255,7 +255,7 @@ bool Map::insertBuilding(string *comandos){
     return false;
 }
 
-Trabalhadores& Map::findWorker(string id) {
+Trabalhadores Map::findWorker(string id) {
     for(int i = 0; i < Cells.size();i++)
     {
         for(int j = 0; j < Cells[0].size(); i++)
@@ -264,10 +264,12 @@ Trabalhadores& Map::findWorker(string id) {
             {
                 if(Cells[i][j].getWorkers()[h].getId() == id)
                 {
-                    Trabalhadores trabalhador(Cells[i][j].getWorkers()[h]); //aa
+                    Trabalhadores trabalhador = Cells[i][j].getWorkers()[h];
                     cout << "Designação: " << trabalhador.designacao() <<endl;
                     cout << "id: " << trabalhador.getId() <<endl;
+                    cout << "before erase" << endl;
                     Cells[i][j].getWorkers().erase(Cells[i][j].getWorkers().begin() + h);
+                    cout << "after erase" << endl;
                     return trabalhador;
                 }
             }
@@ -277,6 +279,7 @@ Trabalhadores& Map::findWorker(string id) {
 }
 
 void Map::moveWorker(int row, int col, string id) {
+    cout << "before move" << endl;
     Cells[row][col].getWorkers().push_back(findWorker(id));
 
 }

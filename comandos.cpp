@@ -156,9 +156,10 @@ int Commands::execCommands() {
         if (checkArguments(3)) {
             if(isNumber(commands[2]) && isNumber(commands[3])){
                 if(mapa.checkRowsCols(commands[2],commands[3])){
-                    cout << stoi(commands[2]) << endl;
-                    cout << stoi(commands[2]) << endl;
-                    cout << stoi(commands[2]) << endl;
+                    cout << commands[0] << endl;
+                    cout << commands[1] << endl;
+                    cout << commands[2] << endl;
+                    cout << commands[3] << endl;
                     mapa.moveWorker(stoi(commands[2]) - 1,stoi(commands[3]) - 1,commands[1]);
                     // sempre que mover um worker os dias de trabalho no local vao voltar ao 0, nao o global
                 }
