@@ -108,17 +108,7 @@ void Cell::removeWorker(char type) {
     }
 }
 
-/*Trabalhadores& Cell::findWorker(string id) {
 
-    *//*
-    for(int i=0;i<workers.size();i++){
-        if(workers[i].getId() == id){
-            return workers[i];
-        }
-    }
-     *//*
-
-}*/
 
 Zona& Cell::getBiome(){
     return biome;
@@ -265,22 +255,33 @@ bool Map::insertBuilding(string *comandos){
     return false;
 }
 
-void Map::moveWorker(int r,int c,string id) {
-    /*
-    for(int i=0;i<rows;i++){
-        for(int j=0;j<cols;j++){
-
-           if(Cells[i][j].findWorker(id) == 1){
-
-           }
+Trabalhadores& Map::findWorker(string id) {
+    for(int i = 0; i < Cells.size();i++)
+    {
+        for(int j = 0; j < Cells[0].size(); i++)
+        {
+            for(int h = 0; h < Cells[i][j].getWorkers().size(); h++)
+            {
+                if(Cells[i][j].getWorkers()[h].getId() == id)
+                {
+                    Trabalhadores trabalhador(Cells[i][j].getWorkers()[h]); //aa
+                    cout << "Designação: " << trabalhador.designacao() <<endl;
+                    cout << "id: " << trabalhador.getId() <<endl;
+                    Cells[i][j].getWorkers().erase(Cells[i][j].getWorkers().begin() + h);
+                    return trabalhador;
+                }
+            }
         }
     }
-
-    */
+    cout << "Trabalhador com id " << id << " nao existe" << endl;
 }
 
+void Map::moveWorker(int row, int col, string id) {
+    Cells[row][col].getWorkers().push_back(findWorker(id));
 
-void Map::printInfo(const string& rows,const string& cols){
+}
+
+void Map::list(const string& rows,const string& cols){
 
     int irows = stoi(rows);
     int icols = stoi(cols);
@@ -301,44 +302,53 @@ void Map::printInfo(const string& rows,const string& cols){
         cout << "Bioma -> Zona X" << endl;
 
     if(Cells[irows-1][icols-1].getBuilding().designacao() == ""){
-        cout << "Construcao -> Vazio " << endl;
+        cout << endl << "Construcao -> Vazio " << endl;
     }
     else{
-        cout << "Construcao -> " << Cells[irows-1][icols-1].getBuilding().designacao() << endl;
+        cout << endl << "Construcao -> " << Cells[irows-1][icols-1].getBuilding().designacao() <<
+        " de nível " << Cells[irows-1][icols-1].getBuilding().getNivel() <<  endl;
+        cout << "Producao -> "<< Cells[irows-1][icols-1].getBuilding().getProducao() << endl;
+        if(Cells[irows-1][icols-1].getBuilding().getNivel() >= 5)
+            cout << "Custo de aumento de nível -> " << Cells[irows-1][icols-1].getBuilding().getUpgradePreco();
     }
     if(Cells[irows-1][icols-1].getWorkers().empty()){
-        cout << "Trabalhadores -> Vazio" << endl;
+        cout << endl << "Trabalhadores -> Nenhums" << endl;
     }
     else{
         int m = 0, o = 0, l = 0;
-        cout << "Lista Trabalhadores -> ";
-        for(int i = 0;i<Cells[irows-1][icols-1].getWorkers().size();i++){
-            cout << Cells[irows-1][icols-1].getWorkers()[i].designacao() << " ";
-            if (Cells[irows-1][icols-1].getWorkers()[i].designacao() == 'M')
+        string idm = "", idl = "", ido = "";
+        for (int i = 0; i < Cells[irows-1][icols-1].getWorkers().size(); i++){
+            if(Cells[irows-1][icols-1].getWorkers()[i].designacao() == 'M')
             {
                 m++;
-                continue;
+                string idm = idm + Cells[irows-1][icols-1].getWorkers()[i].getId() + " ";
             }
-            if (Cells[irows-1][icols-1].getWorkers()[i].designacao() == 'O') {
+            if(Cells[irows-1][icols-1].getWorkers()[i].designacao() == 'L')
+            {
                 l++;
-                continue;
+                string idl = idl + Cells[irows-1][icols-1].getWorkers()[i].getId() + " ";
             }
-            if (Cells[irows-1][icols-1].getWorkers()[i].designacao() == 'L') {
+            if(Cells[irows-1][icols-1].getWorkers()[i].designacao() == 'O')
+            {
                 o++;
-                continue;
-            } // bruh
+                string ido = ido + Cells[irows-1][icols-1].getWorkers()[i].getId() + " ";
+            }
         }
+        cout << endl << "Lista Trabalhadores ";
         cout << endl;
+
         cout << "Numero Mineiros -> " << m << endl;
+        cout << "Ids -> " << idm << endl;
+        cout << endl;
+
         cout << "Numero Lenhadores -> " << l << endl;
+        cout << "Ids -> " << idl << endl;
+        cout << endl;
+
         cout << "Numero Operarios -> " << o << endl;
+        cout << "Ids -> " << ido << endl;
     }
     cout << "Numero total de trabalhadores -> " << Cells[irows-1][icols-1].countWorkers() << endl;
-    system("pause");
-}
-
-void Map::printInfo() {
-    cout << "lista geral // EM DESENVOLVIMENTO"<< endl;
     system("pause");
 }
 

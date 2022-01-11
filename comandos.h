@@ -10,13 +10,13 @@
 
 #include "map.h"
 #include "recursos.h"
+#include "edificios.h"
 
 using namespace std;
 
 class Map;
 
 class Commands{
-
     string *commands = new string[4];
     Map& mapa;
     Data& data;
@@ -26,6 +26,7 @@ public:
     void setCommands(string command);
     int execCommands(); //executa comandos obtidos na consola
     int execFile(); //executa comandos obtidos numa file (comando exec)
+    int execConfig(vector<string>names,vector<int>values);
     bool checkArguments(int number) const; //verifica se os comandos têm um número certo de argumentos
     void update(string command); //atualiza comandos guardados pela classe
     void list(const string& rows,const string& cols) const; //obtém informação de uma Cell
@@ -35,8 +36,12 @@ public:
     void vende(string tipo,int quant);
     void vende(int linha,int coluna);
     void efeitos();
+    void despedimentos();
+    void entregaRecursos();
     int cons(string* commands, int row, int col);
-
+    void increaseCapacity(Edificios edificio);
+    void decreaseCapacity(Edificios edificio);
+    void printScreen() const;
 
 };
 

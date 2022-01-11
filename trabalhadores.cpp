@@ -9,9 +9,10 @@ using namespace std;
 
 int Trabalhadores::quantity = 0;
 
-Trabalhadores::Trabalhadores(int dia, int salario,int diasTr) :  salario(salario){
+Trabalhadores::Trabalhadores(int dia, int sal, int diasTr) :  salario(sal){
 
-        string stringDia,stringWorkers;
+        string stringDia, stringWorkers;
+
 
         quantity++;
 
@@ -20,9 +21,12 @@ Trabalhadores::Trabalhadores(int dia, int salario,int diasTr) :  salario(salario
 
         id = stringWorkers + '.' + stringDia;
         diasTrab = diasTr;
-
-
 }
+/*Trabalhadores::Trabalhadores(const Trabalhadores &t){
+    salario = t.salario;
+    id = t.id;
+    diasTrab = t.diasTrab;
+}*/
 
 void Trabalhadores::setSalario(int valor) {
 
@@ -31,6 +35,9 @@ void Trabalhadores::setSalario(int valor) {
 }
 void Trabalhadores::addDias(int valor) {
     diasTrab += valor;
+}
+void Trabalhadores::setDias(int valor){
+    diasTrab = valor;
 }
 int Trabalhadores::getDias() {
     return diasTrab;

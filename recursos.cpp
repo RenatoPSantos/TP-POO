@@ -28,7 +28,12 @@ void Resources::addQuantidade(int ammount){
 void Resources::subtractQuantidade(int ammount){
     quantidade -= ammount;
 }
-
+int Resources::getCapacidade() const{
+    return capacidade;
+}
+void Resources::setCapacidade(int quantidade){
+    capacidade += quantidade;
+}
 Data::Data(Ferro& ferro, Aco& aco, Carvao& carvao, Madeira& madeira, Vigas& vigas, Eletricidade& eletricidade)
 : ferro(ferro), aco(aco), carvao(carvao), madeira(madeira), vigas(vigas), eletricidade(eletricidade){
     day = 1 ;
@@ -66,6 +71,9 @@ float Data::getMoney() {
 }
 int Data::getDia() const{
     return day;
+}
+void Data::setDia(int d){
+    day = d;
 }
 
 

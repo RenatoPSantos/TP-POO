@@ -10,9 +10,10 @@
 using namespace std;
 class Resources {
     float preco;
-    int quantidade;
+    float quantidade;
+    int capacidade;
 public:
-    Resources(float preco = 0,float quantidade = 0) : preco(preco) ,quantidade(quantidade){};
+    Resources(float preco = 0,float quantidade = 0, int capacidade = 0) : preco(preco) ,quantidade(quantidade), capacidade(capacidade){};
     void adicionaResources(int quant);
     int Preco() const;
     int Quantidade() const;
@@ -20,6 +21,8 @@ public:
     void setQuantidade(int quantidade);
     void addQuantidade(int quantidade);
     void subtractQuantidade(int quantidade);
+    int getCapacidade() const;
+    void setCapacidade(int quantidade);
 };
 
 class Ferro : public Resources{
@@ -40,12 +43,12 @@ public:
 
 class Madeira : public Resources{
 public:
-    Madeira(float pre = 1, float quant = 0) : Resources(pre, quant) {};
+    Madeira(float pre = 1, float quant = 0, int capacidade = -1) : Resources(pre, quant) {};
 };
 
 class Vigas : public Resources{
 public:
-    explicit Vigas(float pre = 2, float quant = 0) : Resources(pre, quant) {};
+    explicit Vigas(float pre = 2, float quant = 0, int capacidade = -1) : Resources(pre, quant) {};
 };
 
 class Eletricidade: public Resources{
@@ -65,6 +68,7 @@ class Data{
 public:
     Data(Ferro& ferro, Aco& aco, Carvao& carvao, Madeira& madeira, Vigas& vigas, Eletricidade& eletricidade);
     int getDia() const;
+    void setDia(int d);
     void addMoney(float valor);
     void removeMoney(float valor);
     float getMoney();

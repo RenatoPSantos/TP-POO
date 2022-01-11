@@ -31,22 +31,20 @@ int main() {
 
     Data data(ferro, aco, carvao, madeira, vigas, eletricidade);
     data.getVigas().setQuantidade(10);
-    cout << "VIGAS: "<< data.getVigas().Quantidade() << endl;
     Commands commands(mapa, data);
-
 
     while(1) {
         string command;
         cout << "Comando: ";
         getline(cin >> ws, command);
         commands.setCommands(command);
-        mapa.print();
-        cout << "Vigas: "<< data.getVigas().Quantidade() << endl;
+        commands.printScreen();
         if(commands.getNext() == true)
-            break;
+        {
+            commands.entregaRecursos();
+            data.setDia(data.getDia() + 1);
+            cout << "Dia: " << data.getDia() << endl;
+            commands.setNext(false);
+        }
     }
-
-    cout << "Próximo dia" << endl; //Próximo dia
-
-    return 0;
 }

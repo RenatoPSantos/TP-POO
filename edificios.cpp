@@ -2,7 +2,7 @@
 // Created by ssasu on 1/6/2022.
 //
 #include <iostream>
-
+#include <string>
 
 using namespace std;
 
@@ -69,4 +69,10 @@ int Edificios::getUpgradeProducao() const {
 }
 void Edificios::setEfeitos(bool valor) {
     efeitos = valor;
+}
+int Edificios::getArmazenamento() const {
+    return armanezamento;
+}
+void Edificios::setArmazenamento(int valor) {
+    armanezamento = valor;
 }

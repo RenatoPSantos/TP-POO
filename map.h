@@ -31,7 +31,7 @@ public:
     Edificios& getBuilding();             //retorna a construção de uma célula em específico
     vector<Trabalhadores>& getWorkers();  //retorna os trabalhadores de uma célula em específico
     int countWorkers() const;             //retorna o número total de trabalhadores numa célula específica
-    Trabalhadores& findWorker(string id);
+
 };
 
 class Map {
@@ -44,13 +44,13 @@ public:
     int getRows();
     int getCols();
     void print();                                               //imprime mapa
-    void printInfo();                                           //equivale a list()
-    void printInfo(const string& rows,const string& cols);      //equivale a list
+    void list(const string& rows,const string& cols);           //equivale a list ()
     string* stringController(string* str);                      //formata strings para impressão do mapa
     bool insertBuilding(string *comandos);                      //constroi edificio
     vector<vector<Cell>>& getCells();                           //obtém mapa de Cells
     bool checkRowsCols(const string& rows, const string& cols); //verifica se as linhas/colunas introduzidas pelo utilizador existem no mapa
     void moveWorker(int r,int c,string id);                     //desloca trabalhador para outra célula
+    Trabalhadores& findWorker(string id);
 };
 
 #endif //TRABALHO_MAP_H

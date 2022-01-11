@@ -39,6 +39,8 @@ public:
     int getPreco() const;
     int getProducao() const;
     int getUpgradeProducao() const;
+    int getArmazenamento() const;
+
     void setProducao(int valor);
     int getNivel() const;
     string designacao();
@@ -47,6 +49,7 @@ public:
     void setEfeitos(bool valor);
 
 
+    void setArmazenamento(int valor);
 };
 
 class MinaFerro : public Edificios{
