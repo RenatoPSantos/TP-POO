@@ -9,6 +9,7 @@
 #include "recursos.h"
 #include "trabalhadores.h"
 #include "zonas.h"
+#include "saves.h"
 
 //IDEIAS EDIFICIO X => "Administração" => Reduz chance de despedimento
 
@@ -30,11 +31,7 @@ int main() {
     Eletricidade eletricidade;
 
     Data data(ferro, aco, carvao, madeira, vigas, eletricidade);
-    data.getVigas().setQuantidade(100);
-    data.getCarvao().setQuantidade(50);
-    data.getFerro().setQuantidade(50);
-
-    data.getMadeira().setQuantidade(2);
+   
 
     Commands commands(mapa, data);
 
@@ -47,6 +44,7 @@ int main() {
         if(commands.getNext() == true)
         {
             commands.adicionaDias();
+            commands.efeitos();
             commands.entregaRecursos();
             commands.despedimentos();
             data.setDia(data.getDia() + 1);

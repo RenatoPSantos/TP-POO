@@ -238,6 +238,30 @@ recursos.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\Trabalho.dir\build.make /nologo -$(MAKEFLAGS) CMakeFiles\Trabalho.dir\recursos.cpp.s
 .PHONY : recursos.cpp.s
 
+saves.obj: saves.cpp.obj
+.PHONY : saves.obj
+
+# target to build an object file
+saves.cpp.obj:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Trabalho.dir\build.make /nologo -$(MAKEFLAGS) CMakeFiles\Trabalho.dir\saves.cpp.obj
+.PHONY : saves.cpp.obj
+
+saves.i: saves.cpp.i
+.PHONY : saves.i
+
+# target to preprocess a source file
+saves.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Trabalho.dir\build.make /nologo -$(MAKEFLAGS) CMakeFiles\Trabalho.dir\saves.cpp.i
+.PHONY : saves.cpp.i
+
+saves.s: saves.cpp.s
+.PHONY : saves.s
+
+# target to generate assembly for a file
+saves.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Trabalho.dir\build.make /nologo -$(MAKEFLAGS) CMakeFiles\Trabalho.dir\saves.cpp.s
+.PHONY : saves.cpp.s
+
 trabalhadores.obj: trabalhadores.cpp.obj
 .PHONY : trabalhadores.obj
 
@@ -310,6 +334,9 @@ help:
 	@echo ... recursos.obj
 	@echo ... recursos.i
 	@echo ... recursos.s
+	@echo ... saves.obj
+	@echo ... saves.i
+	@echo ... saves.s
 	@echo ... trabalhadores.obj
 	@echo ... trabalhadores.i
 	@echo ... trabalhadores.s

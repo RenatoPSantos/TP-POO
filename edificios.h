@@ -17,9 +17,9 @@ class Edificios {
 
 protected:
     string nome;
-    int producao;
+    float producao;
     int nivel;
-    int upgradeProducao;
+    float upgradeProducao;
     int upgradeArmazenamento;
     int upgradePreco;
     int upgradePrecoVigas;
@@ -36,15 +36,16 @@ public:
     void desliga();
     bool getEstado();
     void setUpgradeProducao(int valor);
+    void setPreco(int valor);
     int getUpgradePreco() const;
     int getUpgradePrecoVigas() const;
     int getUpgradeArmazenamento() const;
     int getPreco() const;
-    int getProducao() const;
-    int getUpgradeProducao() const;
+    float getProducao() const;
+    float getUpgradeProducao() const;
     int getArmazenamento() const;
 
-    void setProducao(int valor);
+    void setProducao(float valor);
     int getNivel() const;
     string designacao();
     int getPrecoVigas() const;
@@ -85,23 +86,10 @@ public:
     Fundicao(int pre = 10,int precoVigas = 0,int prod = 1,int nivel = 1,int upgradeProducao = 0,int upgradeArmazenamento = 0,int upgradePreco = 0 ,int upgradePrecoVigas = 0, int armanezamento = 100,bool estado = 0,bool efeitos = 0)
             : Edificios(pre,precoVigas,prod,nivel,upgradeProducao,upgradeArmazenamento,upgradePreco,upgradePrecoVigas,armanezamento,estado,efeitos){nome = "fun";};
 };
-
-class EdificioX: public Edificios{
-public:
-    EdificioX(int pre = 1,int precoVigas = 0,int prod = 0,int nivel = 1,int upgradeProducao = 1,int upgradeArmazenamento = 1,int upgradePreco = 15 ,int upgradePrecoVigas = 0, int armanezamento = 100,bool estado = 0,bool efeitos = 0)
-            : Edificios(pre,precoVigas,prod,nivel,upgradeProducao,upgradeArmazenamento,upgradePreco,upgradePrecoVigas,armanezamento,estado,efeitos){nome = "edx";};
-};
 class Serracao : public Edificios{
 
 public:
     Serracao(int pre = 10 ,int precoVigas = 0,int prod = 2,int nivel = 1,int upgradeProducao = 1,int upgradeArmazenamento = 10,int upgradePreco = 20 ,int upgradePrecoVigas = 0, int armanezamento = 100,bool estado = 0,bool efeitos = 0)
             : Edificios(pre,precoVigas,prod,nivel,upgradeProducao,upgradeArmazenamento,upgradePreco,upgradePrecoVigas,armanezamento,estado,efeitos){ nome = "serr";};
 };
-
-
-
-
-
-
-
 #endif //TRABALHO_EDIFICIOS_H

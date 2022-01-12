@@ -37,7 +37,7 @@ void Resources::setCapacidade(int quantidade){
 Data::Data(Ferro& ferro, Aco& aco, Carvao& carvao, Madeira& madeira, Vigas& vigas, Eletricidade& eletricidade)
 : ferro(ferro), aco(aco), carvao(carvao), madeira(madeira), vigas(vigas), eletricidade(eletricidade){
     day = 1 ;
-    money = 50;
+    money = 200;
 }
 
 Ferro& Data::getFerro(){

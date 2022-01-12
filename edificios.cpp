@@ -23,6 +23,9 @@ void Edificios::upgradeEdificio(){
     nivel++;
    }
 }
+void Edificios::setPreco(int valor) {
+    preco = valor;
+}
 bool Edificios::getEstado() {
     return estado;
 }
@@ -51,16 +54,16 @@ int Edificios::getPrecoVigas() const{
 int Edificios::getEfeitos() {
     return efeitos;
 }
-void Edificios::setProducao(int valor) {
+void Edificios::setProducao(float valor) {
     producao = valor;
 }
 void Edificios::setUpgradeProducao(int valor) {
     producao = valor;
 }
-int Edificios::getProducao() const {
+float Edificios::getProducao() const {
     return producao;
 }
-int Edificios::getUpgradeProducao() const {
+float Edificios::getUpgradeProducao() const {
     return upgradeProducao;
 }
 void Edificios::setEfeitos(bool valor) {

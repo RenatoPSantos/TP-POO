@@ -188,6 +188,25 @@ CMakeFiles\Trabalho.dir\zonas.cpp.s: cmake_force
  /nologo /TP $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) /FoNUL /FAs /FaCMakeFiles\Trabalho.dir\zonas.cpp.s /c C:\Users\User\Desktop\PORTAL\Universidade\POO\TP-POO-main\zonas.cpp
 <<
 
+CMakeFiles\Trabalho.dir\saves.cpp.obj: CMakeFiles\Trabalho.dir\flags.make
+CMakeFiles\Trabalho.dir\saves.cpp.obj: ..\saves.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=C:\Users\User\Desktop\PORTAL\Universidade\POO\TP-POO-main\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Building CXX object CMakeFiles/Trabalho.dir/saves.cpp.obj"
+	C:\PROGRA~2\MICROS~3\2019\COMMUN~1\VC\Tools\MSVC\1429~1.300\bin\Hostx86\x86\cl.exe @<<
+ /nologo /TP $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) /FoCMakeFiles\Trabalho.dir\saves.cpp.obj /FdCMakeFiles\Trabalho.dir\ /FS -c C:\Users\User\Desktop\PORTAL\Universidade\POO\TP-POO-main\saves.cpp
+<<
+
+CMakeFiles\Trabalho.dir\saves.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/Trabalho.dir/saves.cpp.i"
+	C:\PROGRA~2\MICROS~3\2019\COMMUN~1\VC\Tools\MSVC\1429~1.300\bin\Hostx86\x86\cl.exe > CMakeFiles\Trabalho.dir\saves.cpp.i @<<
+ /nologo /TP $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E C:\Users\User\Desktop\PORTAL\Universidade\POO\TP-POO-main\saves.cpp
+<<
+
+CMakeFiles\Trabalho.dir\saves.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/Trabalho.dir/saves.cpp.s"
+	C:\PROGRA~2\MICROS~3\2019\COMMUN~1\VC\Tools\MSVC\1429~1.300\bin\Hostx86\x86\cl.exe @<<
+ /nologo /TP $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) /FoNUL /FAs /FaCMakeFiles\Trabalho.dir\saves.cpp.s /c C:\Users\User\Desktop\PORTAL\Universidade\POO\TP-POO-main\saves.cpp
+<<
+
 # Object files for target Trabalho
 Trabalho_OBJECTS = \
 "CMakeFiles\Trabalho.dir\main.cpp.obj" \
@@ -196,7 +215,8 @@ Trabalho_OBJECTS = \
 "CMakeFiles\Trabalho.dir\comandos.cpp.obj" \
 "CMakeFiles\Trabalho.dir\recursos.cpp.obj" \
 "CMakeFiles\Trabalho.dir\edificios.cpp.obj" \
-"CMakeFiles\Trabalho.dir\zonas.cpp.obj"
+"CMakeFiles\Trabalho.dir\zonas.cpp.obj" \
+"CMakeFiles\Trabalho.dir\saves.cpp.obj"
 
 # External object files for target Trabalho
 Trabalho_EXTERNAL_OBJECTS =
@@ -208,9 +228,10 @@ Trabalho.exe: CMakeFiles\Trabalho.dir\comandos.cpp.obj
 Trabalho.exe: CMakeFiles\Trabalho.dir\recursos.cpp.obj
 Trabalho.exe: CMakeFiles\Trabalho.dir\edificios.cpp.obj
 Trabalho.exe: CMakeFiles\Trabalho.dir\zonas.cpp.obj
+Trabalho.exe: CMakeFiles\Trabalho.dir\saves.cpp.obj
 Trabalho.exe: CMakeFiles\Trabalho.dir\build.make
 Trabalho.exe: CMakeFiles\Trabalho.dir\objects1.rsp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=C:\Users\User\Desktop\PORTAL\Universidade\POO\TP-POO-main\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Linking CXX executable Trabalho.exe"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=C:\Users\User\Desktop\PORTAL\Universidade\POO\TP-POO-main\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Linking CXX executable Trabalho.exe"
 	"C:\Program Files\JetBrains\CLion 2021.2.2\bin\cmake\win\bin\cmake.exe" -E vs_link_exe --intdir=CMakeFiles\Trabalho.dir --rc=C:\PROGRA~2\WI3CF2~1\10\bin\100190~1.0\x86\rc.exe --mt=C:\PROGRA~2\WI3CF2~1\10\bin\100190~1.0\x86\mt.exe --manifests -- C:\PROGRA~2\MICROS~3\2019\COMMUN~1\VC\Tools\MSVC\1429~1.300\bin\Hostx86\x86\link.exe /nologo @CMakeFiles\Trabalho.dir\objects1.rsp @<<
  /out:Trabalho.exe /implib:Trabalho.lib /pdb:C:\Users\User\Desktop\PORTAL\Universidade\POO\TP-POO-main\cmake-build-debug\Trabalho.pdb /version:0.0 /machine:X86 /debug /INCREMENTAL /subsystem:console  kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib 
 <<

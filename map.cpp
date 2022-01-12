@@ -38,11 +38,6 @@ void Cell::setBuilding(string type) {
         Fundicao fun;
         building = fun;
     }
-    if(type == "edX")
-    {
-        EdificioX edx;
-        building = edx;
-    }
     if(type == "serr")
         {
             Serracao serr;
@@ -75,10 +70,10 @@ void Cell::setBiome(string type) {
         Pantano pnt;
         biome = pnt;
     }
-    if(type == "znx")
+    if(type == "tnd")
     {
-        Zonax znx;
-        biome = znx;
+        Tundra tnd;
+        biome = tnd;
     }
 }
 
@@ -138,14 +133,14 @@ Cell::~Cell() {
 
 Map::Map(int rows, int cols) : rows(rows), cols(cols) {
 
-    string random[] = {"mnt", "dsr", "flr", "pas", "pnt"};
+    string random[] = {"mnt", "dsr", "flr", "pas", "pnt", "tnd"};
 
     for (int i = 0; i < rows; i++) {
         vector<Cell> temp;
         for (int j = 0; j < cols; j++)
         {
             temp.push_back(Cell());
-            temp[j].setBiome(random[rand() % 5]);
+            temp[j].setBiome(random[rand() % 6]);
         }
         Cells.push_back(temp);
     }

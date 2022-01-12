@@ -39,6 +39,8 @@ recursos.h
 C:/Users/User/Desktop/PORTAL/Universidade/POO/TP-POO-main/recursos.h
 edificios.h
 C:/Users/User/Desktop/PORTAL/Universidade/POO/TP-POO-main/edificios.h
+saves.h
+C:/Users/User/Desktop/PORTAL/Universidade/POO/TP-POO-main/saves.h
 
 C:/Users/User/Desktop/PORTAL/Universidade/POO/TP-POO-main/edificios.h
 string
@@ -65,6 +67,8 @@ trabalhadores.h
 C:/Users/User/Desktop/PORTAL/Universidade/POO/TP-POO-main/trabalhadores.h
 zonas.h
 C:/Users/User/Desktop/PORTAL/Universidade/POO/TP-POO-main/zonas.h
+saves.h
+C:/Users/User/Desktop/PORTAL/Universidade/POO/TP-POO-main/saves.h
 
 C:/Users/User/Desktop/PORTAL/Universidade/POO/TP-POO-main/map.cpp
 iostream
@@ -100,15 +104,23 @@ C:/Users/User/Desktop/PORTAL/Universidade/POO/TP-POO-main/edificios.h
 zonas.h
 C:/Users/User/Desktop/PORTAL/Universidade/POO/TP-POO-main/zonas.h
 
-C:/Users/User/Desktop/PORTAL/Universidade/POO/TP-POO-main/recursos.cpp
-recursos.h
-C:/Users/User/Desktop/PORTAL/Universidade/POO/TP-POO-main/recursos.h
-
 C:/Users/User/Desktop/PORTAL/Universidade/POO/TP-POO-main/recursos.h
 string
 -
 iostream
 -
+
+C:/Users/User/Desktop/PORTAL/Universidade/POO/TP-POO-main/saves.cpp
+saves.h
+C:/Users/User/Desktop/PORTAL/Universidade/POO/TP-POO-main/saves.h
+
+C:/Users/User/Desktop/PORTAL/Universidade/POO/TP-POO-main/saves.h
+iostream
+-
+map.h
+C:/Users/User/Desktop/PORTAL/Universidade/POO/TP-POO-main/map.h
+recursos.h
+C:/Users/User/Desktop/PORTAL/Universidade/POO/TP-POO-main/recursos.h
 
 C:/Users/User/Desktop/PORTAL/Universidade/POO/TP-POO-main/trabalhadores.cpp
 string

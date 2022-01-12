@@ -51,3 +51,12 @@ string Trabalhadores::getId() {
 int Trabalhadores::getQuantity() const{
     return quantity;
 }
+void Trabalhadores::setDiasPantano(int valor) {
+    diasPantano = valor;
+}
+int Trabalhadores::getDiasPantano(){
+    return diasPantano;
+}
+int Trabalhadores::getSalario() const{
+    return salario;
+}

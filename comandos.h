@@ -11,6 +11,7 @@
 #include "map.h"
 #include "recursos.h"
 #include "edificios.h"
+#include "saves.h"
 
 using namespace std;
 
@@ -21,6 +22,7 @@ class Commands{
     Map& mapa;
     Data& data;
     bool next, quit;
+    vector<Save> saves;
 public:
     Commands(Map& mapa, Data& data);
     void setCommands(string command);
@@ -47,8 +49,12 @@ public:
     void upgrade(string * commands);
     string listWorkers(char type) const;
     int countWorkers() const;
-
+    int getProd(string type) const;
     void adicionaDias();
+
+    void save(string name);
+    void load(string name);
+    void erase(string name);
 
 };
 

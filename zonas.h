@@ -60,12 +60,12 @@ public:
         maxArvores = 100;
         diasAtivos = 0;
     };
-    void setTotalArvores(int valor);
-    void setProducao(int valor);
-    int getTotalArvores();
-    int getProducao();
-    int getDiasAtivos();
-    void setDiasAtivos(int valor);
+    void setTotalArvores(int valor) override;
+    void setProducao(int valor) override;
+    int getTotalArvores() override;
+    int getProducao() override;
+    int getDiasAtivos() override;
+    void setDiasAtivos(int valor) override ;
 };
 class Pantano : public Zona{
         int dias;
@@ -78,10 +78,10 @@ public:
     void setDias(int valor);
 
 };
-class Zonax : public Zona{
+class Tundra : public Zona{
 
 public:
-    Zonax(){ nome = "znx";};
+    Tundra(){ nome = "tnd";};
 };
 
 

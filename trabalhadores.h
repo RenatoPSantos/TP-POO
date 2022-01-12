@@ -19,6 +19,7 @@ class Trabalhadores {
     static int quantity;
     string id;
     int diasTrab;
+    int diasPantano;
 protected:
     char nome;
 public:
@@ -26,11 +27,15 @@ public:
     /* Trabalhadores(const Trabalhadores &t); */
     char designacao();
     void setSalario(int valor);
+    int getSalario() const;
     string getId();
     int getDias();
     void setDias(int valor);
     void addDias(int valor);
     int getQuantity() const;
+
+    void setDiasPantano(int valor);
+    int getDiasPantano();
 };
 
 class Operario : public Trabalhadores{

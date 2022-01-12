@@ -6,6 +6,7 @@ CMakeFiles\Trabalho.dir\comandos.cpp.obj: ..\comandos.h
 CMakeFiles\Trabalho.dir\comandos.cpp.obj: ..\edificios.h
 CMakeFiles\Trabalho.dir\comandos.cpp.obj: ..\map.h
 CMakeFiles\Trabalho.dir\comandos.cpp.obj: ..\recursos.h
+CMakeFiles\Trabalho.dir\comandos.cpp.obj: ..\saves.h
 CMakeFiles\Trabalho.dir\comandos.cpp.obj: ..\trabalhadores.h
 CMakeFiles\Trabalho.dir\comandos.cpp.obj: ..\zonas.h
 
@@ -17,6 +18,7 @@ CMakeFiles\Trabalho.dir\main.cpp.obj: ..\edificios.h
 CMakeFiles\Trabalho.dir\main.cpp.obj: ..\main.cpp
 CMakeFiles\Trabalho.dir\main.cpp.obj: ..\map.h
 CMakeFiles\Trabalho.dir\main.cpp.obj: ..\recursos.h
+CMakeFiles\Trabalho.dir\main.cpp.obj: ..\saves.h
 CMakeFiles\Trabalho.dir\main.cpp.obj: ..\trabalhadores.h
 CMakeFiles\Trabalho.dir\main.cpp.obj: ..\zonas.h
 
@@ -25,16 +27,27 @@ CMakeFiles\Trabalho.dir\map.cpp.obj: ..\edificios.h
 CMakeFiles\Trabalho.dir\map.cpp.obj: ..\map.cpp
 CMakeFiles\Trabalho.dir\map.cpp.obj: ..\map.h
 CMakeFiles\Trabalho.dir\map.cpp.obj: ..\recursos.h
+CMakeFiles\Trabalho.dir\map.cpp.obj: ..\saves.h
 CMakeFiles\Trabalho.dir\map.cpp.obj: ..\trabalhadores.h
 CMakeFiles\Trabalho.dir\map.cpp.obj: ..\zonas.h
 
 CMakeFiles\Trabalho.dir\recursos.cpp.obj: ..\recursos.cpp
 CMakeFiles\Trabalho.dir\recursos.cpp.obj: ..\recursos.h
 
+CMakeFiles\Trabalho.dir\saves.cpp.obj: ..\comandos.h
+CMakeFiles\Trabalho.dir\saves.cpp.obj: ..\edificios.h
+CMakeFiles\Trabalho.dir\saves.cpp.obj: ..\map.h
+CMakeFiles\Trabalho.dir\saves.cpp.obj: ..\recursos.h
+CMakeFiles\Trabalho.dir\saves.cpp.obj: ..\saves.cpp
+CMakeFiles\Trabalho.dir\saves.cpp.obj: ..\saves.h
+CMakeFiles\Trabalho.dir\saves.cpp.obj: ..\trabalhadores.h
+CMakeFiles\Trabalho.dir\saves.cpp.obj: ..\zonas.h
+
 CMakeFiles\Trabalho.dir\trabalhadores.cpp.obj: ..\comandos.h
 CMakeFiles\Trabalho.dir\trabalhadores.cpp.obj: ..\edificios.h
 CMakeFiles\Trabalho.dir\trabalhadores.cpp.obj: ..\map.h
 CMakeFiles\Trabalho.dir\trabalhadores.cpp.obj: ..\recursos.h
+CMakeFiles\Trabalho.dir\trabalhadores.cpp.obj: ..\saves.h
 CMakeFiles\Trabalho.dir\trabalhadores.cpp.obj: ..\trabalhadores.cpp
 CMakeFiles\Trabalho.dir\trabalhadores.cpp.obj: ..\trabalhadores.h
 CMakeFiles\Trabalho.dir\trabalhadores.cpp.obj: ..\zonas.h
