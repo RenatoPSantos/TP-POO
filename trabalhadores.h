@@ -23,13 +23,14 @@ protected:
     char nome;
 public:
     Trabalhadores(int dia,int sal = 0,int diasTr = 0);
-    /*Trabalhadores(const Trabalhadores &t);*/
+    /* Trabalhadores(const Trabalhadores &t); */
     char designacao();
     void setSalario(int valor);
     string getId();
     int getDias();
     void setDias(int valor);
     void addDias(int valor);
+    int getQuantity() const;
 };
 
 class Operario : public Trabalhadores{

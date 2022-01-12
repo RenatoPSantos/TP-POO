@@ -13,7 +13,7 @@ void Floresta::setProducao (int valor) {
 void Floresta::setTotalArvores(int valor) {
     totalArvores = valor;
 }
-int Floresta::getProducao(int valor) {
+int Floresta::getProducao() {
     return prod;
 }
 int Floresta::getTotalArvores() {

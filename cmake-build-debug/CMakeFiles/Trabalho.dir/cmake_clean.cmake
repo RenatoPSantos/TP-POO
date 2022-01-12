@@ -8,8 +8,8 @@ file(REMOVE_RECURSE
   "CMakeFiles/Trabalho.dir/zonas.cpp.obj"
   "Trabalho.exe"
   "Trabalho.exe.manifest"
+  "Trabalho.lib"
   "Trabalho.pdb"
-  "libTrabalho.dll.a"
 )
 
 # Per-language clean rules from dependency scanning.

@@ -1,4 +1,4 @@
-#include <iostream>
+ #include <iostream>
 #include <string>
 #include <vector>
 #include <ctime>
@@ -30,21 +30,42 @@ int main() {
     Eletricidade eletricidade;
 
     Data data(ferro, aco, carvao, madeira, vigas, eletricidade);
-    data.getVigas().setQuantidade(10);
+    data.getVigas().setQuantidade(100);
+    data.getCarvao().setQuantidade(50);
+    data.getFerro().setQuantidade(50);
+
+    data.getMadeira().setQuantidade(2);
+
     Commands commands(mapa, data);
 
     while(1) {
+        commands.printScreen();
         string command;
         cout << "Comando: ";
         getline(cin >> ws, command);
         commands.setCommands(command);
-        commands.printScreen();
         if(commands.getNext() == true)
         {
+            commands.adicionaDias();
             commands.entregaRecursos();
+            commands.despedimentos();
             data.setDia(data.getDia() + 1);
-            cout << "Dia: " << data.getDia() << endl;
+
             commands.setNext(false);
         }
+        if(commands.getQuit() == true)
+        {
+            commands.entregaRecursos();
+            break;
+        }
     }
+  cout << "Dinheiro Final: " << data.getMoney() << endl;
+  cout << "Pontuação Final: " << data.getMoney() +
+                                 data.getFerro().Quantidade() * data.getFerro().Preco() +
+                                 data.getAco().Quantidade() * data.getAco().Preco() +
+                                 data.getCarvao().Quantidade() * data.getCarvao().Preco() +
+                                 data.getEletricidade().Quantidade() * data.getEletricidade().Preco() +
+                                 data.getMadeira().Quantidade() * data.getMadeira().Preco() +
+                                 data.getVigas().Quantidade() * data.getVigas().Preco();
+
 }

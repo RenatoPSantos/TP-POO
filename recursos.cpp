@@ -13,19 +13,19 @@ void Resources::adicionaResources(int quant) {
 int Resources::Preco() const{
     return preco;
 }
-int Resources::Quantidade() const{
+float Resources::Quantidade() const{
     return quantidade;
 }
 void Resources::setPreco(float p){
     preco = p;
 }
-void Resources::setQuantidade(int q){
+void Resources::setQuantidade(float q){
     quantidade = q;
 }
-void Resources::addQuantidade(int ammount){
+void Resources::addQuantidade(float ammount){
     quantidade += ammount;
 }
-void Resources::subtractQuantidade(int ammount){
+void Resources::subtractQuantidade(float ammount){
     quantidade -= ammount;
 }
 int Resources::getCapacidade() const{

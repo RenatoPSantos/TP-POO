@@ -43,6 +43,11 @@ void Cell::setBuilding(string type) {
         EdificioX edx;
         building = edx;
     }
+    if(type == "serr")
+        {
+            Serracao serr;
+            building = serr;
+        }
 }
 void Cell::setBiome(string type) {
     if(type == "mnt")
@@ -110,6 +115,7 @@ void Cell::removeWorker(char type) {
 
 
 
+
 Zona& Cell::getBiome(){
     return biome;
 }
@@ -168,7 +174,6 @@ Map::Map(int rows, int cols) : rows(rows), cols(cols) {
         Str.push_back(temp);
     }
     cout << "Map created";
-    print();
 }
 
 void Map::print() //atualiza e imprime ilha
@@ -232,15 +237,15 @@ string* Map::stringController(string* str){ //controla dimensão da string de fo
 bool Map::insertBuilding(string *comandos){
 
     int i;
-    int rows = stoi(comandos[2]);
-    int cols = stoi(comandos[3]);
+    int rows = stoi(comandos[2]) -1;
+    int cols = stoi(comandos[3]) -1;
 
     string buildings[6] = {"mnf","mnc","elec","bat","fun","edx"};
 
     for(i=0;i<6;i++){
         if(comandos[1] == buildings[i]){
-            if(Cells[rows-1][cols-1].getBuilding().designacao() == ""){
-                Cells[rows-1][cols-1].setBuilding(comandos[1]);
+            if(Cells[rows][cols].getBuilding().designacao() == ""){
+                Cells[rows][cols].setBuilding(comandos[1]);
                 return true;
             }
             else{
@@ -255,34 +260,39 @@ bool Map::insertBuilding(string *comandos){
     return false;
 }
 
-Trabalhadores Map::findWorker(string id) {
-    for(int i = 0; i < Cells.size();i++)
-    {
-        for(int j = 0; j < Cells[0].size(); i++)
-        {
-            for(int h = 0; h < Cells[i][j].getWorkers().size(); h++)
-            {
-                if(Cells[i][j].getWorkers()[h].getId() == id)
-                {
+void Map::moveWorker(int row, int col, string id) {
+    for (int i = 0; i < Cells.size(); i++) {
+        for (int j = 0; j < Cells[0].size(); j++) {
+            for (int h = 0; h < Cells[i][j].getWorkers().size(); h++) {
+                if (Cells[i][j].getWorkers()[h].getId() == id) {
                     Trabalhadores trabalhador = Cells[i][j].getWorkers()[h];
-                    cout << "Designação: " << trabalhador.designacao() <<endl;
-                    cout << "id: " << trabalhador.getId() <<endl;
-                    cout << "before erase" << endl;
                     Cells[i][j].getWorkers().erase(Cells[i][j].getWorkers().begin() + h);
-                    cout << "after erase" << endl;
-                    return trabalhador;
+                    Cells[row][col].getWorkers().push_back(trabalhador);
+                    return;
                 }
             }
         }
     }
-    cout << "Trabalhador com id " << id << " nao existe" << endl;
+    cout << "Trabalhador com id: " << id << "nao existe";
+    system("pause");
+        return;
+}
+void Map::killWorker(string id){
+    for (int i = 0; i < Cells.size(); i++) {
+            for (int j = 0; j < Cells[0].size(); j++) {
+                for (int h = 0; h < Cells[i][j].getWorkers().size(); h++) {
+                    if (Cells[i][j].getWorkers()[h].getId() == id){
+                        Cells[i][j].getWorkers().erase(Cells[i][j].getWorkers().begin() + h);
+                        return;
+                    }
+                }
+            }
+        }
+        cout << "Trabalhador com id: " << id << "nao existe";
+        system("pause");
+            return;
 }
 
-void Map::moveWorker(int row, int col, string id) {
-    cout << "before move" << endl;
-    Cells[row][col].getWorkers().push_back(findWorker(id));
-
-}
 
 void Map::list(const string& rows,const string& cols){
 

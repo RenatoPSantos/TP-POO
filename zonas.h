@@ -20,7 +20,7 @@ public:
     virtual void setTotalArvores(int valor) {}
     virtual void setProducao(int valor) {}
     virtual int getTotalArvores() {return 1;}
-    virtual int getProducao(int valor) {return 1;}
+    virtual int getProducao() {return 1;}
     virtual void setDiasAtivos(int valor) {}
     virtual int getDiasAtivos() {return 1;}
 
@@ -51,6 +51,7 @@ class Floresta : public Zona{
     int prod;
     int diasAtivos;
 
+
 public:
     Floresta(){
         nome = "flr";
@@ -62,7 +63,7 @@ public:
     void setTotalArvores(int valor);
     void setProducao(int valor);
     int getTotalArvores();
-    int getProducao(int valor);
+    int getProducao();
     int getDiasAtivos();
     void setDiasAtivos(int valor);
 };

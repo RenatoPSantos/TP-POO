@@ -20,7 +20,7 @@ class Commands{
     string *commands = new string[4];
     Map& mapa;
     Data& data;
-    bool next;
+    bool next, quit;
 public:
     Commands(Map& mapa, Data& data);
     void setCommands(string command);
@@ -33,15 +33,22 @@ public:
     void list() const; //Obtém informação geral do jogo
     void setNext(bool state);
     bool getNext() const;
+    void setQuit(bool state);
+    bool getQuit() const;
     void vende(string tipo,int quant);
     void vende(int linha,int coluna);
     void efeitos();
     void despedimentos();
     void entregaRecursos();
     int cons(string* commands, int row, int col);
-    void increaseCapacity(Edificios edificio);
-    void decreaseCapacity(Edificios edificio);
+    void increaseCapacity(Edificios edificio, int quantidade = 100);
+    void decreaseCapacity(Edificios edificio, int quantidade = -100);
     void printScreen() const;
+    void upgrade(string * commands);
+    string listWorkers(char type) const;
+    int countWorkers() const;
+
+    void adicionaDias();
 
 };
 

@@ -12,24 +12,29 @@
 
 using namespace std;
 
-Commands::Commands(Map& mapa, Data& data) : mapa(mapa), data(data), next(false){}
+Commands::Commands(Map& mapa, Data& data) : mapa(mapa), data(data), next(false), quit(false){}
 
 void Commands::printScreen() const {
+    cout << " -- Dia: " << data.getDia() <<" --" << endl;
     mapa.print();
     cout << "Dinheiro: "<< data.getMoney();
     cout << " | ";
     cout << "Vigas: "<< data.getVigas().Quantidade();
     cout << " | ";
-    cout << "Ferro: "<< data.getFerro().Quantidade();
-    cout << " | ";
-    cout << "Aco: "<< data.getAco().Quantidade();
-    cout << " | ";
     cout << "Madeira: "<< data.getMadeira().Quantidade();
     cout << " | ";
-    cout << "Carvao: "<< data.getCarvao().Quantidade();
+    cout << "Ferro: "<< data.getFerro().Quantidade() <<"/" << data.getFerro().getCapacidade();
     cout << " | ";
-    cout << "Eletricidade: "<< data.getEletricidade().Quantidade();
+    cout << "Aco: "<< data.getAco().Quantidade() <<"/" << data.getAco().getCapacidade();
+    cout << " | ";
+    cout << "Carvao: "<< data.getCarvao().Quantidade() <<"/" << data.getCarvao().getCapacidade();
+    cout << " | ";
+    cout << "Eletricidade: "<< data.getEletricidade().Quantidade() <<"/" << data.getEletricidade().getCapacidade();
     cout << endl;
+    cout << "Numero de trabalhadores -> " << countWorkers() << endl;
+    cout << "Ids Mineiros -> " << listWorkers('M') << endl;
+    cout << "Ids Lenhadores -> " << listWorkers('L') << endl;
+    cout << "Ids Operarios -> " << listWorkers('O') << endl;
 }
 void Commands::setCommands(string command){
     int i = 0;
@@ -90,7 +95,9 @@ int Commands::execCommands() {
         if (checkArguments(3) == 1) {
             if (isNumber(commands[2]) && isNumber(commands[3])) {
                 if (mapa.checkRowsCols(commands[2], commands[3])) {
-                    cons(commands, stoi(commands[2]) - 1, stoi(commands[3]) - 1);
+                    cons(commands, stoi(commands[2]) , stoi(commands[3]) );
+
+
             } else {
                 return 1;
             }
@@ -103,6 +110,7 @@ int Commands::execCommands() {
         }
         return 1;
     }
+
     if (commands[0] == "liga") {
         if (checkArguments(2)) {
             if(isNumber(commands[1]) && isNumber(commands[2])){
@@ -156,14 +164,12 @@ int Commands::execCommands() {
         if (checkArguments(3)) {
             if(isNumber(commands[2]) && isNumber(commands[3])){
                 if(mapa.checkRowsCols(commands[2],commands[3])){
-                    cout << commands[0] << endl;
-                    cout << commands[1] << endl;
-                    cout << commands[2] << endl;
-                    cout << commands[3] << endl;
+
                     mapa.moveWorker(stoi(commands[2]) - 1,stoi(commands[3]) - 1,commands[1]);
                     // sempre que mover um worker os dias de trabalho no local vao voltar ao 0, nao o global
                 }
                 return 1;
+
             }
             return 1;
         }
@@ -231,12 +237,22 @@ int Commands::execCommands() {
                     }
                 }
             }
-
             return 1;
-
         }
         return 1;
 
+    }
+    if(commands[0] == "upgrade"){
+        if(checkArguments(2)){
+            if (isNumber(commands[1]) && isNumber(commands[2]) && mapa.checkRowsCols( commands[1], commands[2])) {
+                cout << "Nivel = " << mapa.getCells()[stoi(commands[1]) - 1][stoi(commands[1]) - 1].getBuilding().getNivel() << endl;
+                cout << "1.Preco para upgrade = " << mapa.getCells()[stoi(commands[1]) - 1][stoi(commands[1]) - 1].getBuilding().getUpgradePreco() << endl;
+                cout << "1.Vigas para upgrade = " << mapa.getCells()[stoi(commands[1]) - 1][stoi(commands[1]) - 1].getBuilding().getUpgradePrecoVigas() << endl;
+                upgrade(commands);
+                return 1;
+            }
+        }
+        return 1;
     }
     if (commands[0] == "list") {
         if (commands[1].empty()) {
@@ -262,6 +278,13 @@ int Commands::execCommands() {
         }
         return 1;
     }
+    if (commands[0] == "quit") {
+            if (checkArguments(0)) {
+                quit = true;
+                return 0;
+            }
+            return 1;
+        }
     if (commands[0] == "save") {
         if (checkArguments(1)) {
             return 1;
@@ -349,7 +372,7 @@ int Commands::execCommands() {
     }
     if (commands[0] == "debkill") {
         if (checkArguments(1)) {
-            mapa.findWorker(commands[1]); //Aaa
+            mapa.killWorker(commands[1]);
             return 1;
         }
     }else {
@@ -357,8 +380,33 @@ int Commands::execCommands() {
         return 0;
     }
     system("pause");
-    mapa.print();
+
     return 1;
+}
+string Commands::listWorkers(char type) const{
+    string str;
+    for(int i = 0; i < mapa.getCells().size(); i++)
+    {
+        for(int j = 0; j < mapa.getCells()[0].size(); j++)
+        {
+            for(int k = 0; k < mapa.getCells()[i][j].getWorkers().size(); k++)
+                if(mapa.getCells()[i][j].getWorkers()[k].designacao() == type)
+                    str = str + mapa.getCells()[i][j].getWorkers()[k].getId() + " ";
+        }
+    }
+    return str;
+}
+int Commands::countWorkers() const{
+    int counter = 0;
+        for(int i = 0; i < mapa.getCells().size(); i++)
+        {
+            for(int j = 0; j < mapa.getCells()[0].size(); j++)
+            {
+                for(int k = 0; k < mapa.getCells()[i][j].getWorkers().size(); k++)
+                    {counter++;}
+            }
+        }
+    return counter;
 }
 int Commands::execConfig(vector<string> names,vector<int> values){
 
@@ -402,6 +450,63 @@ int Commands::execConfig(vector<string> names,vector<int> values){
     }
     return 1;
 }
+void Commands::upgrade(string *commands) {
+    int row = stoi(commands[1]) - 1;
+    int col = stoi(commands[2]) - 1;
+    if(mapa.getCells()[row][col].getBuilding().getNivel() < 5){
+        if(data.getVigas().Quantidade() >= mapa.getCells()[row][col].getBuilding().getUpgradePrecoVigas()) {
+            if (data.getMoney() >= mapa.getCells()[row][col].getBuilding().getUpgradePreco()) {
+                cout << "Nivel antes : " << mapa.getCells()[row][col].getBuilding().getNivel()<< endl;
+                cout << "2.Preco para upgrade = " << mapa.getCells()[row][col].getBuilding().getUpgradePreco() << endl;
+                cout << "2.Vigas para upgrade = " << mapa.getCells()[row][col].getBuilding().getUpgradePrecoVigas() << endl;
+                cout << "Capacidade Ferro antes de upgrade =" << data.getFerro().getCapacidade() << endl;
+                cout << "Producao antes de upgrade =" << mapa.getCells()[row][col].getBuilding().getProducao() << endl;
+                cout << "dinheiro antes de upgrade " << data.getMoney() << endl;
+                data.removeMoney(mapa.getCells()[row][col].getBuilding().getUpgradePreco());
+                data.getVigas().setQuantidade(data.getVigas().Quantidade() - mapa.getCells()[row][col].getBuilding().getUpgradePrecoVigas());
+                mapa.getCells()[row][col].getBuilding().upgradeEdificio();
+                increaseCapacity(mapa.getCells()[row][col].getBuilding(), mapa.getCells()[row][col].getBuilding().getUpgradeArmazenamento());
+                cout << "Nivel depois : " << mapa.getCells()[row][col].getBuilding().getNivel()<< endl;
+                cout << "Capacidade Ferro depois de upgrade =" << data.getFerro().getCapacidade()<<endl;
+                cout << "Producao depois de upgrade =" << mapa.getCells()[row][col].getBuilding().getProducao() <<endl;
+                cout << "dinheiro depois de upgrade " << data.getMoney() << endl;
+                return;
+            } else {
+                cout << "Dinheiro insuficiente" << endl;
+                return;
+            }
+        }else{
+            cout << "Vigas insuficientes" << endl;
+            return;
+        }
+    }else{
+        cout << "O edificio ja esta a nivel maximo" << endl;
+    }
+}
+
+void Commands::adicionaDias() {
+    for(int i = 0;i < mapa.getRows(); i++){
+        for(int j= 0; j < mapa.getCols();j++) {
+
+            if ((mapa.getCells()[i][j].getBuilding().designacao() != "" && mapa.getCells()[i][j].getBuilding().getEstado() == 1 && mapa.getCells()[i][j].getBiome().designacao()!= "flr")) {
+                for (int k = 0; k < mapa.getCells()[i][j].getWorkers().size(); k++) {
+
+                    mapa.getCells()[i][j].getWorkers()[k].setDias(mapa.getCells()[i][j].getWorkers()[k].getDias() + 1);
+                    cout << "diasADiciona : " <<mapa.getCells()[i][j].getWorkers()[k].getDias()<< endl;
+
+                }
+            }
+            if ((mapa.getCells()[i][j].getBiome().designacao() == "flr" )) {
+                for (int k = 0; k < mapa.getCells()[i][j].getWorkers().size(); k++) {
+                    if(mapa.getCells()[i][j].getWorkers()[k].designacao() == 'L'){
+                        mapa.getCells()[i][j].getWorkers()[k].setDias(mapa.getCells()[i][j].getWorkers()[k].getDias() + 1);
+                    }
+
+                }
+            }
+        }
+    }
+}
 
 bool Commands::checkArguments(int number) const{
     if(commands[number].empty()){
@@ -422,14 +527,20 @@ void Commands::setNext(bool state){
 bool Commands::getNext() const{
     return next;
 }
-
+void Commands::setQuit(bool state){
+    quit = state;
+}
+bool Commands::getQuit() const{
+    return quit;
+}
 void Commands::vende(int linha, int coluna) {
 
     if(mapa.getCells()[linha][coluna].getBuilding().designacao() != ""){
         data.addMoney(mapa.getCells()[linha][coluna].getBuilding().getPreco() +
                            mapa.getCells()[linha][coluna].getBuilding().getNivel() *
                            mapa.getCells()[linha][coluna].getBuilding().getUpgradePreco());
-        decreaseCapacity(mapa.getCells()[linha][coluna].getBuilding());
+        decreaseCapacity(mapa.getCells()[linha][coluna].getBuilding(), mapa.getCells()[linha][coluna].getBuilding().getArmazenamento()
+                         + mapa.getCells()[linha][coluna].getBuilding().getNivel() * mapa.getCells()[linha][coluna].getBuilding().getUpgradeArmazenamento());
         mapa.getCells()[linha][coluna].destroyBuilding();
     }
     else{
@@ -522,7 +633,7 @@ void Commands::efeitos() {
                if(mapa.getCells()[i][j].getBiome().designacao() == "flr"){
                    if(mapa.getCells()[i][j].getBuilding().designacao() != ""){
 
-                       if(mapa.getCells()[i][j].getBiome().getTotalArvores()!= 0){
+                       if(mapa.getCells()[i][j].getBiome().getTotalArvores()> 0){
                            mapa.getCells()[i][j].getBiome().setTotalArvores(mapa.getCells()[i][j].getBiome().getTotalArvores()-1);
                        }
                        mapa.getCells()[i][j].getBiome().setProducao(0);
@@ -530,6 +641,7 @@ void Commands::efeitos() {
                    }
                    else{
                        mapa.getCells()[i][j].getBiome().setProducao(1);
+                       mapa.getCells()[i][j].getBiome().setDiasAtivos(mapa.getCells()[i][j].getBiome().getDiasAtivos() + 1);
                        if(mapa.getCells()[i][j].getBiome().getDiasAtivos() == 2){
                            if(mapa.getCells()[i][j].getBiome().getTotalArvores() != 100) {
                                mapa.getCells()[i][j].getBiome().setDiasAtivos(0);
@@ -561,51 +673,54 @@ void Commands::efeitos() {
    }
 }
 
-void Commands::decreaseCapacity(Edificios edificio){
+void Commands::decreaseCapacity(Edificios edificio, int quantidade){
     string str = edificio.designacao();
     if(str == "mnf"){
-        data.getFerro().setCapacidade(-100);
+        data.getFerro().setCapacidade(quantidade);
     }
     if(str == "mnc"){
-        data.getCarvao().setCapacidade(-100);
+        data.getCarvao().setCapacidade(quantidade);
     }
     if(str == "elec"){
-        data.getCarvao().setCapacidade(-100);
+        data.getCarvao().setCapacidade(quantidade);
     }
     if(str == "bat"){
-        data.getEletricidade().setCapacidade(-100);
+        data.getEletricidade().setCapacidade(quantidade);
     }
     if(str == "fun"){
-        data.getAco().setCapacidade(-100);
+        data.getAco().setCapacidade(quantidade);
     }
 }
-void Commands::increaseCapacity(Edificios edificio)
+void Commands::increaseCapacity(Edificios edificio, int quantidade)
 {
     string str = edificio.designacao();
     if(str == "mnf"){
-        data.getFerro().setCapacidade(100);
+        data.getFerro().setCapacidade(quantidade);
     }
     if(str == "mnc"){
-        data.getCarvao().setCapacidade(100);
+        data.getCarvao().setCapacidade(quantidade);
     }
     if(str == "elec"){
-        data.getCarvao().setCapacidade(100);
+        data.getCarvao().setCapacidade(quantidade);
     }
     if(str == "bat"){
-        data.getEletricidade().setCapacidade(100);
+        data.getEletricidade().setCapacidade(quantidade);
     }
     if(str == "fun"){
-        data.getAco().setCapacidade(100);
+        data.getAco().setCapacidade(quantidade);
     }
 }
 
 int Commands::cons(string* commands, int row, int col){
 
+    row = row - 1;
+    col = col - 1;
     string type = commands[1];
-    int falta = mapa.getCells()[row][col].getBuilding().getPrecoVigas() - data.getVigas().Quantidade();
+
     if(mapa.insertBuilding(commands) == false)
         return 0;
     increaseCapacity(mapa.getCells()[row][col].getBuilding());
+    int falta = mapa.getCells()[row][col].getBuilding().getPrecoVigas() - data.getVigas().Quantidade();
 
     if(data.getVigas().Quantidade() >= mapa.getCells()[row][col].getBuilding().getPrecoVigas()) {
         if (data.getMoney() >= mapa.getCells()[row][col].getBuilding().getPreco()) {
@@ -624,13 +739,13 @@ int Commands::cons(string* commands, int row, int col){
         if (data.getMoney() >= mapa.getCells()[row][col].getBuilding().getPreco() +
             falta * 10)
         {
-            if (mapa.insertBuilding(commands)) {
+
                 cout << "dinheiro antes da venda " << data.getMoney() << endl;
                 data.removeMoney(mapa.getCells()[row][col].getBuilding().getPreco() + 10 * falta );
                 data.getVigas().setQuantidade(data.getVigas().Quantidade() - (10 - falta));
                 cout << "dinheiro depois da venda " << data.getMoney() << endl;
                 return 1;
-            }
+
         } else {
             cout << "Dinheiro insuficiente" << endl;
             decreaseCapacity(mapa.getCells()[row][col].getBuilding());
@@ -640,23 +755,23 @@ int Commands::cons(string* commands, int row, int col){
     }
     return 2;
 }
-void Commands::entregaRecursos(){
-    cout << endl << "inicio" << endl;
+void Commands::entregaRecursos() {
 
-    for(int i = 0; i < mapa.getRows()-1 ; i++){
-        for(int j = 0; j < mapa.getCols()-1; j++){
 
-            if(mapa.getCells()[i][j].getBuilding().designacao() != "") {
+    for (int i = 0; i < mapa.getRows(); i++) {
+        for (int j = 0; j < mapa.getCols(); j++) {
+
+            if (mapa.getCells()[i][j].getBuilding().designacao() != "") {
 
                 if (mapa.getCells()[i][j].getBuilding().designacao() == "mnf") {
                     for (int k = 0; k < mapa.getCells()[i][j].getWorkers().size(); k++) {
                         if (mapa.getCells()[i][j].getWorkers()[k].designacao() == 'M') {
-                            if (data.getFerro().Quantidade() + mapa.getCells()[i][j].getBuilding().getProducao() >= data.getFerro().getCapacidade()){
-                                    data.getFerro().setCapacidade(data.getFerro().getCapacidade());
+                            if (data.getFerro().Quantidade() + mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                data.getFerro().getCapacidade()) {
+                                data.getFerro().setCapacidade(data.getFerro().getCapacidade());
 
 
-                            }
-                            else{
+                            } else {
                                 data.getFerro().addQuantidade(mapa.getCells()[i][j].getBuilding().getProducao());
 
 
@@ -664,1238 +779,3856 @@ void Commands::entregaRecursos(){
                         }
                     }
                 }
-                if(mapa.getCells()[i][j].getBuilding().designacao() == "mnc"){
-                    for(int k = 0; k < mapa.getCells()[i][j].getWorkers().size();k++){
-                        if(mapa.getCells()[i][j].getWorkers()[k].designacao() == 'M'){
-                            if(data.getCarvao().Quantidade() + mapa.getCells()[i][j].getBuilding().getProducao() >= data.getCarvao().getCapacidade()){
+                if (mapa.getCells()[i][j].getBuilding().designacao() == "mnc") {
+                    for (int k = 0; k < mapa.getCells()[i][j].getWorkers().size(); k++) {
+                        if (mapa.getCells()[i][j].getWorkers()[k].designacao() == 'M') {
+                            if (data.getCarvao().Quantidade() + mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                data.getCarvao().getCapacidade()) {
                                 data.getCarvao().setCapacidade(data.getCarvao().getCapacidade());
                                 break;
-                            }
-                            else{
+                            } else {
                                 data.getCarvao().addQuantidade(mapa.getCells()[i][j].getBuilding().getProducao());
                                 break;
                             }
                         }
                     }
                 }
-                if(mapa.getCells()[i][j].getBiome().designacao() == "flr"){
-                    for(int k = 0; k < mapa.getCells()[i][j].getWorkers().size();k++){
-                        if(mapa.getCells()[i][j].getWorkers()[k].designacao() == 'L' ){
-                            if(mapa.getCells()[i][j].getWorkers()[k].getDias()<4){
-                                if(data.getMadeira().Quantidade()+mapa.getCells()[i][j].getBuilding().getProducao()>= data.getMadeira().getCapacidade()){
-                                    data.getMadeira().setCapacidade(data.getCarvao().getCapacidade());
+                if (mapa.getCells()[i][j].getBiome().designacao() == "flr") {
+                    if (mapa.getCells()[i][j].getBuilding().designacao() == "") {
+                        for (int k = 0; k < mapa.getCells()[i][j].getWorkers().size(); k++) {
+                            if (mapa.getCells()[i][j].getWorkers()[k].designacao() == 'L') {
+                                if (mapa.getCells()[i][j].getWorkers()[k].getDias() <= 4) {
+                                    if (mapa.getCells()[i][j].getBiome().getTotalArvores() >
+                                        mapa.getCells()[i][j].getBiome().getProducao() &&
+                                        mapa.getCells()[i][j].getBiome().getTotalArvores() > 0) {
+                                        data.getMadeira().setQuantidade(data.getMadeira().Quantidade() +
+                                                                        mapa.getCells()[i][j].getBiome().getProducao());
+                                        mapa.getCells()[i][j].getBiome().setTotalArvores(
+                                                mapa.getCells()[i][j].getBiome().getTotalArvores() - 1);
+                                        break;
+                                    }
+
                                     break;
-                                }
-                                else{
-                                    data.getMadeira().addQuantidade(mapa.getCells()[i][j].getBuilding().getProducao());
+                                } else {
+                                    mapa.getCells()[i][j].getWorkers()[k].setDias(0);
                                     break;
                                 }
                             }
-                            mapa.getCells()[i][j].getWorkers()[k].setDias(0);
+
                         }
                     }
                 }
-                if(mapa.getCells()[i][j].getBuilding().designacao() == "elec"){
-                    for(int k = 0; k < mapa.getCells()[i][j].getWorkers().size();k++){
-                        if(mapa.getCells()[i][j].getWorkers()[k].designacao() == 'O'){
-                            if(data.getMadeira().Quantidade() >= 1 && data.getCarvao().Quantidade()>=1){
-                                if(i == 0 && j == 0) {
-                                    if (mapa.getCells()[i][j+1].getBiome().designacao() == "flr") {
-                                        for (int l = 0; l < mapa.getCells()[i][j+1].getWorkers().size(); l++) {
-                                            if (mapa.getCells()[i][j+1].getWorkers()[l].designacao() == 'L') {
-                                                if(mapa.getCells()[i][j + 1].getWorkers()[l].getDias()<4){
-                                                    if (mapa.getCells()[i+1][j].getBuilding().designacao() == "bat") {
-                                                        if (data.getEletricidade().Quantidade() +
-                                                            mapa.getCells()[i][j].getBuilding().getProducao() >=
-                                                            data.getEletricidade().getCapacidade()) {
-                                                            data.getMadeira().setQuantidade(
-                                                                    data.getMadeira().Quantidade() - 1);
-                                                            data.getCarvao().setQuantidade(
-                                                                    data.getCarvao().Quantidade() - 1);
-                                                            data.getEletricidade().setCapacidade(
-                                                                    data.getEletricidade().getCapacidade());
-                                                            break;
-                                                        } else {
-                                                            data.getMadeira().setQuantidade(
-                                                                    data.getMadeira().Quantidade() - 1);
-                                                            data.getCarvao().setQuantidade(
-                                                                    data.getCarvao().Quantidade() - 1);
-                                                            data.getEletricidade().addQuantidade(
-                                                                    (mapa.getCells()[i][j].getBuilding().getProducao()));
-                                                            break;
-                                                        }
-                                                    }
-                                                }
-                                                mapa.getCells()[i][j + 1].getWorkers()[l].setDias(0);
-                                            }
-                                        }
-                                    } else if (mapa.getCells()[1][0].getBiome().designacao() == "flr") {
-                                        for (int l = 0; l < mapa.getCells()[1][0].getWorkers().size(); l++) {
-                                            if (mapa.getCells()[1][0].getWorkers()[l].designacao() == 'L') {
-                                                if (mapa.getCells()[1][0].getWorkers()[l].getDias() < 4) {
-                                                    if (mapa.getCells()[0][1].getBuilding().designacao() == "bat") {
-                                                        if (data.getEletricidade().Quantidade() +
-                                                            mapa.getCells()[0][0].getBuilding().getProducao() >=
-                                                            data.getEletricidade().getCapacidade()) {
-                                                            data.getMadeira().setQuantidade(
-                                                                    data.getMadeira().Quantidade() - 1);
-                                                            data.getCarvao().setQuantidade(
-                                                                    data.getCarvao().Quantidade() - 1);
-                                                            data.getEletricidade().setCapacidade(
-                                                                    data.getEletricidade().getCapacidade());
-                                                            break;
-                                                        } else {
-                                                            data.getMadeira().setQuantidade(
-                                                                    data.getMadeira().Quantidade() - 1);
-                                                            data.getCarvao().setQuantidade(
-                                                                    data.getCarvao().Quantidade() - 1);
-                                                            data.getEletricidade().addQuantidade(
-                                                                    (mapa.getCells()[0][0].getBuilding().getProducao()));
-                                                            break;
-                                                        }
-                                                    }
-                                                }
-                                                mapa.getCells()[1][0].getWorkers()[l].setDias(0);
-                                            }
 
-                                        }
 
-                                    }
-                                }
-                                else if(i == 0 && j == mapa.getCols()-1){
-                                    if (mapa.getCells()[i][j-1].getBiome().designacao() == "flr") {
-                                        for (int l = 0; l < mapa.getCells()[i][j-1].getWorkers().size(); l++) {
-                                            if (mapa.getCells()[i][j-1].getWorkers()[l].designacao() == 'L') {
-                                                if (mapa.getCells()[i][j - 1].getWorkers()[l].getDias() < 4) {
+                if (mapa.getCells()[i][j].getBuilding().designacao() == "elec" &&
+                    mapa.getCells()[i][j].getBuilding().getEstado() == 1) {
+                    for (int k = 0; k < mapa.getCells()[i][j].getWorkers().size(); k++) {
+                        if (mapa.getCells()[i][j].getWorkers()[k].designacao() == 'O') {
+                            if (data.getCarvao().Quantidade() >= 1) {
+                                if (i == 0 && j == 0) {
+                                    if (mapa.getCells()[i][j + 1].getBiome().designacao() == "flr") {
+                                        for (int l = 0; l < mapa.getCells()[i][j + 1].getWorkers().size(); l++) {
+                                            if (mapa.getCells()[i][j + 1].getWorkers()[l].designacao() == 'L') {
+                                                if (mapa.getCells()[i][j + 1].getWorkers()[l].getDias() <= 4) {
                                                     if (mapa.getCells()[i + 1][j].getBuilding().designacao() == "bat") {
-                                                        if (data.getEletricidade().Quantidade() +
-                                                            mapa.getCells()[i][j].getBuilding().getProducao() >=
-                                                            data.getEletricidade().getCapacidade()) {
-                                                            data.getMadeira().setQuantidade(
-                                                                    data.getMadeira().Quantidade() - 1);
-                                                            data.getCarvao().setQuantidade(
-                                                                    data.getCarvao().Quantidade() - 1);
-                                                            data.getEletricidade().setCapacidade(
-                                                                    data.getEletricidade().getCapacidade());
-                                                            break;
-                                                        } else {
-                                                            data.getMadeira().setQuantidade(
-                                                                    data.getMadeira().Quantidade() - 1);
-                                                            data.getCarvao().setQuantidade(
-                                                                    data.getCarvao().Quantidade() - 1);
-                                                            data.getEletricidade().addQuantidade(
-                                                                    (mapa.getCells()[i][j].getBuilding().getProducao()));
-                                                            break;
-                                                        }
-                                                    }
-                                              }
-                                                mapa.getCells()[i][j - 1].getWorkers()[l].setDias(0);
-                                            }
-                                        }
-                                    } else if (mapa.getCells()[i+1][j].getBiome().designacao() == "flr") {
-                                        for (int l = 0; l < mapa.getCells()[i+1][j].getWorkers().size(); l++) {
-                                            if (mapa.getCells()[i+1][j].getWorkers()[l].designacao() == 'L') {
-                                                if (mapa.getCells()[i + 1][j].getWorkers()[l].getDias() < 4) {
-                                                    if (mapa.getCells()[i][j-1].getBuilding().designacao() == "bat") {
-                                                        if (data.getEletricidade().Quantidade() +
-                                                            mapa.getCells()[i][j].getBuilding().getProducao() >=
-                                                            data.getEletricidade().getCapacidade()) {
-                                                            data.getMadeira().setQuantidade(
-                                                                    data.getMadeira().Quantidade() - 1);
-                                                            data.getCarvao().setQuantidade(
-                                                                    data.getCarvao().Quantidade() - 1);
-                                                            data.getEletricidade().setCapacidade(
-                                                                    data.getEletricidade().getCapacidade());
-                                                            break;
-                                                        } else {
-                                                            data.getMadeira().setQuantidade(
-                                                                    data.getMadeira().Quantidade() - 1);
-                                                            data.getCarvao().setQuantidade(
-                                                                    data.getCarvao().Quantidade() - 1);
-                                                            data.getEletricidade().addQuantidade(
-                                                                    (mapa.getCells()[i][j].getBuilding().getProducao()));
-                                                            break;
-                                                        }
-                                                    }
-                                                }
-                                                mapa.getCells()[i + 1][j].getWorkers()[l].setDias(0);
-                                            }
-                                        }
-                                    }
-                                }
-                                else if(i == mapa.getRows()-1 && j == 0){
-                                    if (mapa.getCells()[i-1][j].getBiome().designacao() == "flr") {
-                                        for (int l = 0; l < mapa.getCells()[i-1][j].getWorkers().size(); l++) {
-                                            if (mapa.getCells()[i-1][j].getWorkers()[l].designacao() == 'L') {
-                                                if (mapa.getCells()[i - 1][j].getWorkers()[l].getDias() < 4){
-                                                    if (mapa.getCells()[i][j + 1].getBuilding().designacao() == "bat") {
-                                                        if (data.getEletricidade().Quantidade() +
-                                                            mapa.getCells()[i][j].getBuilding().getProducao() >=
-                                                            data.getEletricidade().getCapacidade()) {
-                                                            data.getMadeira().setQuantidade(
-                                                                    data.getMadeira().Quantidade() - 1);
-                                                            data.getCarvao().setQuantidade(
-                                                                    data.getCarvao().Quantidade() - 1);
-                                                            data.getEletricidade().setCapacidade(
-                                                                    data.getEletricidade().getCapacidade());
-                                                            break;
-                                                        } else {
-                                                            data.getMadeira().setQuantidade(
-                                                                    data.getMadeira().Quantidade() - 1);
-                                                            data.getCarvao().setQuantidade(
-                                                                    data.getCarvao().Quantidade() - 1);
-                                                            data.getEletricidade().addQuantidade(
-                                                                    (mapa.getCells()[i][j].getBuilding().getProducao()));
-                                                            break;
-                                                        }
-                                                    }
-                                                }
-                                                mapa.getCells()[i - 1][j].getWorkers()[l].setDias(0);
-                                            }
-                                        }
-                                    } else if (mapa.getCells()[i][j+1].getBiome().designacao() == "flr") {
-                                        for (int l = 0; l < mapa.getCells()[i][j+1].getWorkers().size(); l++) {
-                                            if (mapa.getCells()[i][j+1].getWorkers()[l].designacao() == 'L') {
-                                                if (mapa.getCells()[i][j + 1].getWorkers()[l].getDias() < 4) {
-                                                    if (mapa.getCells()[i - 1][j].getBuilding().designacao() == "bat") {
-                                                        if (data.getEletricidade().Quantidade() +
-                                                            mapa.getCells()[i][j].getBuilding().getProducao() >=
-                                                            data.getEletricidade().getCapacidade()) {
-                                                            data.getMadeira().setQuantidade(
-                                                                    data.getMadeira().Quantidade() - 1);
-                                                            data.getCarvao().setQuantidade(
-                                                                    data.getCarvao().Quantidade() - 1);
-                                                            data.getEletricidade().setCapacidade(
-                                                                    data.getEletricidade().getCapacidade());
-                                                            break;
-                                                        } else {
-                                                            data.getMadeira().setQuantidade(
-                                                                    data.getMadeira().Quantidade() - 1);
-                                                            data.getCarvao().setQuantidade(
-                                                                    data.getCarvao().Quantidade() - 1);
-                                                            data.getEletricidade().addQuantidade(
-                                                                    (mapa.getCells()[i][j].getBuilding().getProducao()));
-                                                            break;
+                                                        if (data.getMadeira().Quantidade() - 1 != 0 &&
+                                                            data.getCarvao().Quantidade() - 1 != 0) {
+                                                            if (data.getEletricidade().Quantidade() +
+                                                                mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                                data.getEletricidade().getCapacidade()) {
+                                                                data.getMadeira().setQuantidade(
+                                                                        data.getMadeira().Quantidade() - 1);
+                                                                data.getCarvao().setQuantidade(
+                                                                        data.getCarvao().Quantidade() - 1);
+                                                                data.getEletricidade().setCapacidade(
+                                                                        data.getEletricidade().getCapacidade());
+                                                                break;
+                                                            } else {
+                                                                data.getMadeira().setQuantidade(
+                                                                        data.getMadeira().Quantidade() - 1);
+                                                                data.getCarvao().setQuantidade(
+                                                                        data.getCarvao().Quantidade() - 1);
+                                                                data.getEletricidade().addQuantidade(
+                                                                        (mapa.getCells()[i][j].getBuilding().getProducao()));
+
+                                                                break;
+                                                            }
                                                         }
                                                     }
                                                 }
                                                 mapa.getCells()[i][j + 1].getWorkers()[l].setDias(0);
                                             }
                                         }
-                                    }
-                                }
-                                else if(i == mapa.getRows()-1 && j == mapa.getCols()-1){
-                                    if (mapa.getCells()[i-1][j].getBiome().designacao() == "flr") {
-                                        for (int l = 0; l < mapa.getCells()[i-1][j].getWorkers().size(); l++) {
-                                            if (mapa.getCells()[i-1][j].getWorkers()[l].designacao() == 'L') {
-                                                if (mapa.getCells()[i - 1][j].getWorkers()[l].getDias() < 4) {
-                                                    if (mapa.getCells()[i][j - 1].getBuilding().designacao() == "bat") {
-                                                        if (data.getEletricidade().Quantidade() +
-                                                            mapa.getCells()[i][j].getBuilding().getProducao() >=
-                                                            data.getEletricidade().getCapacidade()) {
-                                                            data.getMadeira().setQuantidade(
-                                                                    data.getMadeira().Quantidade() - 1);
-                                                            data.getCarvao().setQuantidade(
-                                                                    data.getCarvao().Quantidade() - 1);
-                                                            data.getEletricidade().setCapacidade(
-                                                                    data.getEletricidade().getCapacidade());
-                                                            break;
-                                                        } else {
-                                                            data.getMadeira().setQuantidade(
-                                                                    data.getMadeira().Quantidade() - 1);
-                                                            data.getCarvao().setQuantidade(
-                                                                    data.getCarvao().Quantidade() - 1);
-                                                            data.getEletricidade().addQuantidade(
-                                                                    (mapa.getCells()[i][j].getBuilding().getProducao()));
-                                                            break;
-                                                        }
-                                                    }
-                                                }
-
-                                                mapa.getCells()[i - 1][j].getWorkers()[l].setDias(0);
-                                            }
-                                        }
-                                    } else if (mapa.getCells()[i][j-1].getBiome().designacao() == "flr") {
-                                        for (int l = 0; l < mapa.getCells()[i][j-1].getWorkers().size(); l++) {
-                                            if (mapa.getCells()[i][j-1].getWorkers()[l].designacao() == 'L') {
-                                                if (mapa.getCells()[i][j-1].getWorkers()[l].getDias() < 4) {
-                                                    if (mapa.getCells()[i - 1][j].getBuilding().designacao() == "bat") {
-                                                        if (data.getEletricidade().Quantidade() +
-                                                            mapa.getCells()[i][j].getBuilding().getProducao() >=
-                                                            data.getEletricidade().getCapacidade()) {
-                                                            data.getMadeira().setQuantidade(
-                                                                    data.getMadeira().Quantidade() - 1);
-                                                            data.getCarvao().setQuantidade(
-                                                                    data.getCarvao().Quantidade() - 1);
-                                                            data.getEletricidade().setCapacidade(
-                                                                    data.getEletricidade().getCapacidade());
-                                                            break;
-                                                        } else {
-                                                            data.getMadeira().setQuantidade(
-                                                                    data.getMadeira().Quantidade() - 1);
-                                                            data.getCarvao().setQuantidade(
-                                                                    data.getCarvao().Quantidade() - 1);
-                                                            data.getEletricidade().addQuantidade(
-                                                                    (mapa.getCells()[i][j].getBuilding().getProducao()));
-                                                            break;
-                                                        }
-                                                    }
-                                                }
-                                                mapa.getCells()[i][j-1].getWorkers()[l].setDias(0);
-                                                }
-                                            }
-
-                                        }
-
-                                    }
-                                }
-                                else if(i>0 && i<mapa.getRows()-1 && j == 0){
-                                    if (mapa.getCells()[i-1][j].getBiome().designacao() == "flr") {
-                                        for (int l = 0; l < mapa.getCells()[i-1][j].getWorkers().size(); l++) {
-                                            if (mapa.getCells()[i-1][j].getWorkers()[l].designacao() == 'L') {
-                                                if (mapa.getCells()[i - 1][j].getWorkers()[l].getDias() < 4) {
-                                                    if (mapa.getCells()[i][j + 1].getBuilding().designacao() == "bat") {
-                                                        if (data.getEletricidade().Quantidade() +
-                                                            mapa.getCells()[i][j].getBuilding().getProducao() >=
-                                                            data.getEletricidade().getCapacidade()) {
-                                                            data.getMadeira().setQuantidade(
-                                                                    data.getMadeira().Quantidade() - 1);
-                                                            data.getCarvao().setQuantidade(
-                                                                    data.getCarvao().Quantidade() - 1);
-                                                            data.getEletricidade().setCapacidade(
-                                                                    data.getEletricidade().getCapacidade());
-                                                            break;
-                                                        } else {
-                                                            data.getMadeira().setQuantidade(
-                                                                    data.getMadeira().Quantidade() - 1);
-                                                            data.getCarvao().setQuantidade(
-                                                                    data.getCarvao().Quantidade() - 1);
-                                                            data.getEletricidade().addQuantidade(
-                                                                    (mapa.getCells()[i][j].getBuilding().getProducao()));
-                                                            break;
-                                                        }
-                                                    } else if (mapa.getCells()[i + 1][j].getBuilding().designacao() ==
-                                                               "bat") {
-                                                        if (data.getEletricidade().Quantidade() +
-                                                            mapa.getCells()[i][j].getBuilding().getProducao() >=
-                                                            data.getEletricidade().getCapacidade()) {
-                                                            data.getMadeira().setQuantidade(
-                                                                    data.getMadeira().Quantidade() - 1);
-                                                            data.getCarvao().setQuantidade(
-                                                                    data.getCarvao().Quantidade() - 1);
-                                                            data.getEletricidade().setCapacidade(
-                                                                    data.getEletricidade().getCapacidade());
-                                                            break;
-                                                        } else {
-                                                            data.getMadeira().setQuantidade(
-                                                                    data.getMadeira().Quantidade() - 1);
-                                                            data.getCarvao().setQuantidade(
-                                                                    data.getCarvao().Quantidade() - 1);
-                                                            data.getEletricidade().addQuantidade(
-                                                                    (mapa.getCells()[i][j].getBuilding().getProducao()));
-                                                            break;
-                                                        }
-                                                    }
-
-                                                }
-                                                mapa.getCells()[i - 1][j].getWorkers()[l].setDias(0);
-                                            }
-                                        }
-                                    }
-                                    else if (mapa.getCells()[i+1][j].getBiome().designacao() == "flr") {
-                                        for (int l = 0; l < mapa.getCells()[i+1][j].getWorkers().size(); l++) {
-                                            if (mapa.getCells()[i+1][j].getWorkers()[l].designacao() == 'L') {
-                                                if (mapa.getCells()[i + 1][j].getWorkers()[l].getDias() < 4){
-                                                    if (mapa.getCells()[i][j+1].getBuilding().designacao() == "bat") {
-                                                        if (data.getEletricidade().Quantidade() +
-                                                            mapa.getCells()[i][j].getBuilding().getProducao() >=
-                                                            data.getEletricidade().getCapacidade()) {
-                                                            data.getMadeira().setQuantidade(
-                                                                    data.getMadeira().Quantidade() - 1);
-                                                            data.getCarvao().setQuantidade(
-                                                                    data.getCarvao().Quantidade() - 1);
-                                                            data.getEletricidade().setCapacidade(
-                                                                    data.getEletricidade().getCapacidade());
-                                                            break;
-                                                        } else {
-                                                            data.getMadeira().setQuantidade(
-                                                                    data.getMadeira().Quantidade() - 1);
-                                                            data.getCarvao().setQuantidade(
-                                                                    data.getCarvao().Quantidade() - 1);
-                                                            data.getEletricidade().addQuantidade(
-                                                                    (mapa.getCells()[i][j].getBuilding().getProducao()));
-                                                            break;
-                                                        }
-                                                    }
-                                                    else if(mapa.getCells()[i-1][j].getBuilding().designacao() == "bat"){
-                                                        if (data.getEletricidade().Quantidade() +
-                                                            mapa.getCells()[i][j].getBuilding().getProducao() >=
-                                                            data.getEletricidade().getCapacidade()) {
-                                                            data.getMadeira().setQuantidade(
-                                                                    data.getMadeira().Quantidade() - 1);
-                                                            data.getCarvao().setQuantidade(
-                                                                    data.getCarvao().Quantidade() - 1);
-                                                            data.getEletricidade().setCapacidade(
-                                                                    data.getEletricidade().getCapacidade());
-                                                            break;
-                                                        } else {
-                                                            data.getMadeira().setQuantidade(
-                                                                    data.getMadeira().Quantidade() - 1);
-                                                            data.getCarvao().setQuantidade(
-                                                                    data.getCarvao().Quantidade() - 1);
-                                                            data.getEletricidade().addQuantidade(
-                                                                    (mapa.getCells()[i][j].getBuilding().getProducao()));
-                                                            break;
-                                                        }
-                                                    }
-
-                                            }
-                                                mapa.getCells()[i + 1][j].getWorkers()[l].setDias(0);
-                                        }}
-                                    }
-                                    if (mapa.getCells()[i][j+1].getBiome().designacao() == "flr") {
-                                        for (int l = 0; l < mapa.getCells()[i][j+1].getWorkers().size(); l++) {
-                                            if (mapa.getCells()[i][j+1].getWorkers()[l].designacao() == 'L') {
-                                                if (mapa.getCells()[i][j + 1].getWorkers()[l].getDias() < 4) {
-                                                    if (mapa.getCells()[i - 1][j].getBuilding().designacao() == "bat") {
-                                                        if (data.getEletricidade().Quantidade() +
-                                                            mapa.getCells()[i][j].getBuilding().getProducao() >=
-                                                            data.getEletricidade().getCapacidade()) {
-                                                            data.getMadeira().setQuantidade(
-                                                                    data.getMadeira().Quantidade() - 1);
-                                                            data.getCarvao().setQuantidade(
-                                                                    data.getCarvao().Quantidade() - 1);
-                                                            data.getEletricidade().setCapacidade(
-                                                                    data.getEletricidade().getCapacidade());
-                                                            break;
-                                                        } else {
-                                                            data.getMadeira().setQuantidade(
-                                                                    data.getMadeira().Quantidade() - 1);
-                                                            data.getCarvao().setQuantidade(
-                                                                    data.getCarvao().Quantidade() - 1);
-                                                            data.getEletricidade().addQuantidade(
-                                                                    (mapa.getCells()[i][j].getBuilding().getProducao()));
-                                                            break;
-                                                        }
-                                                    } else if (mapa.getCells()[i + 1][j].getBuilding().designacao() ==
-                                                               "bat") {
-                                                        if (data.getEletricidade().Quantidade() +
-                                                            mapa.getCells()[i][j].getBuilding().getProducao() >=
-                                                            data.getEletricidade().getCapacidade()) {
-                                                            data.getMadeira().setQuantidade(
-                                                                    data.getMadeira().Quantidade() - 1);
-                                                            data.getCarvao().setQuantidade(
-                                                                    data.getCarvao().Quantidade() - 1);
-                                                            data.getEletricidade().setCapacidade(
-                                                                    data.getEletricidade().getCapacidade());
-                                                            break;
-                                                        } else {
-                                                            data.getMadeira().setQuantidade(
-                                                                    data.getMadeira().Quantidade() - 1);
-                                                            data.getCarvao().setQuantidade(
-                                                                    data.getCarvao().Quantidade() - 1);
-                                                            data.getEletricidade().addQuantidade(
-                                                                    (mapa.getCells()[i][j].getBuilding().getProducao()));
-                                                            break;
-                                                        }
-                                                    }
-                                                }
-                                                mapa.getCells()[i][j + 1].getWorkers()[l].setDias(0);
-                                            }
-                                        }
-                                    }
-                                }
-                                else if( i > 0 && i < mapa.getRows()-1 and j == mapa.getCols()-1 ){
-                                    if (mapa.getCells()[i][j-1].getBiome().designacao() == "flr") {
-                                        for (int l = 0; l < mapa.getCells()[i][j-1].getWorkers().size(); l++) {
-                                            if (mapa.getCells()[i][j - 1].getWorkers()[l].designacao() == 'L') {
-                                                if (mapa.getCells()[i][j - 1].getWorkers()[l].getDias() < 4) {
-                                                    if (mapa.getCells()[i + 1][j].getBuilding().designacao() == "bat") {
-                                                        if (data.getEletricidade().Quantidade() +
-                                                            mapa.getCells()[i][j].getBuilding().getProducao() >=
-                                                            data.getEletricidade().getCapacidade()) {
-                                                            data.getMadeira().setQuantidade(
-                                                                    data.getMadeira().Quantidade() - 1);
-                                                            data.getCarvao().setQuantidade(
-                                                                    data.getCarvao().Quantidade() - 1);
-                                                            data.getEletricidade().setCapacidade(
-                                                                    data.getEletricidade().getCapacidade());
-                                                            break;
-                                                        } else {
-                                                            data.getMadeira().setQuantidade(
-                                                                    data.getMadeira().Quantidade() - 1);
-                                                            data.getCarvao().setQuantidade(
-                                                                    data.getCarvao().Quantidade() - 1);
-                                                            data.getEletricidade().addQuantidade(
-                                                                    (mapa.getCells()[i][j].getBuilding().getProducao()));
-                                                            break;
-                                                        }
-                                                    } else if (mapa.getCells()[i - 1][j].getBuilding().designacao() ==
-                                                               "bat") {
-                                                        if (data.getEletricidade().Quantidade() +
-                                                            mapa.getCells()[i][j].getBuilding().getProducao() >=
-                                                            data.getEletricidade().getCapacidade()) {
-                                                            data.getMadeira().setQuantidade(
-                                                                    data.getMadeira().Quantidade() - 1);
-                                                            data.getCarvao().setQuantidade(
-                                                                    data.getCarvao().Quantidade() - 1);
-                                                            data.getEletricidade().setCapacidade(
-                                                                    data.getEletricidade().getCapacidade());
-                                                            break;
-                                                        } else {
-                                                            data.getMadeira().setQuantidade(
-                                                                    data.getMadeira().Quantidade() - 1);
-                                                            data.getCarvao().setQuantidade(
-                                                                    data.getCarvao().Quantidade() - 1);
-                                                            data.getEletricidade().addQuantidade(
-                                                                    (mapa.getCells()[i][j].getBuilding().getProducao()));
-                                                            break;
-                                                        }
-                                                    }
-                                                }
-                                                mapa.getCells()[i][j - 1].getWorkers()[l].setDias(0);
-                                            }
-                                        }
-                                    }
-                                    else if (mapa.getCells()[i-1][j].getBiome().designacao() == "flr") {
-                                        for (int l = 0; l < mapa.getCells()[i-1][j].getWorkers().size(); l++) {
-                                            if (mapa.getCells()[i-1][j].getWorkers()[l].designacao() == 'L') {
-                                                if (mapa.getCells()[i - 1][j].getWorkers()[l].getDias() < 4) {
-                                                    if (mapa.getCells()[i][j - 1].getBuilding().designacao() == "bat") {
-                                                        if (data.getEletricidade().Quantidade() +
-                                                            mapa.getCells()[i][j].getBuilding().getProducao() >=
-                                                            data.getEletricidade().getCapacidade()) {
-                                                            data.getMadeira().setQuantidade(
-                                                                    data.getMadeira().Quantidade() - 1);
-                                                            data.getCarvao().setQuantidade(
-                                                                    data.getCarvao().Quantidade() - 1);
-                                                            data.getEletricidade().setCapacidade(
-                                                                    data.getEletricidade().getCapacidade());
-                                                            break;
-                                                        } else {
-                                                            data.getMadeira().setQuantidade(
-                                                                    data.getMadeira().Quantidade() - 1);
-                                                            data.getCarvao().setQuantidade(
-                                                                    data.getCarvao().Quantidade() - 1);
-                                                            data.getEletricidade().addQuantidade(
-                                                                    (mapa.getCells()[i][j].getBuilding().getProducao()));
-                                                            break;
-                                                        }
-                                                    } else if (mapa.getCells()[i + 1][j].getBuilding().designacao() ==
-                                                               "bat") {
-                                                        if (data.getEletricidade().Quantidade() +
-                                                            mapa.getCells()[i][j].getBuilding().getProducao() >=
-                                                            data.getEletricidade().getCapacidade()) {
-                                                            data.getMadeira().setQuantidade(
-                                                                    data.getMadeira().Quantidade() - 1);
-                                                            data.getCarvao().setQuantidade(
-                                                                    data.getCarvao().Quantidade() - 1);
-                                                            data.getEletricidade().setCapacidade(
-                                                                    data.getEletricidade().getCapacidade());
-                                                            break;
-                                                        } else {
-                                                            data.getMadeira().setQuantidade(
-                                                                    data.getMadeira().Quantidade() - 1);
-                                                            data.getCarvao().setQuantidade(
-                                                                    data.getCarvao().Quantidade() - 1);
-                                                            data.getEletricidade().addQuantidade(
-                                                                    (mapa.getCells()[i][j].getBuilding().getProducao()));
-                                                            break;
-                                                        }
-                                                    }
-                                                }
-                                                mapa.getCells()[i - 1][j].getWorkers()[l].setDias(0);
-                                            }
-                                        }
-                                    }
-                                    if (mapa.getCells()[i+1][j].getBiome().designacao() == "flr") {
-                                        for (int l = 0; l < mapa.getCells()[i+1][j].getWorkers().size(); l++) {
+                                    } else if (mapa.getCells()[i + 1][j].getBiome().designacao() == "flr") {
+                                        for (int l = 0; l < mapa.getCells()[i + 1][j].getWorkers().size(); l++) {
                                             if (mapa.getCells()[i + 1][j].getWorkers()[l].designacao() == 'L') {
-                                                if (mapa.getCells()[i + 1][j].getWorkers()[l].getDias() < 4){
-                                                    if (mapa.getCells()[i][j-1].getBuilding().designacao() == "bat") {
-                                                        if (data.getEletricidade().Quantidade() +
-                                                            mapa.getCells()[i][j].getBuilding().getProducao() >=
-                                                            data.getEletricidade().getCapacidade()) {
-                                                            data.getMadeira().setQuantidade(
-                                                                    data.getMadeira().Quantidade() - 1);
-                                                            data.getCarvao().setQuantidade(
-                                                                    data.getCarvao().Quantidade() - 1);
-                                                            data.getEletricidade().setCapacidade(
-                                                                    data.getEletricidade().getCapacidade());
-                                                            break;
-                                                        } else {
-                                                            data.getMadeira().setQuantidade(
-                                                                    data.getMadeira().Quantidade() - 1);
-                                                            data.getCarvao().setQuantidade(
-                                                                    data.getCarvao().Quantidade() - 1);
-                                                            data.getEletricidade().addQuantidade(
-                                                                    (mapa.getCells()[i][j].getBuilding().getProducao()));
-                                                            break;
-                                                        }
-                                                    }
-                                                    else if(mapa.getCells()[i-1][j].getBuilding().designacao() == "bat"){
-                                                        if (data.getEletricidade().Quantidade() +
-                                                            mapa.getCells()[i][j].getBuilding().getProducao() >=
-                                                            data.getEletricidade().getCapacidade()) {
-                                                            data.getMadeira().setQuantidade(
-                                                                    data.getMadeira().Quantidade() - 1);
-                                                            data.getCarvao().setQuantidade(
-                                                                    data.getCarvao().Quantidade() - 1);
-                                                            data.getEletricidade().setCapacidade(
-                                                                    data.getEletricidade().getCapacidade());
-                                                            break;
-                                                        } else {
-                                                            data.getMadeira().setQuantidade(
-                                                                    data.getMadeira().Quantidade() - 1);
-                                                            data.getCarvao().setQuantidade(
-                                                                    data.getCarvao().Quantidade() - 1);
-                                                            data.getEletricidade().addQuantidade(
-                                                                    (mapa.getCells()[i][j].getBuilding().getProducao()));
-                                                            break;
-                                                        }
-                                                    }
-
-                                            }
-                                                mapa.getCells()[i + 1][j].getWorkers()[l].setDias(0);
-                                        }
-                                    }
-
-                                }
-                                else if( i == 0 &&  j > 0 && j < mapa.getCols() ){
-                                    if (mapa.getCells()[i][j-1].getBiome().designacao() == "flr") {
-                                        for (int l = 0; l < mapa.getCells()[i][j-1].getWorkers().size(); l++) {
-                                            if (mapa.getCells()[i][j-1].getWorkers()[l].designacao() == 'L') {
-
-                                                if (mapa.getCells()[i][j-1].getWorkers()[l].getDias() < 4) {
-                                                    if (mapa.getCells()[i + 1][j].getBuilding().designacao() == "bat") {
-                                                        if (data.getEletricidade().Quantidade() +
-                                                            mapa.getCells()[i][j].getBuilding().getProducao() >=
-                                                            data.getEletricidade().getCapacidade()) {
-                                                            data.getMadeira().setQuantidade(
-                                                                    data.getMadeira().Quantidade() - 1);
-                                                            data.getCarvao().setQuantidade(
-                                                                    data.getCarvao().Quantidade() - 1);
-                                                            data.getEletricidade().setCapacidade(
-                                                                    data.getEletricidade().getCapacidade());
-                                                            break;
-                                                        } else {
-                                                            data.getMadeira().setQuantidade(
-                                                                    data.getMadeira().Quantidade() - 1);
-                                                            data.getCarvao().setQuantidade(
-                                                                    data.getCarvao().Quantidade() - 1);
-                                                            data.getEletricidade().addQuantidade(
-                                                                    (mapa.getCells()[i][j].getBuilding().getProducao()));
-                                                            break;
-                                                        }
-                                                    } else if (mapa.getCells()[i][j + 1].getBuilding().designacao() ==
-                                                               "bat") {
-                                                        if (data.getEletricidade().Quantidade() +
-                                                            mapa.getCells()[i][j].getBuilding().getProducao() >=
-                                                            data.getEletricidade().getCapacidade()) {
-                                                            data.getMadeira().setQuantidade(
-                                                                    data.getMadeira().Quantidade() - 1);
-                                                            data.getCarvao().setQuantidade(
-                                                                    data.getCarvao().Quantidade() - 1);
-                                                            data.getEletricidade().setCapacidade(
-                                                                    data.getEletricidade().getCapacidade());
-                                                            break;
-                                                        } else {
-                                                            data.getMadeira().setQuantidade(
-                                                                    data.getMadeira().Quantidade() - 1);
-                                                            data.getCarvao().setQuantidade(
-                                                                    data.getCarvao().Quantidade() - 1);
-                                                            data.getEletricidade().addQuantidade(
-                                                                    (mapa.getCells()[i][j].getBuilding().getProducao()));
-                                                            break;
-                                                        }
-                                                    }
-                                            }
-                                                mapa.getCells()[i][j-1].getWorkers()[l].setDias(0);
-                                            }
-                                        }
-                                    }
-                                    else if (mapa.getCells()[i][j+1].getBiome().designacao() == "flr") {
-                                        for (int l = 0; l < mapa.getCells()[i][j+1].getWorkers().size(); l++) {
-                                            if (mapa.getCells()[i][j+1].getWorkers()[l].designacao() == 'L') {
-
-                                                if (mapa.getCells()[i][j+1].getWorkers()[l].getDias() < 4){
-
-                                                    if (mapa.getCells()[i][j - 1].getBuilding().designacao() == "bat") {
-                                                        if (data.getEletricidade().Quantidade() +
-                                                            mapa.getCells()[i][j].getBuilding().getProducao() >=
-                                                            data.getEletricidade().getCapacidade()) {
-                                                            data.getMadeira().setQuantidade(
-                                                                    data.getMadeira().Quantidade() - 1);
-                                                            data.getCarvao().setQuantidade(
-                                                                    data.getCarvao().Quantidade() - 1);
-                                                            data.getEletricidade().setCapacidade(
-                                                                    data.getEletricidade().getCapacidade());
-                                                            break;
-                                                        } else {
-                                                            data.getMadeira().setQuantidade(
-                                                                    data.getMadeira().Quantidade() - 1);
-                                                            data.getCarvao().setQuantidade(
-                                                                    data.getCarvao().Quantidade() - 1);
-                                                            data.getEletricidade().addQuantidade(
-                                                                    (mapa.getCells()[i][j].getBuilding().getProducao()));
-                                                            break;
-                                                        }
-                                                    } else if (mapa.getCells()[i + 1][j].getBuilding().designacao() ==
-                                                               "bat") {
-                                                        if (data.getEletricidade().Quantidade() +
-                                                            mapa.getCells()[i][j].getBuilding().getProducao() >=
-                                                            data.getEletricidade().getCapacidade()) {
-                                                            data.getMadeira().setQuantidade(
-                                                                    data.getMadeira().Quantidade() - 1);
-                                                            data.getCarvao().setQuantidade(
-                                                                    data.getCarvao().Quantidade() - 1);
-                                                            data.getEletricidade().setCapacidade(
-                                                                    data.getEletricidade().getCapacidade());
-                                                            break;
-                                                        } else {
-                                                            data.getMadeira().setQuantidade(
-                                                                    data.getMadeira().Quantidade() - 1);
-                                                            data.getCarvao().setQuantidade(
-                                                                    data.getCarvao().Quantidade() - 1);
-                                                            data.getEletricidade().addQuantidade(
-                                                                    (mapa.getCells()[i][j].getBuilding().getProducao()));
-                                                            break;
-                                                        }
-                                                    }
-
-                                                }
-                                                mapa.getCells()[i][j+1].getWorkers()[l].setDias(0);
-                                            }
-                                        }
-                                    }
-                                    if (mapa.getCells()[i+1][j].getBiome().designacao() == "flr") {
-                                        for (int l = 0; l < mapa.getCells()[i+1][j].getWorkers().size(); l++) {
-                                            if (mapa.getCells()[i+1][j].getWorkers()[l].designacao() == 'L') {
-
-                                                if (mapa.getCells()[i+1][j].getWorkers()[l].getDias() < 4) {
-                                                    if (mapa.getCells()[i][j - 1].getBuilding().designacao() == "bat") {
-                                                        if (data.getEletricidade().Quantidade() +
-                                                            mapa.getCells()[i][j].getBuilding().getProducao() >=
-                                                            data.getEletricidade().getCapacidade()) {
-                                                            data.getMadeira().setQuantidade(
-                                                                    data.getMadeira().Quantidade() - 1);
-                                                            data.getCarvao().setQuantidade(
-                                                                    data.getCarvao().Quantidade() - 1);
-                                                            data.getEletricidade().setCapacidade(
-                                                                    data.getEletricidade().getCapacidade());
-                                                            break;
-                                                        } else {
-                                                            data.getMadeira().setQuantidade(
-                                                                    data.getMadeira().Quantidade() - 1);
-                                                            data.getCarvao().setQuantidade(
-                                                                    data.getCarvao().Quantidade() - 1);
-                                                            data.getEletricidade().addQuantidade(
-                                                                    (mapa.getCells()[i][j].getBuilding().getProducao()));
-                                                            break;
-                                                        }
-                                                    } else if (mapa.getCells()[i][j + 1].getBuilding().designacao() ==
-                                                               "bat") {
-                                                        if (data.getEletricidade().Quantidade() +
-                                                            mapa.getCells()[i][j].getBuilding().getProducao() >=
-                                                            data.getEletricidade().getCapacidade()) {
-                                                            data.getMadeira().setQuantidade(
-                                                                    data.getMadeira().Quantidade() - 1);
-                                                            data.getCarvao().setQuantidade(
-                                                                    data.getCarvao().Quantidade() - 1);
-                                                            data.getEletricidade().setCapacidade(
-                                                                    data.getEletricidade().getCapacidade());
-                                                            break;
-                                                        } else {
-                                                            data.getMadeira().setQuantidade(
-                                                                    data.getMadeira().Quantidade() - 1);
-                                                            data.getCarvao().setQuantidade(
-                                                                    data.getCarvao().Quantidade() - 1);
-                                                            data.getEletricidade().addQuantidade(
-                                                                    (mapa.getCells()[i][j].getBuilding().getProducao()));
-                                                            break;
-                                                        }
-                                                    }
-                                                }
-
-                                                mapa.getCells()[i + 1][j].getWorkers()[l].setDias(0);
-                                            }
-                                        }
-                                    }
-
-                                }
-                                else if( i == mapa.getRows()-1  &&  j > 0 && j < mapa.getCols()-1  ){
-                                    if (mapa.getCells()[i][j-1].getBiome().designacao() == "flr") {
-                                        for (int l = 0; l < mapa.getCells()[i][j-1].getWorkers().size(); l++) {
-                                            if (mapa.getCells()[i][j-1].getWorkers()[l].designacao() == 'L') {
-                                                if (mapa.getCells()[i][j-1].getWorkers()[l].getDias() < 4) {
+                                                if (mapa.getCells()[i + 1][j].getWorkers()[l].getDias() <= 4) {
                                                     if (mapa.getCells()[i][j + 1].getBuilding().designacao() == "bat") {
-                                                        if (data.getEletricidade().Quantidade() +
-                                                            mapa.getCells()[i][j].getBuilding().getProducao() >=
-                                                            data.getEletricidade().getCapacidade()) {
-                                                            data.getMadeira().setQuantidade(
-                                                                    data.getMadeira().Quantidade() - 1);
-                                                            data.getCarvao().setQuantidade(
-                                                                    data.getCarvao().Quantidade() - 1);
-                                                            data.getEletricidade().setCapacidade(
-                                                                    data.getEletricidade().getCapacidade());
-                                                            break;
-                                                        } else {
-                                                            data.getMadeira().setQuantidade(
-                                                                    data.getMadeira().Quantidade() - 1);
-                                                            data.getCarvao().setQuantidade(
-                                                                    data.getCarvao().Quantidade() - 1);
-                                                            data.getEletricidade().addQuantidade(
-                                                                    (mapa.getCells()[i][j].getBuilding().getProducao()));
-                                                            break;
-                                                        }
-                                                    } else if (mapa.getCells()[i - 1][j].getBuilding().designacao() ==
-                                                               "bat") {
-                                                        if (data.getEletricidade().Quantidade() +
-                                                            mapa.getCells()[i][j].getBuilding().getProducao() >=
-                                                            data.getEletricidade().getCapacidade()) {
-                                                            data.getMadeira().setQuantidade(
-                                                                    data.getMadeira().Quantidade() - 1);
-                                                            data.getCarvao().setQuantidade(
-                                                                    data.getCarvao().Quantidade() - 1);
-                                                            data.getEletricidade().setCapacidade(
-                                                                    data.getEletricidade().getCapacidade());
-                                                            break;
-                                                        } else {
-                                                            data.getMadeira().setQuantidade(
-                                                                    data.getMadeira().Quantidade() - 1);
-                                                            data.getCarvao().setQuantidade(
-                                                                    data.getCarvao().Quantidade() - 1);
-                                                            data.getEletricidade().addQuantidade(
-                                                                    (mapa.getCells()[i][j].getBuilding().getProducao()));
-                                                            break;
+                                                        if (data.getMadeira().Quantidade() - 1 != 0 &&
+                                                            data.getCarvao().Quantidade() - 1 != 0) {
+                                                            if (data.getEletricidade().Quantidade() +
+                                                                mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                                data.getEletricidade().getCapacidade()) {
+                                                                data.getMadeira().setQuantidade(
+                                                                        data.getMadeira().Quantidade() - 1);
+                                                                cout << data.getMadeira().Quantidade() << endl;
+                                                                data.getCarvao().setQuantidade(
+                                                                        data.getCarvao().Quantidade() - 1);
+                                                                data.getEletricidade().setCapacidade(
+                                                                        data.getEletricidade().getCapacidade());
+
+                                                                break;
+                                                            } else {
+                                                                data.getMadeira().setQuantidade(
+                                                                        data.getMadeira().Quantidade() - 1);
+                                                                cout << data.getMadeira().Quantidade() << endl;
+                                                                data.getCarvao().setQuantidade(
+                                                                        data.getCarvao().Quantidade() - 1);
+                                                                data.getEletricidade().addQuantidade(
+                                                                        (mapa.getCells()[i][j].getBuilding().getProducao()));
+
+                                                                break;
+                                                            }
                                                         }
                                                     }
+                                                }
+                                                mapa.getCells()[i + 1][j].getWorkers()[l].setDias(0);
                                             }
+
+                                        }
+
+                                    }
+                                } else if (i == 0 && j == mapa.getCols() - 1) {
+
+                                    if (mapa.getCells()[i][j - 1].getBiome().designacao() == "flr") {
+                                        for (int l = 0; l < mapa.getCells()[i][j - 1].getWorkers().size(); l++) {
+                                            if (mapa.getCells()[i][j - 1].getWorkers()[l].designacao() == 'L') {
+                                                if (mapa.getCells()[i][j - 1].getWorkers()[l].getDias() <= 4) {
+                                                    if (mapa.getCells()[i + 1][j].getBuilding().designacao() == "bat") {
+
+                                                        if (data.getMadeira().Quantidade() - 1 != 0 &&
+                                                            data.getCarvao().Quantidade() - 1 != 0) {
+                                                            if (data.getEletricidade().Quantidade() +
+                                                                mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                                data.getEletricidade().getCapacidade()) {
+                                                                data.getMadeira().setQuantidade(
+                                                                        data.getMadeira().Quantidade() - 1);
+                                                                data.getCarvao().setQuantidade(
+                                                                        data.getCarvao().Quantidade() - 1);
+                                                                data.getEletricidade().setCapacidade(
+                                                                        data.getEletricidade().getCapacidade());
+
+                                                                break;
+                                                            } else {
+                                                                data.getMadeira().setQuantidade(
+                                                                        data.getMadeira().Quantidade() - 1);
+                                                                data.getCarvao().setQuantidade(
+                                                                        data.getCarvao().Quantidade() - 1);
+                                                                data.getEletricidade().addQuantidade(
+                                                                        (mapa.getCells()[i][j].getBuilding().getProducao()));
+
+                                                                break;
+                                                            }
+                                                        }
+                                                    }
+                                                }
                                                 mapa.getCells()[i][j - 1].getWorkers()[l].setDias(0);
                                             }
                                         }
-                                    }
-                                    else if (mapa.getCells()[i-1][j].getBiome().designacao() == "flr") {
-                                        for (int l = 0; l < mapa.getCells()[i-1][j].getWorkers().size(); l++) {
-                                            if (mapa.getCells()[i-1][j].getWorkers()[l].designacao() == 'L') {
-                                                if (mapa.getCells()[i-1][j].getWorkers()[l].getDias() < 4) {
+                                    } else if (mapa.getCells()[i + 1][j].getBiome().designacao() == "flr") {
+                                        for (int l = 0; l < mapa.getCells()[i + 1][j].getWorkers().size(); l++) {
+                                            if (mapa.getCells()[i + 1][j].getWorkers()[l].designacao() == 'L') {
+                                                if (mapa.getCells()[i + 1][j].getWorkers()[l].getDias() <= 4) {
                                                     if (mapa.getCells()[i][j - 1].getBuilding().designacao() == "bat") {
-                                                        if (data.getEletricidade().Quantidade() +
-                                                            mapa.getCells()[i][j].getBuilding().getProducao() >=
-                                                            data.getEletricidade().getCapacidade()) {
-                                                            data.getMadeira().setQuantidade(
-                                                                    data.getMadeira().Quantidade() - 1);
-                                                            data.getCarvao().setQuantidade(
-                                                                    data.getCarvao().Quantidade() - 1);
-                                                            data.getEletricidade().setCapacidade(
-                                                                    data.getEletricidade().getCapacidade());
-                                                            break;
-                                                        } else {
-                                                            data.getMadeira().setQuantidade(
-                                                                    data.getMadeira().Quantidade() - 1);
-                                                            data.getCarvao().setQuantidade(
-                                                                    data.getCarvao().Quantidade() - 1);
-                                                            data.getEletricidade().addQuantidade(
-                                                                    (mapa.getCells()[i][j].getBuilding().getProducao()));
-                                                            break;
-                                                        }
-                                                    } else if (mapa.getCells()[i][j + 1].getBuilding().designacao() ==
-                                                               "bat") {
-                                                        if (data.getEletricidade().Quantidade() +
-                                                            mapa.getCells()[i][j].getBuilding().getProducao() >=
-                                                            data.getEletricidade().getCapacidade()) {
-                                                            data.getMadeira().setQuantidade(
-                                                                    data.getMadeira().Quantidade() - 1);
-                                                            data.getCarvao().setQuantidade(
-                                                                    data.getCarvao().Quantidade() - 1);
-                                                            data.getEletricidade().setCapacidade(
-                                                                    data.getEletricidade().getCapacidade());
-                                                            break;
-                                                        } else {
-                                                            data.getMadeira().setQuantidade(
-                                                                    data.getMadeira().Quantidade() - 1);
-                                                            data.getCarvao().setQuantidade(
-                                                                    data.getCarvao().Quantidade() - 1);
-                                                            data.getEletricidade().addQuantidade(
-                                                                    (mapa.getCells()[i][j].getBuilding().getProducao()));
-                                                            break;
+
+                                                        if (data.getMadeira().Quantidade() - 1 != 0 &&
+                                                            data.getCarvao().Quantidade() - 1 != 0) {
+                                                            if (data.getEletricidade().Quantidade() +
+                                                                mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                                data.getEletricidade().getCapacidade()) {
+                                                                data.getMadeira().setQuantidade(
+                                                                        data.getMadeira().Quantidade() - 1);
+                                                                data.getCarvao().setQuantidade(
+                                                                        data.getCarvao().Quantidade() - 1);
+                                                                data.getEletricidade().setCapacidade(
+                                                                        data.getEletricidade().getCapacidade());
+                                                                break;
+                                                            } else {
+                                                                data.getMadeira().setQuantidade(
+                                                                        data.getMadeira().Quantidade() - 1);
+                                                                data.getCarvao().setQuantidade(
+                                                                        data.getCarvao().Quantidade() - 1);
+                                                                data.getEletricidade().addQuantidade(
+                                                                        (mapa.getCells()[i][j].getBuilding().getProducao()));
+
+                                                                break;
+                                                            }
                                                         }
                                                     }
+                                                }
+                                                mapa.getCells()[i + 1][j].getWorkers()[l].setDias(0);
                                             }
+                                        }
+                                    }
+                                } else if (i == mapa.getRows() - 1 && j == 0) {
+
+
+                                    if (mapa.getCells()[i - 1][j].getBiome().designacao() == "flr") {
+
+                                        for (int l = 0; l < mapa.getCells()[i - 1][j].getWorkers().size(); l++) {
+                                            if (mapa.getCells()[i - 1][j].getWorkers()[l].designacao() == 'L') {
+                                                if (mapa.getCells()[i - 1][j].getWorkers()[l].getDias() <= 4) {
+                                                    if (mapa.getCells()[i][j + 1].getBuilding().designacao() == "bat") {
+                                                        cout << "bat 1" << endl;
+
+                                                        if (data.getMadeira().Quantidade() - 1 != 0 &&
+                                                            data.getCarvao().Quantidade() - 1 != 0) {
+                                                            if (data.getEletricidade().Quantidade() +
+                                                                mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                                data.getEletricidade().getCapacidade()) {
+                                                                data.getMadeira().setQuantidade(
+                                                                        data.getMadeira().Quantidade() - 1);
+                                                                data.getCarvao().setQuantidade(
+                                                                        data.getCarvao().Quantidade() - 1);
+                                                                data.getEletricidade().setCapacidade(
+                                                                        data.getEletricidade().getCapacidade());
+
+                                                                break;
+                                                            } else {
+                                                                data.getMadeira().setQuantidade(
+                                                                        data.getMadeira().Quantidade() - 1);
+                                                                data.getCarvao().setQuantidade(
+                                                                        data.getCarvao().Quantidade() - 1);
+                                                                data.getEletricidade().addQuantidade(
+                                                                        (mapa.getCells()[i][j].getBuilding().getProducao()));
+
+                                                                break;
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                            mapa.getCells()[i - 1][j].getWorkers()[l].setDias(0);
+                                        }
+                                    } else if (mapa.getCells()[i][j + 1].getBiome().designacao() == "flr") {
+                                        cout << "flr 2 " << endl;
+                                        for (int l = 0; l < mapa.getCells()[i][j + 1].getWorkers().size(); l++) {
+                                            if (mapa.getCells()[i][j + 1].getWorkers()[l].designacao() == 'L') {
+                                                if (mapa.getCells()[i][j + 1].getWorkers()[l].getDias() <= 4) {
+                                                    if (mapa.getCells()[i - 1][j].getBuilding().designacao() == "bat") {
+                                                        cout << "bat 2 " << endl;
+                                                        if (data.getMadeira().Quantidade() - 1 != 0 &&
+                                                            data.getCarvao().Quantidade() - 1 != 0) {
+                                                            if (data.getEletricidade().Quantidade() +
+                                                                mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                                data.getEletricidade().getCapacidade()) {
+                                                                data.getMadeira().setQuantidade(
+                                                                        data.getMadeira().Quantidade() - 1);
+                                                                data.getCarvao().setQuantidade(
+                                                                        data.getCarvao().Quantidade() - 1);
+                                                                data.getEletricidade().setCapacidade(
+                                                                        data.getEletricidade().getCapacidade());
+
+                                                                break;
+                                                            } else {
+                                                                data.getMadeira().setQuantidade(
+                                                                        data.getMadeira().Quantidade() - 1);
+                                                                data.getCarvao().setQuantidade(
+                                                                        data.getCarvao().Quantidade() - 1);
+                                                                data.getEletricidade().addQuantidade(
+                                                                        (mapa.getCells()[i][j].getBuilding().getProducao()));
+
+                                                                break;
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                                mapa.getCells()[i][j + 1].getWorkers()[l].setDias(0);
+                                            }
+                                        }
+                                    }
+                                } else if (i == mapa.getRows() - 1 && j == mapa.getCols() - 1) {
+                                    if (mapa.getCells()[i - 1][j].getBiome().designacao() == "flr") {
+                                        for (int l = 0; l < mapa.getCells()[i - 1][j].getWorkers().size(); l++) {
+                                            if (mapa.getCells()[i - 1][j].getWorkers()[l].designacao() == 'L') {
+                                                if (mapa.getCells()[i - 1][j].getWorkers()[l].getDias() <= 4) {
+                                                    if (mapa.getCells()[i][j - 1].getBuilding().designacao() == "bat") {
+                                                        if (data.getMadeira().Quantidade() - 1 != 0 &&
+                                                            data.getCarvao().Quantidade() - 1 != 0) {
+                                                            if (data.getEletricidade().Quantidade() +
+                                                                mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                                data.getEletricidade().getCapacidade()) {
+                                                                data.getMadeira().setQuantidade(
+                                                                        data.getMadeira().Quantidade() - 1);
+                                                                data.getCarvao().setQuantidade(
+                                                                        data.getCarvao().Quantidade() - 1);
+                                                                data.getEletricidade().setCapacidade(
+                                                                        data.getEletricidade().getCapacidade());
+
+                                                                break;
+                                                            } else {
+                                                                data.getMadeira().setQuantidade(
+                                                                        data.getMadeira().Quantidade() - 1);
+                                                                data.getCarvao().setQuantidade(
+                                                                        data.getCarvao().Quantidade() - 1);
+                                                                data.getEletricidade().addQuantidade(
+                                                                        (mapa.getCells()[i][j].getBuilding().getProducao()));
+
+                                                                break;
+                                                            }
+                                                        }
+                                                    }
+                                                }
+
+                                                mapa.getCells()[i - 1][j].getWorkers()[l].setDias(0);
+                                            }
+                                        }
+                                    } else if (mapa.getCells()[i][j - 1].getBiome().designacao() == "flr") {
+                                        for (int l = 0; l < mapa.getCells()[i][j - 1].getWorkers().size(); l++) {
+                                            if (mapa.getCells()[i][j - 1].getWorkers()[l].designacao() == 'L') {
+                                                if (mapa.getCells()[i][j - 1].getWorkers()[l].getDias() <= 4) {
+                                                    if (mapa.getCells()[i - 1][j].getBuilding().designacao() == "bat") {
+                                                        if (data.getMadeira().Quantidade() - 1 != 0 &&
+                                                            data.getCarvao().Quantidade() - 1 != 0) {
+                                                            if (data.getEletricidade().Quantidade() +
+                                                                mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                                data.getEletricidade().getCapacidade()) {
+                                                                data.getMadeira().setQuantidade(
+                                                                        data.getMadeira().Quantidade() - 1);
+                                                                data.getCarvao().setQuantidade(
+                                                                        data.getCarvao().Quantidade() - 1);
+                                                                data.getEletricidade().setCapacidade(
+                                                                        data.getEletricidade().getCapacidade());
+
+                                                                break;
+                                                            } else {
+                                                                data.getMadeira().setQuantidade(
+                                                                        data.getMadeira().Quantidade() - 1);
+                                                                data.getCarvao().setQuantidade(
+                                                                        data.getCarvao().Quantidade() - 1);
+                                                                data.getEletricidade().addQuantidade(
+                                                                        (mapa.getCells()[i][j].getBuilding().getProducao()));
+
+                                                                break;
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                                mapa.getCells()[i][j - 1].getWorkers()[l].setDias(0);
+                                            }
+                                        }
+
+                                    }
+
+                                } else if (i > 0 && i < mapa.getRows() - 1 && j == 0) {
+                                    if (mapa.getCells()[i - 1][j].getBiome().designacao() == "flr") {
+                                        for (int l = 0; l < mapa.getCells()[i - 1][j].getWorkers().size(); l++) {
+                                            if (mapa.getCells()[i - 1][j].getWorkers()[l].designacao() == 'L') {
+                                                if (mapa.getCells()[i - 1][j].getWorkers()[l].getDias() <= 4) {
+                                                    if (mapa.getCells()[i][j + 1].getBuilding().designacao() == "bat") {
+                                                        if (data.getMadeira().Quantidade() - 1 != 0 &&
+                                                            data.getCarvao().Quantidade() - 1 != 0) {
+                                                            if (data.getEletricidade().Quantidade() +
+                                                                mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                                data.getEletricidade().getCapacidade()) {
+                                                                data.getMadeira().setQuantidade(
+                                                                        data.getMadeira().Quantidade() - 1);
+                                                                data.getCarvao().setQuantidade(
+                                                                        data.getCarvao().Quantidade() - 1);
+                                                                data.getEletricidade().setCapacidade(
+                                                                        data.getEletricidade().getCapacidade());
+
+                                                                break;
+                                                            } else {
+                                                                data.getMadeira().setQuantidade(
+                                                                        data.getMadeira().Quantidade() - 1);
+                                                                data.getCarvao().setQuantidade(
+                                                                        data.getCarvao().Quantidade() - 1);
+                                                                data.getEletricidade().addQuantidade(
+                                                                        (mapa.getCells()[i][j].getBuilding().getProducao()));
+
+                                                                break;
+                                                            }
+
+                                                        }
+                                                    } else if (mapa.getCells()[i + 1][j].getBuilding().designacao() ==
+                                                               "bat") {
+                                                        if (data.getMadeira().Quantidade() - 1 != 0 &&
+                                                            data.getCarvao().Quantidade() - 1 != 0) {
+                                                            if (data.getEletricidade().Quantidade() +
+                                                                mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                                data.getEletricidade().getCapacidade()) {
+                                                                data.getMadeira().setQuantidade(
+                                                                        data.getMadeira().Quantidade() - 1);
+                                                                data.getCarvao().setQuantidade(
+                                                                        data.getCarvao().Quantidade() - 1);
+                                                                data.getEletricidade().setCapacidade(
+                                                                        data.getEletricidade().getCapacidade());
+
+                                                                break;
+                                                            } else {
+                                                                data.getMadeira().setQuantidade(
+                                                                        data.getMadeira().Quantidade() - 1);
+                                                                data.getCarvao().setQuantidade(
+                                                                        data.getCarvao().Quantidade() - 1);
+                                                                data.getEletricidade().addQuantidade(
+                                                                        (mapa.getCells()[i -
+                                                                                         1][j].getBuilding().getProducao()));
+
+                                                                break;
+                                                            }
+                                                        }
+                                                    }
+
+                                                }
+                                                mapa.getCells()[i - 1][j].getWorkers()[l].setDias(0);
+                                            }
+                                        }
+                                    } else if (mapa.getCells()[i + 1][j].getBiome().designacao() == "flr") {
+                                        for (int l = 0; l < mapa.getCells()[i + 1][j].getWorkers().size(); l++) {
+                                            if (mapa.getCells()[i + 1][j].getWorkers()[l].designacao() == 'L') {
+                                                if (mapa.getCells()[i + 1][j].getWorkers()[l].getDias() <= 4) {
+                                                    if (mapa.getCells()[i][j + 1].getBuilding().designacao() == "bat") {
+                                                        if (data.getMadeira().Quantidade() - 1 != 0 &&
+                                                            data.getCarvao().Quantidade() - 1 != 0) {
+                                                            if (data.getEletricidade().Quantidade() +
+                                                                mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                                data.getEletricidade().getCapacidade()) {
+                                                                data.getMadeira().setQuantidade(
+                                                                        data.getMadeira().Quantidade() - 1);
+                                                                data.getCarvao().setQuantidade(
+                                                                        data.getCarvao().Quantidade() - 1);
+                                                                data.getEletricidade().setCapacidade(
+                                                                        data.getEletricidade().getCapacidade());
+                                                                break;
+                                                            } else {
+                                                                data.getMadeira().setQuantidade(
+                                                                        data.getMadeira().Quantidade() - 1);
+                                                                data.getCarvao().setQuantidade(
+                                                                        data.getCarvao().Quantidade() - 1);
+                                                                data.getEletricidade().addQuantidade(
+                                                                        (mapa.getCells()[i][j].getBuilding().getProducao()));
+                                                                break;
+                                                            }
+                                                        }
+                                                    } else if (mapa.getCells()[i - 1][j].getBuilding().designacao() ==
+                                                               "bat") {
+                                                        if (data.getMadeira().Quantidade() - 1 != 0 &&
+                                                            data.getCarvao().Quantidade() - 1 != 0) {
+                                                            if (data.getEletricidade().Quantidade() +
+                                                                mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                                data.getEletricidade().getCapacidade()) {
+                                                                data.getMadeira().setQuantidade(
+                                                                        data.getMadeira().Quantidade() - 1);
+                                                                data.getCarvao().setQuantidade(
+                                                                        data.getCarvao().Quantidade() - 1);
+                                                                data.getEletricidade().setCapacidade(
+                                                                        data.getEletricidade().getCapacidade());
+
+                                                                break;
+                                                            } else {
+                                                                data.getMadeira().setQuantidade(
+                                                                        data.getMadeira().Quantidade() - 1);
+                                                                data.getCarvao().setQuantidade(
+                                                                        data.getCarvao().Quantidade() - 1);
+                                                                data.getEletricidade().addQuantidade(
+                                                                        (mapa.getCells()[i][j].getBuilding().getProducao()));
+
+                                                                break;
+                                                            }
+                                                        }
+                                                    }
+
+                                                }
+                                                mapa.getCells()[i + 1][j].getWorkers()[l].setDias(0);
+                                            }
+                                        }
+                                    }
+                                    if (mapa.getCells()[i][j + 1].getBiome().designacao() == "flr") {
+                                        for (int l = 0; l < mapa.getCells()[i][j + 1].getWorkers().size(); l++) {
+                                            if (mapa.getCells()[i][j + 1].getWorkers()[l].designacao() == 'L') {
+                                                if (mapa.getCells()[i][j + 1].getWorkers()[l].getDias() < 4) {
+                                                    if (mapa.getCells()[i - 1][j].getBuilding().designacao() == "bat") {
+                                                        if (data.getMadeira().Quantidade() - 1 != 0 &&
+                                                            data.getCarvao().Quantidade() - 1 != 0) {
+                                                            if (data.getEletricidade().Quantidade() +
+                                                                mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                                data.getEletricidade().getCapacidade()) {
+                                                                data.getMadeira().setQuantidade(
+                                                                        data.getMadeira().Quantidade() - 1);
+                                                                data.getCarvao().setQuantidade(
+                                                                        data.getCarvao().Quantidade() - 1);
+                                                                data.getEletricidade().setCapacidade(
+                                                                        data.getEletricidade().getCapacidade());
+                                                                break;
+                                                            } else {
+                                                                data.getMadeira().setQuantidade(
+                                                                        data.getMadeira().Quantidade() - 1);
+                                                                data.getCarvao().setQuantidade(
+                                                                        data.getCarvao().Quantidade() - 1);
+                                                                data.getEletricidade().addQuantidade(
+                                                                        (mapa.getCells()[i][j].getBuilding().getProducao()));
+
+                                                                break;
+                                                            }
+                                                        }
+                                                    } else if (mapa.getCells()[i + 1][j].getBuilding().designacao() ==
+                                                               "bat") {
+                                                        if (data.getMadeira().Quantidade() - 1 != 0 &&
+                                                            data.getCarvao().Quantidade() - 1 != 0) {
+                                                            if (data.getEletricidade().Quantidade() +
+                                                                mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                                data.getEletricidade().getCapacidade()) {
+                                                                data.getMadeira().setQuantidade(
+                                                                        data.getMadeira().Quantidade() - 1);
+                                                                data.getCarvao().setQuantidade(
+                                                                        data.getCarvao().Quantidade() - 1);
+                                                                data.getEletricidade().setCapacidade(
+                                                                        data.getEletricidade().getCapacidade());
+                                                                break;
+                                                            } else {
+                                                                data.getMadeira().setQuantidade(
+                                                                        data.getMadeira().Quantidade() - 1);
+                                                                data.getCarvao().setQuantidade(
+                                                                        data.getCarvao().Quantidade() - 1);
+                                                                data.getEletricidade().addQuantidade(
+                                                                        (mapa.getCells()[i][j].getBuilding().getProducao()));
+
+                                                                break;
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                                mapa.getCells()[i][j + 1].getWorkers()[l].setDias(0);
+                                            }
+                                        }
+                                    }
+
+                                } else if (i > 0 && i < mapa.getRows() - 1 && j == mapa.getCols() - 1) {
+                                    if (mapa.getCells()[i][j - 1].getBiome().designacao() == "flr") {
+                                        for (int l = 0; l < mapa.getCells()[i][j - 1].getWorkers().size(); l++) {
+                                            if (mapa.getCells()[i][j - 1].getWorkers()[l].designacao() == 'L') {
+                                                if (mapa.getCells()[i][j - 1].getWorkers()[l].getDias() <= 4) {
+                                                    if (mapa.getCells()[i + 1][j].getBuilding().designacao() == "bat") {
+                                                        if (data.getMadeira().Quantidade() - 1 != 0 &&
+                                                            data.getCarvao().Quantidade() - 1 != 0) {
+                                                            if (data.getEletricidade().Quantidade() +
+                                                                mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                                data.getEletricidade().getCapacidade()) {
+                                                                data.getMadeira().setQuantidade(
+                                                                        data.getMadeira().Quantidade() - 1);
+                                                                data.getCarvao().setQuantidade(
+                                                                        data.getCarvao().Quantidade() - 1);
+                                                                data.getEletricidade().setCapacidade(
+                                                                        data.getEletricidade().getCapacidade());
+
+                                                                break;
+                                                            } else {
+                                                                data.getMadeira().setQuantidade(
+                                                                        data.getMadeira().Quantidade() - 1);
+                                                                data.getCarvao().setQuantidade(
+                                                                        data.getCarvao().Quantidade() - 1);
+                                                                data.getEletricidade().addQuantidade(
+                                                                        (mapa.getCells()[i][j].getBuilding().getProducao()));
+
+                                                                break;
+                                                            }
+                                                        }
+                                                    } else if (mapa.getCells()[i - 1][j].getBuilding().designacao() ==
+                                                               "bat") {
+                                                        if (data.getMadeira().Quantidade() - 1 != 0 &&
+                                                            data.getCarvao().Quantidade() - 1 != 0) {
+                                                            if (data.getEletricidade().Quantidade() +
+                                                                mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                                data.getEletricidade().getCapacidade()) {
+                                                                data.getMadeira().setQuantidade(
+                                                                        data.getMadeira().Quantidade() - 1);
+                                                                data.getCarvao().setQuantidade(
+                                                                        data.getCarvao().Quantidade() - 1);
+                                                                data.getEletricidade().setCapacidade(
+                                                                        data.getEletricidade().getCapacidade());
+
+                                                                break;
+                                                            } else {
+                                                                data.getMadeira().setQuantidade(
+                                                                        data.getMadeira().Quantidade() - 1);
+                                                                data.getCarvao().setQuantidade(
+                                                                        data.getCarvao().Quantidade() - 1);
+                                                                data.getEletricidade().addQuantidade(
+                                                                        (mapa.getCells()[i][j].getBuilding().getProducao()));
+
+                                                                break;
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                                mapa.getCells()[i][j - 1].getWorkers()[l].setDias(0);
+                                            }
+                                        }
+                                    } else if (mapa.getCells()[i - 1][j].getBiome().designacao() == "flr") {
+                                        for (int l = 0; l < mapa.getCells()[i - 1][j].getWorkers().size(); l++) {
+                                            if (mapa.getCells()[i - 1][j].getWorkers()[l].designacao() == 'L') {
+                                                if (mapa.getCells()[i - 1][j].getWorkers()[l].getDias() <= 4) {
+                                                    if (mapa.getCells()[i][j - 1].getBuilding().designacao() == "bat") {
+                                                        if (data.getMadeira().Quantidade() - 1 != 0 &&
+                                                            data.getCarvao().Quantidade() - 1 != 0) {
+                                                            if (data.getEletricidade().Quantidade() +
+                                                                mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                                data.getEletricidade().getCapacidade()) {
+                                                                data.getMadeira().setQuantidade(
+                                                                        data.getMadeira().Quantidade() - 1);
+                                                                data.getCarvao().setQuantidade(
+                                                                        data.getCarvao().Quantidade() - 1);
+                                                                data.getEletricidade().setCapacidade(
+                                                                        data.getEletricidade().getCapacidade());
+                                                                break;
+                                                            } else {
+                                                                data.getMadeira().setQuantidade(
+                                                                        data.getMadeira().Quantidade() - 1);
+                                                                data.getCarvao().setQuantidade(
+                                                                        data.getCarvao().Quantidade() - 1);
+                                                                data.getEletricidade().addQuantidade(
+                                                                        (mapa.getCells()[i][j].getBuilding().getProducao()));
+                                                                break;
+                                                            }
+                                                        }
+                                                    } else if (mapa.getCells()[i + 1][j].getBuilding().designacao() ==
+                                                               "bat") {
+                                                        if (data.getMadeira().Quantidade() - 1 != 0 &&
+                                                            data.getCarvao().Quantidade() - 1 != 0) {
+                                                            if (data.getEletricidade().Quantidade() +
+                                                                mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                                data.getEletricidade().getCapacidade()) {
+                                                                data.getMadeira().setQuantidade(
+                                                                        data.getMadeira().Quantidade() - 1);
+                                                                data.getCarvao().setQuantidade(
+                                                                        data.getCarvao().Quantidade() - 1);
+                                                                data.getEletricidade().setCapacidade(
+                                                                        data.getEletricidade().getCapacidade());
+                                                                break;
+                                                            } else {
+                                                                data.getMadeira().setQuantidade(
+                                                                        data.getMadeira().Quantidade() - 1);
+                                                                data.getCarvao().setQuantidade(
+                                                                        data.getCarvao().Quantidade() - 1);
+                                                                data.getEletricidade().addQuantidade(
+                                                                        (mapa.getCells()[i][j].getBuilding().getProducao()));
+                                                                break;
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                                mapa.getCells()[i - 1][j].getWorkers()[l].setDias(0);
+                                            }
+                                        }
+                                    }
+                                    if (mapa.getCells()[i + 1][j].getBiome().designacao() == "flr") {
+                                        for (int l = 0; l < mapa.getCells()[i + 1][j].getWorkers().size(); l++) {
+                                            if (mapa.getCells()[i + 1][j].getWorkers()[l].designacao() == 'L') {
+                                                if (mapa.getCells()[i + 1][j].getWorkers()[l].getDias() <= 4) {
+                                                    if (mapa.getCells()[i][j - 1].getBuilding().designacao() == "bat") {
+                                                        if (data.getMadeira().Quantidade() - 1 != 0 &&
+                                                            data.getCarvao().Quantidade() - 1 != 0) {
+                                                            if (data.getEletricidade().Quantidade() +
+                                                                mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                                data.getEletricidade().getCapacidade()) {
+                                                                data.getMadeira().setQuantidade(
+                                                                        data.getMadeira().Quantidade() - 1);
+                                                                data.getCarvao().setQuantidade(
+                                                                        data.getCarvao().Quantidade() - 1);
+                                                                data.getEletricidade().setCapacidade(
+                                                                        data.getEletricidade().getCapacidade());
+                                                                break;
+                                                            } else {
+                                                                data.getMadeira().setQuantidade(
+                                                                        data.getMadeira().Quantidade() - 1);
+                                                                data.getCarvao().setQuantidade(
+                                                                        data.getCarvao().Quantidade() - 1);
+                                                                data.getEletricidade().addQuantidade(
+                                                                        (mapa.getCells()[i][j].getBuilding().getProducao()));
+                                                                break;
+                                                            }
+                                                        }
+                                                    } else if (mapa.getCells()[i - 1][j].getBuilding().designacao() ==
+                                                               "bat") {
+                                                        if (data.getMadeira().Quantidade() - 1 != 0 &&
+                                                            data.getCarvao().Quantidade() - 1 != 0) {
+                                                            if (data.getEletricidade().Quantidade() +
+                                                                mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                                data.getEletricidade().getCapacidade()) {
+                                                                data.getMadeira().setQuantidade(
+                                                                        data.getMadeira().Quantidade() - 1);
+                                                                data.getCarvao().setQuantidade(
+                                                                        data.getCarvao().Quantidade() - 1);
+                                                                data.getEletricidade().setCapacidade(
+                                                                        data.getEletricidade().getCapacidade());
+                                                                break;
+                                                            } else {
+                                                                data.getMadeira().setQuantidade(
+                                                                        data.getMadeira().Quantidade() - 1);
+                                                                data.getCarvao().setQuantidade(
+                                                                        data.getCarvao().Quantidade() - 1);
+                                                                data.getEletricidade().addQuantidade(
+                                                                        (mapa.getCells()[i][j].getBuilding().getProducao()));
+                                                                break;
+                                                            }
+                                                        }
+                                                    }
+
+                                                }
+                                                mapa.getCells()[i + 1][j].getWorkers()[l].setDias(0);
+                                            }
+                                        }
+                                    }
+                                } else if (i == 0 && j > 0 && j < mapa.getCols()) {
+                                    if (mapa.getCells()[i][j - 1].getBiome().designacao() == "flr") {
+                                        for (int l = 0; l < mapa.getCells()[i][j - 1].getWorkers().size(); l++) {
+                                            if (mapa.getCells()[i][j - 1].getWorkers()[l].designacao() == 'L') {
+
+                                                if (mapa.getCells()[i][j - 1].getWorkers()[l].getDias() <= 4) {
+                                                    if (mapa.getCells()[i + 1][j].getBuilding().designacao() == "bat") {
+                                                        if (data.getMadeira().Quantidade() - 1 != 0 &&
+                                                            data.getCarvao().Quantidade() - 1 != 0) {
+                                                            if (data.getEletricidade().Quantidade() +
+                                                                mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                                data.getEletricidade().getCapacidade()) {
+                                                                data.getMadeira().setQuantidade(
+                                                                        data.getMadeira().Quantidade() - 1);
+                                                                data.getCarvao().setQuantidade(
+                                                                        data.getCarvao().Quantidade() - 1);
+                                                                data.getEletricidade().setCapacidade(
+                                                                        data.getEletricidade().getCapacidade());
+                                                                break;
+                                                            } else {
+                                                                data.getMadeira().setQuantidade(
+                                                                        data.getMadeira().Quantidade() - 1);
+                                                                data.getCarvao().setQuantidade(
+                                                                        data.getCarvao().Quantidade() - 1);
+                                                                data.getEletricidade().addQuantidade(
+                                                                        (mapa.getCells()[i][j].getBuilding().getProducao()));
+                                                                break;
+                                                            }
+                                                        }
+                                                    } else if (
+                                                            mapa.getCells()[i][j + 1].getBuilding().designacao() ==
+                                                            "bat") {
+                                                        if (data.getMadeira().Quantidade() - 1 != 0 &&
+                                                            data.getCarvao().Quantidade() - 1 != 0) {
+                                                            if (data.getEletricidade().Quantidade() +
+                                                                mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                                data.getEletricidade().getCapacidade()) {
+                                                                data.getMadeira().setQuantidade(
+                                                                        data.getMadeira().Quantidade() - 1);
+                                                                data.getCarvao().setQuantidade(
+                                                                        data.getCarvao().Quantidade() - 1);
+                                                                data.getEletricidade().setCapacidade(
+                                                                        data.getEletricidade().getCapacidade());
+                                                                break;
+                                                            } else {
+                                                                data.getMadeira().setQuantidade(
+                                                                        data.getMadeira().Quantidade() - 1);
+                                                                data.getCarvao().setQuantidade(
+                                                                        data.getCarvao().Quantidade() - 1);
+                                                                data.getEletricidade().addQuantidade(
+                                                                        (mapa.getCells()[i][j].getBuilding().getProducao()));
+                                                                break;
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                                mapa.getCells()[i][j - 1].getWorkers()[l].setDias(0);
+                                            }
+                                        }
+                                    } else if (mapa.getCells()[i][j + 1].getBiome().designacao() == "flr") {
+                                        for (int l = 0; l < mapa.getCells()[i][j + 1].getWorkers().size(); l++) {
+                                            if (mapa.getCells()[i][j + 1].getWorkers()[l].designacao() == 'L') {
+
+                                                if (mapa.getCells()[i][j + 1].getWorkers()[l].getDias() <= 4) {
+
+                                                    if (mapa.getCells()[i][j - 1].getBuilding().designacao() == "bat") {
+                                                        if (data.getMadeira().Quantidade() - 1 != 0 &&
+                                                            data.getCarvao().Quantidade() - 1 != 0) {
+                                                            if (data.getEletricidade().Quantidade() +
+                                                                mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                                data.getEletricidade().getCapacidade()) {
+                                                                data.getMadeira().setQuantidade(
+                                                                        data.getMadeira().Quantidade() - 1);
+                                                                data.getCarvao().setQuantidade(
+                                                                        data.getCarvao().Quantidade() - 1);
+                                                                data.getEletricidade().setCapacidade(
+                                                                        data.getEletricidade().getCapacidade());
+                                                                break;
+                                                            } else {
+                                                                data.getMadeira().setQuantidade(
+                                                                        data.getMadeira().Quantidade() - 1);
+                                                                data.getCarvao().setQuantidade(
+                                                                        data.getCarvao().Quantidade() - 1);
+                                                                data.getEletricidade().addQuantidade(
+                                                                        (mapa.getCells()[i][j].getBuilding().getProducao()));
+                                                                break;
+                                                            }
+                                                        }
+                                                    } else if (
+                                                            mapa.getCells()[i + 1][j].getBuilding().designacao() ==
+                                                            "bat") {
+                                                        if (data.getMadeira().Quantidade() - 1 != 0 &&
+                                                            data.getCarvao().Quantidade() - 1 != 0) {
+                                                            if (data.getEletricidade().Quantidade() +
+                                                                mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                                data.getEletricidade().getCapacidade()) {
+                                                                data.getMadeira().setQuantidade(
+                                                                        data.getMadeira().Quantidade() - 1);
+                                                                data.getCarvao().setQuantidade(
+                                                                        data.getCarvao().Quantidade() - 1);
+                                                                data.getEletricidade().setCapacidade(
+                                                                        data.getEletricidade().getCapacidade());
+                                                                break;
+                                                            } else {
+                                                                data.getMadeira().setQuantidade(
+                                                                        data.getMadeira().Quantidade() - 1);
+                                                                data.getCarvao().setQuantidade(
+                                                                        data.getCarvao().Quantidade() - 1);
+                                                                data.getEletricidade().addQuantidade(
+                                                                        (mapa.getCells()[i][j].getBuilding().getProducao()));
+                                                                break;
+                                                            }
+                                                        }
+                                                    }
+
+                                                }
+                                                mapa.getCells()[i][j + 1].getWorkers()[l].setDias(0);
+                                            }
+                                        }
+                                    }
+                                    if (mapa.getCells()[i + 1][j].getBiome().designacao() == "flr") {
+                                        for (int l = 0; l < mapa.getCells()[i + 1][j].getWorkers().size(); l++) {
+                                            if (mapa.getCells()[i + 1][j].getWorkers()[l].designacao() == 'L') {
+
+                                                if (mapa.getCells()[i + 1][j].getWorkers()[l].getDias() <= 4) {
+                                                    if (mapa.getCells()[i][j - 1].getBuilding().designacao() == "bat") {
+                                                        if (data.getMadeira().Quantidade() - 1 != 0 &&
+                                                            data.getCarvao().Quantidade() - 1 != 0) {
+                                                            if (data.getEletricidade().Quantidade() +
+                                                                mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                                data.getEletricidade().getCapacidade()) {
+                                                                data.getMadeira().setQuantidade(
+                                                                        data.getMadeira().Quantidade() - 1);
+                                                                data.getCarvao().setQuantidade(
+                                                                        data.getCarvao().Quantidade() - 1);
+                                                                data.getEletricidade().setCapacidade(
+                                                                        data.getEletricidade().getCapacidade());
+                                                                break;
+                                                            } else {
+                                                                data.getMadeira().setQuantidade(
+                                                                        data.getMadeira().Quantidade() - 1);
+                                                                data.getCarvao().setQuantidade(
+                                                                        data.getCarvao().Quantidade() - 1);
+                                                                data.getEletricidade().addQuantidade(
+                                                                        (mapa.getCells()[i][j].getBuilding().getProducao()));
+                                                                break;
+                                                            }
+                                                        }
+                                                    } else if (
+                                                            mapa.getCells()[i][j + 1].getBuilding().designacao() ==
+                                                            "bat") {
+                                                        if (data.getMadeira().Quantidade() - 1 != 0 &&
+                                                            data.getCarvao().Quantidade() - 1 != 0) {
+                                                            if (data.getEletricidade().Quantidade() +
+                                                                mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                                data.getEletricidade().getCapacidade()) {
+                                                                data.getMadeira().setQuantidade(
+                                                                        data.getMadeira().Quantidade() - 1);
+                                                                data.getCarvao().setQuantidade(
+                                                                        data.getCarvao().Quantidade() - 1);
+                                                                data.getEletricidade().setCapacidade(
+                                                                        data.getEletricidade().getCapacidade());
+                                                                break;
+                                                            } else {
+                                                                data.getMadeira().setQuantidade(
+                                                                        data.getMadeira().Quantidade() - 1);
+                                                                data.getCarvao().setQuantidade(
+                                                                        data.getCarvao().Quantidade() - 1);
+                                                                data.getEletricidade().addQuantidade(
+                                                                        (mapa.getCells()[i][j].getBuilding().getProducao()));
+                                                                break;
+                                                            }
+                                                        }
+                                                    }
+                                                }
+
+                                                mapa.getCells()[i + 1][j].getWorkers()[l].setDias(0);
+                                            }
+                                        }
+                                    }
+
+                                } else if (i == mapa.getRows() - 1 && j > 0 && j < mapa.getCols() - 1) {
+                                    if (mapa.getCells()[i][j - 1].getBiome().designacao() == "flr") {
+                                        for (int l = 0; l < mapa.getCells()[i][j - 1].getWorkers().size(); l++) {
+                                            if (mapa.getCells()[i][j - 1].getWorkers()[l].designacao() == 'L') {
+                                                if (mapa.getCells()[i][j - 1].getWorkers()[l].getDias() <= 4) {
+                                                    if (mapa.getCells()[i][j + 1].getBuilding().designacao() == "bat") {
+                                                        if (data.getMadeira().Quantidade() - 1 != 0 &&
+                                                            data.getCarvao().Quantidade() - 1 != 0) {
+                                                            if (data.getEletricidade().Quantidade() +
+                                                                mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                                data.getEletricidade().getCapacidade()) {
+                                                                data.getMadeira().setQuantidade(
+                                                                        data.getMadeira().Quantidade() - 1);
+                                                                data.getCarvao().setQuantidade(
+                                                                        data.getCarvao().Quantidade() - 1);
+                                                                data.getEletricidade().setCapacidade(
+                                                                        data.getEletricidade().getCapacidade());
+                                                                break;
+                                                            } else {
+                                                                data.getMadeira().setQuantidade(
+                                                                        data.getMadeira().Quantidade() - 1);
+                                                                data.getCarvao().setQuantidade(
+                                                                        data.getCarvao().Quantidade() - 1);
+                                                                data.getEletricidade().addQuantidade(
+                                                                        (mapa.getCells()[i][j].getBuilding().getProducao()));
+                                                                break;
+                                                            }
+                                                        }
+                                                    } else if (
+                                                            mapa.getCells()[i - 1][j].getBuilding().designacao() ==
+                                                            "bat") {
+                                                        if (data.getMadeira().Quantidade() - 1 != 0 &&
+                                                            data.getCarvao().Quantidade() - 1 != 0) {
+                                                            if (data.getEletricidade().Quantidade() +
+                                                                mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                                data.getEletricidade().getCapacidade()) {
+                                                                data.getMadeira().setQuantidade(
+                                                                        data.getMadeira().Quantidade() - 1);
+                                                                data.getCarvao().setQuantidade(
+                                                                        data.getCarvao().Quantidade() - 1);
+                                                                data.getEletricidade().setCapacidade(
+                                                                        data.getEletricidade().getCapacidade());
+                                                                break;
+                                                            } else {
+                                                                data.getMadeira().setQuantidade(
+                                                                        data.getMadeira().Quantidade() - 1);
+                                                                data.getCarvao().setQuantidade(
+                                                                        data.getCarvao().Quantidade() - 1);
+                                                                data.getEletricidade().addQuantidade(
+                                                                        (mapa.getCells()[i][j].getBuilding().getProducao()));
+                                                                break;
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                                mapa.getCells()[i][j - 1].getWorkers()[l].setDias(0);
+                                            }
+                                        }
+                                    } else if (mapa.getCells()[i - 1][j].getBiome().designacao() == "flr") {
+                                        for (int l = 0; l < mapa.getCells()[i - 1][j].getWorkers().size(); l++) {
+                                            if (mapa.getCells()[i - 1][j].getWorkers()[l].designacao() == 'L') {
+                                                if (mapa.getCells()[i - 1][j].getWorkers()[l].getDias() <= 4) {
+                                                    if (mapa.getCells()[i][j - 1].getBuilding().designacao() == "bat") {
+                                                        if (data.getMadeira().Quantidade() - 1 != 0 &&
+                                                            data.getCarvao().Quantidade() - 1 != 0) {
+                                                            if (data.getEletricidade().Quantidade() +
+                                                                mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                                data.getEletricidade().getCapacidade()) {
+                                                                data.getMadeira().setQuantidade(
+                                                                        data.getMadeira().Quantidade() - 1);
+                                                                data.getCarvao().setQuantidade(
+                                                                        data.getCarvao().Quantidade() - 1);
+                                                                data.getEletricidade().setCapacidade(
+                                                                        data.getEletricidade().getCapacidade());
+                                                                break;
+                                                            } else {
+                                                                data.getMadeira().setQuantidade(
+                                                                        data.getMadeira().Quantidade() - 1);
+                                                                data.getCarvao().setQuantidade(
+                                                                        data.getCarvao().Quantidade() - 1);
+                                                                data.getEletricidade().addQuantidade(
+                                                                        (mapa.getCells()[i][j].getBuilding().getProducao()));
+                                                                break;
+                                                            }
+                                                        }
+                                                    } else if (
+                                                            mapa.getCells()[i][j + 1].getBuilding().designacao() ==
+                                                            "bat") {
+                                                        if (data.getMadeira().Quantidade() - 1 != 0 &&
+                                                            data.getCarvao().Quantidade() - 1 != 0) {
+                                                            if (data.getEletricidade().Quantidade() +
+                                                                mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                                data.getEletricidade().getCapacidade()) {
+                                                                data.getMadeira().setQuantidade(
+                                                                        data.getMadeira().Quantidade() - 1);
+                                                                data.getCarvao().setQuantidade(
+                                                                        data.getCarvao().Quantidade() - 1);
+                                                                data.getEletricidade().setCapacidade(
+                                                                        data.getEletricidade().getCapacidade());
+                                                                break;
+                                                            } else {
+                                                                data.getMadeira().setQuantidade(
+                                                                        data.getMadeira().Quantidade() - 1);
+                                                                data.getCarvao().setQuantidade(
+                                                                        data.getCarvao().Quantidade() - 1);
+                                                                data.getEletricidade().addQuantidade(
+                                                                        (mapa.getCells()[i][j].getBuilding().getProducao()));
+                                                                break;
+                                                            }
+                                                        }
+                                                    }
+                                                }
 
                                                 mapa.getCells()[i - 1][j].getWorkers()[l].setDias(0);
                                             }
                                         }
                                     }
-                                    if (mapa.getCells()[i][j+1].getBiome().designacao() == "flr") {
-                                        for (int l = 0; l < mapa.getCells()[i][j+1].getWorkers().size(); l++) {
-                                            if (mapa.getCells()[i][j+1].getWorkers()[l].designacao() == 'L') {
+                                    if (mapa.getCells()[i][j + 1].getBiome().designacao() == "flr") {
+                                        for (int l = 0; l < mapa.getCells()[i][j + 1].getWorkers().size(); l++) {
+                                            if (mapa.getCells()[i][j + 1].getWorkers()[l].designacao() == 'L') {
 
-                                                if (mapa.getCells()[i][j + 1].getWorkers()[l].getDias() < 4) {
+                                                if (mapa.getCells()[i][j + 1].getWorkers()[l].getDias() <= 4) {
                                                     if (mapa.getCells()[i][j - 1].getBuilding().designacao() == "bat") {
-                                                        if (data.getEletricidade().Quantidade() +
-                                                            mapa.getCells()[i][j].getBuilding().getProducao() >=
-                                                            data.getEletricidade().getCapacidade()) {
-                                                            data.getMadeira().setQuantidade(
-                                                                    data.getMadeira().Quantidade() - 1);
-                                                            data.getCarvao().setQuantidade(
-                                                                    data.getCarvao().Quantidade() - 1);
-                                                            data.getEletricidade().setCapacidade(
-                                                                    data.getEletricidade().getCapacidade());
-                                                            break;
-                                                        } else {
-                                                            data.getMadeira().setQuantidade(
-                                                                    data.getMadeira().Quantidade() - 1);
-                                                            data.getCarvao().setQuantidade(
-                                                                    data.getCarvao().Quantidade() - 1);
-                                                            data.getEletricidade().addQuantidade(
-                                                                    (mapa.getCells()[i][j].getBuilding().getProducao()));
-                                                            break;
+                                                        if (data.getMadeira().Quantidade() - 1 != 0 &&
+                                                            data.getCarvao().Quantidade() - 1 != 0) {
+                                                            if (data.getEletricidade().Quantidade() +
+                                                                mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                                data.getEletricidade().getCapacidade()) {
+                                                                data.getMadeira().setQuantidade(
+                                                                        data.getMadeira().Quantidade() - 1);
+                                                                data.getCarvao().setQuantidade(
+                                                                        data.getCarvao().Quantidade() - 1);
+                                                                data.getEletricidade().setCapacidade(
+                                                                        data.getEletricidade().getCapacidade());
+                                                                break;
+                                                            } else {
+                                                                data.getMadeira().setQuantidade(
+                                                                        data.getMadeira().Quantidade() - 1);
+                                                                data.getCarvao().setQuantidade(
+                                                                        data.getCarvao().Quantidade() - 1);
+                                                                data.getEletricidade().addQuantidade(
+                                                                        (mapa.getCells()[i][j].getBuilding().getProducao()));
+                                                                break;
+                                                            }
                                                         }
-                                                    } else if (mapa.getCells()[i - 1][j].getBuilding().designacao() ==
-                                                               "bat") {
-                                                        if (data.getEletricidade().Quantidade() +
-                                                            mapa.getCells()[i][j].getBuilding().getProducao() >=
-                                                            data.getEletricidade().getCapacidade()) {
-                                                            data.getMadeira().setQuantidade(
-                                                                    data.getMadeira().Quantidade() - 1);
-                                                            data.getCarvao().setQuantidade(
-                                                                    data.getCarvao().Quantidade() - 1);
-                                                            data.getEletricidade().setCapacidade(
-                                                                    data.getEletricidade().getCapacidade());
-                                                            break;
-                                                        } else {
-                                                            data.getMadeira().setQuantidade(
-                                                                    data.getMadeira().Quantidade() - 1);
-                                                            data.getCarvao().setQuantidade(
-                                                                    data.getCarvao().Quantidade() - 1);
-                                                            data.getEletricidade().addQuantidade(
-                                                                    (mapa.getCells()[i][j].getBuilding().getProducao()));
-                                                            break;
+                                                    } else if (
+                                                            mapa.getCells()[i - 1][j].getBuilding().designacao() ==
+                                                            "bat") {
+                                                        if (data.getMadeira().Quantidade() - 1 != 0 &&
+                                                            data.getCarvao().Quantidade() - 1 != 0) {
+                                                            if (data.getEletricidade().Quantidade() +
+                                                                mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                                data.getEletricidade().getCapacidade()) {
+                                                                data.getMadeira().setQuantidade(
+                                                                        data.getMadeira().Quantidade() - 1);
+                                                                data.getCarvao().setQuantidade(
+                                                                        data.getCarvao().Quantidade() - 1);
+                                                                data.getEletricidade().setCapacidade(
+                                                                        data.getEletricidade().getCapacidade());
+                                                                break;
+                                                            } else {
+                                                                data.getMadeira().setQuantidade(
+                                                                        data.getMadeira().Quantidade() - 1);
+                                                                data.getCarvao().setQuantidade(
+                                                                        data.getCarvao().Quantidade() - 1);
+                                                                data.getEletricidade().addQuantidade(
+                                                                        (mapa.getCells()[i][j].getBuilding().getProducao()));
+                                                                break;
+                                                            }
                                                         }
                                                     }
-                                            }
+                                                }
                                                 mapa.getCells()[i][j + 1].getWorkers()[l].setDias(0);
                                             }
                                         }
                                     }
 
-                                }
-                                else{
-                                    if (mapa.getCells()[i+1][j].getBiome().designacao() == "flr") {
-                                        for (int l = 0; l < mapa.getCells()[i+1][j].getWorkers().size(); l++) {
-                                            if (mapa.getCells()[i+1][j].getWorkers()[l].designacao() == 'L') {
-                                                if (mapa.getCells()[i+1][j].getWorkers()[l].getDias() < 4) {
+                                } else {
+                                    if (mapa.getCells()[i + 1][j].getBiome().designacao() == "flr") {
+                                        for (int l = 0; l < mapa.getCells()[i + 1][j].getWorkers().size(); l++) {
+                                            if (mapa.getCells()[i + 1][j].getWorkers()[l].designacao() == 'L') {
+                                                if (mapa.getCells()[i + 1][j].getWorkers()[l].getDias() <= 4) {
                                                     if (mapa.getCells()[i][j + 1].getBuilding().designacao() == "bat") {
-                                                        if (data.getEletricidade().Quantidade() +
-                                                            mapa.getCells()[i][j].getBuilding().getProducao() >=
-                                                            data.getEletricidade().getCapacidade()) {
-                                                            data.getMadeira().setQuantidade(
-                                                                    data.getMadeira().Quantidade() - 1);
-                                                            data.getCarvao().setQuantidade(
-                                                                    data.getCarvao().Quantidade() - 1);
-                                                            data.getEletricidade().setCapacidade(
-                                                                    data.getEletricidade().getCapacidade());
-                                                            break;
-                                                        } else {
-                                                            data.getMadeira().setQuantidade(
-                                                                    data.getMadeira().Quantidade() - 1);
-                                                            data.getCarvao().setQuantidade(
-                                                                    data.getCarvao().Quantidade() - 1);
-                                                            data.getEletricidade().addQuantidade(
-                                                                    (mapa.getCells()[i][j].getBuilding().getProducao()));
-                                                            break;
+                                                        if (data.getMadeira().Quantidade() - 1 != 0 &&
+                                                            data.getCarvao().Quantidade() - 1 != 0) {
+                                                            if (data.getEletricidade().Quantidade() +
+                                                                mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                                data.getEletricidade().getCapacidade()) {
+                                                                data.getMadeira().setQuantidade(
+                                                                        data.getMadeira().Quantidade() - 1);
+                                                                data.getCarvao().setQuantidade(
+                                                                        data.getCarvao().Quantidade() - 1);
+                                                                data.getEletricidade().setCapacidade(
+                                                                        data.getEletricidade().getCapacidade());
+                                                                break;
+                                                            } else {
+                                                                data.getMadeira().setQuantidade(
+                                                                        data.getMadeira().Quantidade() - 1);
+                                                                data.getCarvao().setQuantidade(
+                                                                        data.getCarvao().Quantidade() - 1);
+                                                                data.getEletricidade().addQuantidade(
+                                                                        (mapa.getCells()[i][j].getBuilding().getProducao()));
+                                                                break;
+                                                            }
                                                         }
-                                                    } else if (mapa.getCells()[i - 1][j].getBuilding().designacao() ==
-                                                               "bat") {
-                                                        if (data.getEletricidade().Quantidade() +
-                                                            mapa.getCells()[i][j].getBuilding().getProducao() >=
-                                                            data.getEletricidade().getCapacidade()) {
-                                                            data.getMadeira().setQuantidade(
-                                                                    data.getMadeira().Quantidade() - 1);
-                                                            data.getCarvao().setQuantidade(
-                                                                    data.getCarvao().Quantidade() - 1);
-                                                            data.getEletricidade().setCapacidade(
-                                                                    data.getEletricidade().getCapacidade());
-                                                            break;
-                                                        } else {
-                                                            data.getMadeira().setQuantidade(
-                                                                    data.getMadeira().Quantidade() - 1);
-                                                            data.getCarvao().setQuantidade(
-                                                                    data.getCarvao().Quantidade() - 1);
-                                                            data.getEletricidade().addQuantidade(
-                                                                    (mapa.getCells()[i][j].getBuilding().getProducao()));
-                                                            break;
+                                                    } else if (
+                                                            mapa.getCells()[i - 1][j].getBuilding().designacao() ==
+                                                            "bat") {
+                                                        if (data.getMadeira().Quantidade() - 1 != 0 &&
+                                                            data.getCarvao().Quantidade() - 1 != 0) {
+                                                            if (data.getEletricidade().Quantidade() +
+                                                                mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                                data.getEletricidade().getCapacidade()) {
+                                                                data.getMadeira().setQuantidade(
+                                                                        data.getMadeira().Quantidade() - 1);
+                                                                data.getCarvao().setQuantidade(
+                                                                        data.getCarvao().Quantidade() - 1);
+                                                                data.getEletricidade().setCapacidade(
+                                                                        data.getEletricidade().getCapacidade());
+                                                                break;
+                                                            } else {
+                                                                data.getMadeira().setQuantidade(
+                                                                        data.getMadeira().Quantidade() - 1);
+                                                                data.getCarvao().setQuantidade(
+                                                                        data.getCarvao().Quantidade() - 1);
+                                                                data.getEletricidade().addQuantidade(
+                                                                        (mapa.getCells()[i][j].getBuilding().getProducao()));
+                                                                break;
+                                                            }
                                                         }
-                                                    } else if (mapa.getCells()[i][j - 1].getBuilding().designacao() ==
-                                                               "bat") {
-                                                        if (data.getEletricidade().Quantidade() +
-                                                            mapa.getCells()[i][j].getBuilding().getProducao() >=
-                                                            data.getEletricidade().getCapacidade()) {
-                                                            data.getMadeira().setQuantidade(
-                                                                    data.getMadeira().Quantidade() - 1);
-                                                            data.getCarvao().setQuantidade(
-                                                                    data.getCarvao().Quantidade() - 1);
-                                                            data.getEletricidade().setCapacidade(
-                                                                    data.getEletricidade().getCapacidade());
-                                                            break;
-                                                        } else {
-                                                            data.getMadeira().setQuantidade(
-                                                                    data.getMadeira().Quantidade() - 1);
-                                                            data.getCarvao().setQuantidade(
-                                                                    data.getCarvao().Quantidade() - 1);
-                                                            data.getEletricidade().addQuantidade(
-                                                                    (mapa.getCells()[i][j].getBuilding().getProducao()));
-                                                            break;
+                                                    } else if (
+                                                            mapa.getCells()[i][j - 1].getBuilding().designacao() ==
+                                                            "bat") {
+                                                        if (data.getMadeira().Quantidade() - 1 != 0 &&
+                                                            data.getCarvao().Quantidade() - 1 != 0) {
+                                                            if (data.getEletricidade().Quantidade() +
+                                                                mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                                data.getEletricidade().getCapacidade()) {
+                                                                data.getMadeira().setQuantidade(
+                                                                        data.getMadeira().Quantidade() - 1);
+                                                                data.getCarvao().setQuantidade(
+                                                                        data.getCarvao().Quantidade() - 1);
+                                                                data.getEletricidade().setCapacidade(
+                                                                        data.getEletricidade().getCapacidade());
+                                                                break;
+                                                            } else {
+                                                                data.getMadeira().setQuantidade(
+                                                                        data.getMadeira().Quantidade() - 1);
+                                                                data.getCarvao().setQuantidade(
+                                                                        data.getCarvao().Quantidade() - 1);
+                                                                data.getEletricidade().addQuantidade(
+                                                                        (mapa.getCells()[i][j].getBuilding().getProducao()));
+                                                                break;
+                                                            }
                                                         }
                                                     }
-                                            }
+                                                }
 
 
                                                 mapa.getCells()[i + 1][j].getWorkers()[l].setDias(0);
                                             }
                                         }
-                                    }
-                                    else if (mapa.getCells()[i][j+1].getBiome().designacao() == "flr") {
-                                        for (int l = 0; l < mapa.getCells()[i][j+1].getWorkers().size(); l++) {
-                                            if (mapa.getCells()[i][j+1].getWorkers()[l].designacao() == 'L') {
+                                    } else if (mapa.getCells()[i][j + 1].getBiome().designacao() == "flr") {
+                                        for (int l = 0; l < mapa.getCells()[i][j + 1].getWorkers().size(); l++) {
+                                            if (mapa.getCells()[i][j + 1].getWorkers()[l].designacao() == 'L') {
 
-                                                if (mapa.getCells()[i][j+1].getWorkers()[l].getDias() < 4) {
+                                                if (mapa.getCells()[i][j + 1].getWorkers()[l].getDias() <= 4) {
                                                     if (mapa.getCells()[i][j - 1].getBuilding().designacao() == "bat") {
-                                                        if (data.getEletricidade().Quantidade() +
-                                                            mapa.getCells()[i][j].getBuilding().getProducao() >=
-                                                            data.getEletricidade().getCapacidade()) {
-                                                            data.getMadeira().setQuantidade(
-                                                                    data.getMadeira().Quantidade() - 1);
-                                                            data.getCarvao().setQuantidade(
-                                                                    data.getCarvao().Quantidade() - 1);
-                                                            data.getEletricidade().setCapacidade(
-                                                                    data.getEletricidade().getCapacidade());
-                                                            break;
-                                                        } else {
-                                                            data.getMadeira().setQuantidade(
-                                                                    data.getMadeira().Quantidade() - 1);
-                                                            data.getCarvao().setQuantidade(
-                                                                    data.getCarvao().Quantidade() - 1);
-                                                            data.getEletricidade().addQuantidade(
-                                                                    (mapa.getCells()[i][j].getBuilding().getProducao()));
-                                                            break;
+                                                        if (data.getMadeira().Quantidade() - 1 != 0 &&
+                                                            data.getCarvao().Quantidade() - 1 != 0) {
+                                                            if (data.getEletricidade().Quantidade() +
+                                                                mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                                data.getEletricidade().getCapacidade()) {
+                                                                data.getMadeira().setQuantidade(
+                                                                        data.getMadeira().Quantidade() - 1);
+                                                                data.getCarvao().setQuantidade(
+                                                                        data.getCarvao().Quantidade() - 1);
+                                                                data.getEletricidade().setCapacidade(
+                                                                        data.getEletricidade().getCapacidade());
+                                                                break;
+                                                            } else {
+                                                                data.getMadeira().setQuantidade(
+                                                                        data.getMadeira().Quantidade() - 1);
+                                                                data.getCarvao().setQuantidade(
+                                                                        data.getCarvao().Quantidade() - 1);
+                                                                data.getEletricidade().addQuantidade(
+                                                                        (mapa.getCells()[i][j].getBuilding().getProducao()));
+                                                                break;
+                                                            }
                                                         }
-                                                    } else if (mapa.getCells()[i - 1][j].getBuilding().designacao() ==
-                                                               "bat") {
-                                                        if (data.getEletricidade().Quantidade() +
-                                                            mapa.getCells()[i][j].getBuilding().getProducao() >=
-                                                            data.getEletricidade().getCapacidade()) {
-                                                            data.getMadeira().setQuantidade(
-                                                                    data.getMadeira().Quantidade() - 1);
-                                                            data.getCarvao().setQuantidade(
-                                                                    data.getCarvao().Quantidade() - 1);
-                                                            data.getEletricidade().setCapacidade(
-                                                                    data.getEletricidade().getCapacidade());
-                                                            break;
-                                                        } else {
-                                                            data.getMadeira().setQuantidade(
-                                                                    data.getMadeira().Quantidade() - 1);
-                                                            data.getCarvao().setQuantidade(
-                                                                    data.getCarvao().Quantidade() - 1);
-                                                            data.getEletricidade().addQuantidade(
-                                                                    (mapa.getCells()[i][j].getBuilding().getProducao()));
-                                                            break;
+                                                    } else if (
+                                                            mapa.getCells()[i - 1][j].getBuilding().designacao() ==
+                                                            "bat") {
+                                                        if (data.getMadeira().Quantidade() - 1 != 0 &&
+                                                            data.getCarvao().Quantidade() - 1 != 0) {
+                                                            if (data.getEletricidade().Quantidade() +
+                                                                mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                                data.getEletricidade().getCapacidade()) {
+                                                                data.getMadeira().setQuantidade(
+                                                                        data.getMadeira().Quantidade() - 1);
+                                                                data.getCarvao().setQuantidade(
+                                                                        data.getCarvao().Quantidade() - 1);
+                                                                data.getEletricidade().setCapacidade(
+                                                                        data.getEletricidade().getCapacidade());
+                                                                break;
+                                                            } else {
+                                                                data.getMadeira().setQuantidade(
+                                                                        data.getMadeira().Quantidade() - 1);
+                                                                data.getCarvao().setQuantidade(
+                                                                        data.getCarvao().Quantidade() - 1);
+                                                                data.getEletricidade().addQuantidade(
+                                                                        (mapa.getCells()[i][j].getBuilding().getProducao()));
+                                                                break;
+                                                            }
                                                         }
-                                                    } else if (mapa.getCells()[i + 1][j].getBuilding().designacao() ==
-                                                               "bat") {
-                                                        if (data.getEletricidade().Quantidade() +
-                                                            mapa.getCells()[i][j].getBuilding().getProducao() >=
-                                                            data.getEletricidade().getCapacidade()) {
-                                                            data.getMadeira().setQuantidade(
-                                                                    data.getMadeira().Quantidade() - 1);
-                                                            data.getCarvao().setQuantidade(
-                                                                    data.getCarvao().Quantidade() - 1);
-                                                            data.getEletricidade().setCapacidade(
-                                                                    data.getEletricidade().getCapacidade());
-                                                            break;
-                                                        } else {
-                                                            data.getMadeira().setQuantidade(
-                                                                    data.getMadeira().Quantidade() - 1);
-                                                            data.getCarvao().setQuantidade(
-                                                                    data.getCarvao().Quantidade() - 1);
-                                                            data.getEletricidade().addQuantidade(
-                                                                    (mapa.getCells()[i][j].getBuilding().getProducao()));
-                                                            break;
+                                                    } else if (
+                                                            mapa.getCells()[i + 1][j].getBuilding().designacao() ==
+                                                            "bat") {
+                                                        if (data.getMadeira().Quantidade() - 1 != 0 &&
+                                                            data.getCarvao().Quantidade() - 1 != 0) {
+                                                            if (data.getEletricidade().Quantidade() +
+                                                                mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                                data.getEletricidade().getCapacidade()) {
+                                                                data.getMadeira().setQuantidade(
+                                                                        data.getMadeira().Quantidade() - 1);
+                                                                data.getCarvao().setQuantidade(
+                                                                        data.getCarvao().Quantidade() - 1);
+                                                                data.getEletricidade().setCapacidade(
+                                                                        data.getEletricidade().getCapacidade());
+                                                                break;
+                                                            } else {
+                                                                data.getMadeira().setQuantidade(
+                                                                        data.getMadeira().Quantidade() - 1);
+                                                                data.getCarvao().setQuantidade(
+                                                                        data.getCarvao().Quantidade() - 1);
+                                                                data.getEletricidade().addQuantidade(
+                                                                        (mapa.getCells()[i][j].getBuilding().getProducao()));
+                                                                break;
+                                                            }
                                                         }
                                                     }
-                                            }
+                                                }
                                                 mapa.getCells()[i][j + 1].getWorkers()[l].setDias(0);
                                             }
                                         }
-                                    }
-                                    else if (mapa.getCells()[i-1][j].getBiome().designacao() == "flr") {
-                                        for (int l = 0; l < mapa.getCells()[i-1][j].getWorkers().size(); l++) {
+                                    } else if (mapa.getCells()[i - 1][j].getBiome().designacao() == "flr") {
+                                        for (int l = 0; l < mapa.getCells()[i - 1][j].getWorkers().size(); l++) {
                                             if (mapa.getCells()[i - 1][j].getWorkers()[l].designacao() == 'L') {
 
-                                                if (mapa.getCells()[i - 1][j].getWorkers()[l].getDias() < 4) {
+                                                if (mapa.getCells()[i - 1][j].getWorkers()[l].getDias() <= 4) {
                                                     if (mapa.getCells()[i][j + 1].getBuilding().designacao() == "bat") {
-                                                        if (data.getEletricidade().Quantidade() +
-                                                            mapa.getCells()[i][j].getBuilding().getProducao() >=
-                                                            data.getEletricidade().getCapacidade()) {
-                                                            data.getMadeira().setQuantidade(
-                                                                    data.getMadeira().Quantidade() - 1);
-                                                            data.getCarvao().setQuantidade(
-                                                                    data.getCarvao().Quantidade() - 1);
-                                                            data.getEletricidade().setCapacidade(
-                                                                    data.getEletricidade().getCapacidade());
-                                                            break;
-                                                        } else {
-                                                            data.getMadeira().setQuantidade(
-                                                                    data.getMadeira().Quantidade() - 1);
-                                                            data.getCarvao().setQuantidade(
-                                                                    data.getCarvao().Quantidade() - 1);
-                                                            data.getEletricidade().addQuantidade(
-                                                                    (mapa.getCells()[i][j].getBuilding().getProducao()));
-                                                            break;
+                                                        if (data.getMadeira().Quantidade() - 1 != 0 &&
+                                                            data.getCarvao().Quantidade() - 1 != 0) {
+                                                            if (data.getEletricidade().Quantidade() +
+                                                                mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                                data.getEletricidade().getCapacidade()) {
+                                                                data.getMadeira().setQuantidade(
+                                                                        data.getMadeira().Quantidade() - 1);
+                                                                data.getCarvao().setQuantidade(
+                                                                        data.getCarvao().Quantidade() - 1);
+                                                                data.getEletricidade().setCapacidade(
+                                                                        data.getEletricidade().getCapacidade());
+                                                                break;
+                                                            } else {
+                                                                data.getMadeira().setQuantidade(
+                                                                        data.getMadeira().Quantidade() - 1);
+                                                                data.getCarvao().setQuantidade(
+                                                                        data.getCarvao().Quantidade() - 1);
+                                                                data.getEletricidade().addQuantidade(
+                                                                        (mapa.getCells()[i][j].getBuilding().getProducao()));
+                                                                break;
+                                                            }
                                                         }
-                                                    } else if (mapa.getCells()[i][j - 1].getBuilding().designacao() ==
-                                                               "bat") {
-                                                        if (data.getEletricidade().Quantidade() +
-                                                            mapa.getCells()[i][j].getBuilding().getProducao() >=
-                                                            data.getEletricidade().getCapacidade()) {
-                                                            data.getMadeira().setQuantidade(
-                                                                    data.getMadeira().Quantidade() - 1);
-                                                            data.getCarvao().setQuantidade(
-                                                                    data.getCarvao().Quantidade() - 1);
-                                                            data.getEletricidade().setCapacidade(
-                                                                    data.getEletricidade().getCapacidade());
-                                                            break;
-                                                        } else {
-                                                            data.getMadeira().setQuantidade(
-                                                                    data.getMadeira().Quantidade() - 1);
-                                                            data.getCarvao().setQuantidade(
-                                                                    data.getCarvao().Quantidade() - 1);
-                                                            data.getEletricidade().addQuantidade(
-                                                                    (mapa.getCells()[i][j].getBuilding().getProducao()));
-                                                            break;
+                                                    } else if (
+                                                            mapa.getCells()[i][j - 1].getBuilding().designacao() ==
+                                                            "bat") {
+                                                        if (data.getMadeira().Quantidade() - 1 != 0 &&
+                                                            data.getCarvao().Quantidade() - 1 != 0) {
+                                                            if (data.getEletricidade().Quantidade() +
+                                                                mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                                data.getEletricidade().getCapacidade()) {
+                                                                data.getMadeira().setQuantidade(
+                                                                        data.getMadeira().Quantidade() - 1);
+                                                                data.getCarvao().setQuantidade(
+                                                                        data.getCarvao().Quantidade() - 1);
+                                                                data.getEletricidade().setCapacidade(
+                                                                        data.getEletricidade().getCapacidade());
+                                                                break;
+                                                            } else {
+                                                                data.getMadeira().setQuantidade(
+                                                                        data.getMadeira().Quantidade() - 1);
+                                                                data.getCarvao().setQuantidade(
+                                                                        data.getCarvao().Quantidade() - 1);
+                                                                data.getEletricidade().addQuantidade(
+                                                                        (mapa.getCells()[i][j].getBuilding().getProducao()));
+                                                                break;
+                                                            }
                                                         }
-                                                    } else if (mapa.getCells()[i + 1][j].getBuilding().designacao() ==
-                                                               "bat") {
-                                                        if (data.getEletricidade().Quantidade() +
-                                                            mapa.getCells()[i][j].getBuilding().getProducao() >=
-                                                            data.getEletricidade().getCapacidade()) {
-                                                            data.getMadeira().setQuantidade(
-                                                                    data.getMadeira().Quantidade() - 1);
-                                                            data.getCarvao().setQuantidade(
-                                                                    data.getCarvao().Quantidade() - 1);
-                                                            data.getEletricidade().setCapacidade(
-                                                                    data.getEletricidade().getCapacidade());
-                                                            break;
-                                                        } else {
-                                                            data.getMadeira().setQuantidade(
-                                                                    data.getMadeira().Quantidade() - 1);
-                                                            data.getCarvao().setQuantidade(
-                                                                    data.getCarvao().Quantidade() - 1);
-                                                            data.getEletricidade().addQuantidade(
-                                                                    (mapa.getCells()[i][j].getBuilding().getProducao()));
-                                                            break;
+                                                    } else if (
+                                                            mapa.getCells()[i + 1][j].getBuilding().designacao() ==
+                                                            "bat") {
+                                                        if (data.getMadeira().Quantidade() - 1 != 0 &&
+                                                            data.getCarvao().Quantidade() - 1 != 0) {
+                                                            if (data.getEletricidade().Quantidade() +
+                                                                mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                                data.getEletricidade().getCapacidade()) {
+                                                                data.getMadeira().setQuantidade(
+                                                                        data.getMadeira().Quantidade() - 1);
+                                                                data.getCarvao().setQuantidade(
+                                                                        data.getCarvao().Quantidade() - 1);
+                                                                data.getEletricidade().setCapacidade(
+                                                                        data.getEletricidade().getCapacidade());
+                                                                break;
+                                                            } else {
+                                                                data.getMadeira().setQuantidade(
+                                                                        data.getMadeira().Quantidade() - 1);
+                                                                data.getCarvao().setQuantidade(
+                                                                        data.getCarvao().Quantidade() - 1);
+                                                                data.getEletricidade().addQuantidade(
+                                                                        (mapa.getCells()[i][j].getBuilding().getProducao()));
+                                                                break;
+                                                            }
                                                         }
                                                     }
                                                 }
                                                 mapa.getCells()[i - 1][j].getWorkers()[l].setDias(0);
+                                            }
                                         }
-                                        }
-                                    }
-                                    else if (mapa.getCells()[i][j-1].getBiome().designacao() == "flr") {
-                                        for (int l = 0; l < mapa.getCells()[i][j-1].getWorkers().size(); l++) {
+                                    } else if (mapa.getCells()[i][j - 1].getBiome().designacao() == "flr") {
+                                        for (int l = 0; l < mapa.getCells()[i][j - 1].getWorkers().size(); l++) {
                                             if (mapa.getCells()[i][j - 1].getWorkers()[l].designacao() == 'L') {
-                                                if (mapa.getCells()[i][j - 1].getWorkers()[l].getDias() < 4) {
+                                                if (mapa.getCells()[i][j - 1].getWorkers()[l].getDias() <= 4) {
                                                     if (mapa.getCells()[i][j + 1].getBuilding().designacao() == "bat") {
-                                                        if (data.getEletricidade().Quantidade() +
-                                                            mapa.getCells()[i][j].getBuilding().getProducao() >=
-                                                            data.getEletricidade().getCapacidade()) {
-                                                            data.getMadeira().setQuantidade(
-                                                                    data.getMadeira().Quantidade() - 1);
-                                                            data.getCarvao().setQuantidade(
-                                                                    data.getCarvao().Quantidade() - 1);
-                                                            data.getEletricidade().setCapacidade(
-                                                                    data.getEletricidade().getCapacidade());
-                                                            break;
-                                                        } else {
-                                                            data.getMadeira().setQuantidade(
-                                                                    data.getMadeira().Quantidade() - 1);
-                                                            data.getCarvao().setQuantidade(
-                                                                    data.getCarvao().Quantidade() - 1);
-                                                            data.getEletricidade().addQuantidade(
-                                                                    (mapa.getCells()[i][j].getBuilding().getProducao()));
-                                                            break;
+                                                        if (data.getMadeira().Quantidade() - 1 != 0 &&
+                                                            data.getCarvao().Quantidade() - 1 != 0) {
+                                                            if (data.getEletricidade().Quantidade() +
+                                                                mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                                data.getEletricidade().getCapacidade()) {
+                                                                data.getMadeira().setQuantidade(
+                                                                        data.getMadeira().Quantidade() - 1);
+                                                                data.getCarvao().setQuantidade(
+                                                                        data.getCarvao().Quantidade() - 1);
+                                                                data.getEletricidade().setCapacidade(
+                                                                        data.getEletricidade().getCapacidade());
+                                                                break;
+                                                            } else {
+                                                                data.getMadeira().setQuantidade(
+                                                                        data.getMadeira().Quantidade() - 1);
+                                                                data.getCarvao().setQuantidade(
+                                                                        data.getCarvao().Quantidade() - 1);
+                                                                data.getEletricidade().addQuantidade(
+                                                                        (mapa.getCells()[i][j].getBuilding().getProducao()));
+                                                                break;
+                                                            }
                                                         }
-                                                    } else if (mapa.getCells()[i - 1][j].getBuilding().designacao() ==
-                                                               "bat") {
-                                                        if (data.getEletricidade().Quantidade() +
-                                                            mapa.getCells()[i][j].getBuilding().getProducao() >=
-                                                            data.getEletricidade().getCapacidade()) {
-                                                            data.getMadeira().setQuantidade(
-                                                                    data.getMadeira().Quantidade() - 1);
-                                                            data.getCarvao().setQuantidade(
-                                                                    data.getCarvao().Quantidade() - 1);
-                                                            data.getEletricidade().setCapacidade(
-                                                                    data.getEletricidade().getCapacidade());
-                                                            break;
-                                                        } else {
-                                                            data.getMadeira().setQuantidade(
-                                                                    data.getMadeira().Quantidade() - 1);
-                                                            data.getCarvao().setQuantidade(
-                                                                    data.getCarvao().Quantidade() - 1);
-                                                            data.getEletricidade().addQuantidade(
-                                                                    (mapa.getCells()[i][j].getBuilding().getProducao()));
-                                                            break;
+                                                    } else if (
+                                                            mapa.getCells()[i - 1][j].getBuilding().designacao() ==
+                                                            "bat") {
+                                                        if (data.getMadeira().Quantidade() - 1 != 0 &&
+                                                            data.getCarvao().Quantidade() - 1 != 0) {
+                                                            if (data.getEletricidade().Quantidade() +
+                                                                mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                                data.getEletricidade().getCapacidade()) {
+                                                                data.getMadeira().setQuantidade(
+                                                                        data.getMadeira().Quantidade() - 1);
+                                                                data.getCarvao().setQuantidade(
+                                                                        data.getCarvao().Quantidade() - 1);
+                                                                data.getEletricidade().setCapacidade(
+                                                                        data.getEletricidade().getCapacidade());
+                                                                break;
+                                                            } else {
+                                                                data.getMadeira().setQuantidade(
+                                                                        data.getMadeira().Quantidade() - 1);
+                                                                data.getCarvao().setQuantidade(
+                                                                        data.getCarvao().Quantidade() - 1);
+                                                                data.getEletricidade().addQuantidade(
+                                                                        (mapa.getCells()[i][j].getBuilding().getProducao()));
+                                                                break;
+                                                            }
                                                         }
-                                                    } else if (mapa.getCells()[i + 1][j].getBuilding().designacao() ==
-                                                               "bat") {
-                                                        if (data.getEletricidade().Quantidade() +
-                                                            mapa.getCells()[i][j].getBuilding().getProducao() >=
-                                                            data.getEletricidade().getCapacidade()) {
-                                                            data.getMadeira().setQuantidade(
-                                                                    data.getMadeira().Quantidade() - 1);
-                                                            data.getCarvao().setQuantidade(
-                                                                    data.getCarvao().Quantidade() - 1);
-                                                            data.getEletricidade().setCapacidade(
-                                                                    data.getEletricidade().getCapacidade());
-                                                            break;
-                                                        } else {
-                                                            data.getMadeira().setQuantidade(
-                                                                    data.getMadeira().Quantidade() - 1);
-                                                            data.getCarvao().setQuantidade(
-                                                                    data.getCarvao().Quantidade() - 1);
-                                                            data.getEletricidade().addQuantidade(
-                                                                    (mapa.getCells()[i][j].getBuilding().getProducao()));
-                                                            break;
+                                                    } else if (
+                                                            mapa.getCells()[i + 1][j].getBuilding().designacao() ==
+                                                            "bat") {
+                                                        if (data.getMadeira().Quantidade() - 1 != 0 &&
+                                                            data.getCarvao().Quantidade() - 1 != 0) {
+                                                            if (data.getEletricidade().Quantidade() +
+                                                                mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                                data.getEletricidade().getCapacidade()) {
+                                                                data.getMadeira().setQuantidade(
+                                                                        data.getMadeira().Quantidade() - 1);
+                                                                data.getCarvao().setQuantidade(
+                                                                        data.getCarvao().Quantidade() - 1);
+                                                                data.getEletricidade().setCapacidade(
+                                                                        data.getEletricidade().getCapacidade());
+                                                                break;
+                                                            } else {
+                                                                data.getMadeira().setQuantidade(
+                                                                        data.getMadeira().Quantidade() - 1);
+                                                                data.getCarvao().setQuantidade(
+                                                                        data.getCarvao().Quantidade() - 1);
+                                                                data.getEletricidade().addQuantidade(
+                                                                        (mapa.getCells()[i][j].getBuilding().getProducao()));
+                                                                break;
+                                                            }
                                                         }
                                                     }
-                                            }
+                                                }
                                                 mapa.getCells()[i][j - 1].getWorkers()[l].setDias(0);
-                                        }
+                                            }
                                         }
                                     }
                                 }
                             }
                         }
                     }
+                }
+                if (mapa.getCells()[i][j].getBuilding().designacao() == "fun") {
+                    for (int k = 0; k < mapa.getCells()[i][j].getWorkers().size(); k++) {
+                        if (mapa.getCells()[i][j].getWorkers()[k].designacao() == 'O' &&
+                            data.getFerro().Quantidade() >= 1.5 && data.getCarvao().Quantidade() >= 0.5) {
+                            cout << "entrou" << endl;
+                            if (i == 0 && j == 0) {
+
+                                if (mapa.getCells()[i][j + 1].getBuilding().designacao() == "mnf" &&
+                                    mapa.getCells()[i][j + 1].getBuilding().getEstado() == 1) {
+
+                                    for (int l = 0; l < mapa.getCells()[i][j + 1].getWorkers().size(); l++) {
+                                        if (mapa.getCells()[i][j + 1].getWorkers()[l].designacao() == 'M') {
+
+                                            if (mapa.getCells()[i + 1][j].getBuilding().designacao() == "mnc" &&
+                                                mapa.getCells()[i + 1][j].getBuilding().getEstado() == 1) {
+
+                                                for (int z = 0;
+                                                     z < mapa.getCells()[i + 1][j].getWorkers().size(); z++) {
+                                                    if (mapa.getCells()[i + 1][j].getWorkers()[l].designacao() == 'M') {
+
+
+                                                        if (data.getAco().Quantidade() +
+                                                            mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                            data.getAco().getCapacidade()) {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
+                                                            break;
+                                                        } else {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +
+                                                                                        mapa.getCells()[i][j].getBuilding().getProducao());
+                                                            break;
+                                                        }
+                                                    }
+                                                }
+                                            } else if (mapa.getCells()[i + 1][j].getBuilding().designacao() == "elec" &&
+                                                       mapa.getCells()[i + 1][j].getBuilding().getEstado() == 1) {
+
+                                                for (int z = 0;
+                                                     z < mapa.getCells()[i + 1][j].getWorkers().size(); z++) {
+                                                    if (mapa.getCells()[i + 1][j].getWorkers()[l].designacao() == 'O') {
+
+                                                        if (data.getAco().Quantidade() +
+                                                            mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                            data.getAco().getCapacidade()) {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
+                                                            break;
+                                                        } else {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +
+                                                                                        mapa.getCells()[i][j].getBuilding().getProducao());
+                                                            break;
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                } else if (mapa.getCells()[i + 1][j].getBuilding().designacao() == "mnf" &&
+                                           mapa.getCells()[i + 1][j].getBuilding().getEstado() == 1) {
+
+                                    for (int l = 0; l < mapa.getCells()[i + 1][j].getWorkers().size(); l++) {
+                                        if (mapa.getCells()[i + 1][j].getWorkers()[l].designacao() == 'M') {
+
+                                            if (mapa.getCells()[i][j + 1].getBuilding().designacao() == "mnc" &&
+                                                mapa.getCells()[i][j + 1].getBuilding().getEstado() == 1) {
+                                                for (int z = 0;
+                                                     z < mapa.getCells()[i][j + 1].getWorkers().size(); z++) {
+                                                    if (mapa.getCells()[i][j + 1].getWorkers()[l].designacao() == 'M') {
+                                                        if (data.getAco().Quantidade() +
+                                                            mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                            data.getAco().getCapacidade()) {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
+                                                            break;
+                                                        } else {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +
+                                                                                        mapa.getCells()[i][j].getBuilding().getProducao());
+                                                            break;
+                                                        }
+                                                    }
+                                                }
+                                            } else if (mapa.getCells()[i][j + 1].getBuilding().designacao() == "elec" &&
+                                                       mapa.getCells()[i][j + 1].getBuilding().getEstado() == 1) {
+                                                for (int z = 0;
+                                                     z < mapa.getCells()[i][j + 1].getWorkers().size(); z++) {
+                                                    if (data.getAco().Quantidade() +
+                                                        mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                        data.getAco().getCapacidade()) {
+                                                        data.getCarvao().setQuantidade(
+                                                                data.getCarvao().Quantidade() - 0.5);
+                                                        data.getFerro().setQuantidade(
+                                                                data.getFerro().Quantidade() - 1.5);
+                                                        data.getAco().setQuantidade(data.getAco().getCapacidade());
+                                                        break;
+                                                    } else {
+                                                        data.getCarvao().setQuantidade(
+                                                                data.getCarvao().Quantidade() - 0.5);
+                                                        data.getFerro().setQuantidade(
+                                                                data.getFerro().Quantidade() - 1.5);
+                                                        data.getAco().setQuantidade(data.getAco().Quantidade() +
+                                                                                    mapa.getCells()[i][j].getBuilding().getProducao());
+                                                        break;
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            } else if (i == 0 && j == mapa.getCols() - 1) {
+
+                                if (mapa.getCells()[i][j - 1].getBuilding().designacao() == "mnf" &&
+                                    mapa.getCells()[i][j - 1].getBuilding().getEstado() == 1) {
+                                    for (int l = 0; l < mapa.getCells()[i][j - 1].getWorkers().size(); l++) {
+                                        if (mapa.getCells()[i][j - 1].getWorkers()[l].designacao() == 'M') {
+                                            if (mapa.getCells()[i + 1][j].getBuilding().designacao() == "mnc" &&
+                                                mapa.getCells()[i + 1][j].getBuilding().getEstado() == 1) {
+                                                for (int z = 0;
+                                                     z < mapa.getCells()[i + 1][j].getWorkers().size(); z++) {
+                                                    if (mapa.getCells()[i + 1][j].getWorkers()[l].designacao() == 'M') {
+                                                        if (data.getAco().Quantidade() +
+                                                            mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                            data.getAco().getCapacidade()) {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
+                                                            break;
+                                                        } else {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +
+                                                                                        mapa.getCells()[i][j].getBuilding().getProducao());
+                                                            break;
+                                                        }
+                                                    }
+                                                }
+                                            } else if (mapa.getCells()[i + 1][j].getBuilding().designacao() == "elec" &&
+                                                       mapa.getCells()[i + 1][j].getBuilding().getEstado() == 1) {
+                                                for (int z = 0;
+                                                     z < mapa.getCells()[i + 1][j].getWorkers().size(); z++) {
+                                                    if (mapa.getCells()[i + 1][j].getWorkers()[l].designacao() == 'O') {
+                                                        if (data.getAco().Quantidade() +
+                                                            mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                            data.getAco().getCapacidade()) {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
+                                                            break;
+                                                        } else {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +
+                                                                                        mapa.getCells()[i][j].getBuilding().getProducao());
+                                                            break;
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                } else if (mapa.getCells()[i + 1][j].getBuilding().designacao() == "mnf" &&
+                                           mapa.getCells()[i + 1][j].getBuilding().getEstado() == 1) {
+                                    for (int l = 0; l < mapa.getCells()[i + 1][j].getWorkers().size(); l++) {
+                                        if (mapa.getCells()[i + 1][j].getWorkers()[l].designacao() == 'M') {
+                                            if (mapa.getCells()[i][j - 1].getBuilding().designacao() == "mnc" &&
+                                                mapa.getCells()[i][j - 1].getBuilding().getEstado() == 1) {
+                                                for (int z = 0;
+                                                     z < mapa.getCells()[i][j - 1].getWorkers().size(); z++) {
+                                                    if (mapa.getCells()[i][j - 1].getWorkers()[l].designacao() == 'M') {
+                                                        if (data.getAco().Quantidade() +
+                                                            mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                            data.getAco().getCapacidade()) {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
+                                                            break;
+                                                        } else {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +
+                                                                                        mapa.getCells()[i][j].getBuilding().getProducao());
+                                                            break;
+                                                        }
+                                                    }
+                                                }
+                                            } else if (mapa.getCells()[i][j - 1].getBuilding().designacao() == "elec" &&
+                                                       mapa.getCells()[i][j - 1].getBuilding().getEstado() == 1) {
+                                                for (int z = 0;
+                                                     z < mapa.getCells()[i][j - 1].getWorkers().size(); z++) {
+                                                    if (mapa.getCells()[i][j - 1].getWorkers()[l].designacao() == 'O') {
+                                                        if (data.getAco().Quantidade() +
+                                                            mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                            data.getAco().getCapacidade()) {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
+                                                            break;
+                                                        } else {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +
+                                                                                        mapa.getCells()[i][j].getBuilding().getProducao());
+                                                            break;
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            } else if (i == mapa.getRows() - 1 && j == 0) {
+                                if (mapa.getCells()[i - 1][j].getBuilding().designacao() == "mnf" &&
+                                    mapa.getCells()[i - 1][j].getBuilding().getEstado() == 1) {
+                                    for (int l = 0; l < mapa.getCells()[i - 1][j].getWorkers().size(); l++) {
+                                        if (mapa.getCells()[i - 1][j].getWorkers()[l].designacao() == 'M') {
+                                            if (mapa.getCells()[i][j + 1].getBuilding().designacao() == "mnc" &&
+                                                mapa.getCells()[i][j + 1].getBuilding().getEstado() == 1) {
+                                                for (int z = 0;
+                                                     z < mapa.getCells()[i][j + 1].getWorkers().size(); z++) {
+                                                    if (mapa.getCells()[i][j + 1].getWorkers()[l].designacao() == 'M') {
+                                                        if (data.getAco().Quantidade() +
+                                                            mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                            data.getAco().getCapacidade()) {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
+                                                            break;
+                                                        } else {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +
+                                                                                        mapa.getCells()[i][j].getBuilding().getProducao());
+                                                            break;
+                                                        }
+                                                    }
+                                                }
+                                            } else if (mapa.getCells()[i][j + 1].getBuilding().designacao() == "elec" &&
+                                                       mapa.getCells()[i][j + 1].getBuilding().getEstado() == 1) {
+                                                for (int z = 0;
+                                                     z < mapa.getCells()[i][j + 1].getWorkers().size(); z++) {
+                                                    if (mapa.getCells()[i][j + 1].getWorkers()[l].designacao() == 'O') {
+                                                        if (data.getAco().Quantidade() +
+                                                            mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                            data.getAco().getCapacidade()) {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
+                                                            break;
+                                                        } else {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +
+                                                                                        mapa.getCells()[i][j].getBuilding().getProducao());
+                                                            break;
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                } else if (mapa.getCells()[i][j + 1].getBuilding().designacao() == "mnf" &&
+                                           mapa.getCells()[i][j + 1].getBuilding().getEstado() == 1) {
+                                    for (int l = 0; l < mapa.getCells()[i][j + 1].getWorkers().size(); l++) {
+                                        if (mapa.getCells()[i][j + 1].getWorkers()[l].designacao() == 'M') {
+                                            if (mapa.getCells()[i - 1][j].getBuilding().designacao() == "mnc" &&
+                                                mapa.getCells()[i - 1][j].getBuilding().getEstado() == 1) {
+                                                for (int z = 0;
+                                                     z < mapa.getCells()[i - 1][1].getWorkers().size(); z++) {
+                                                    if (mapa.getCells()[i - 1][j].getWorkers()[l].designacao() == 'M') {
+                                                        if (data.getAco().Quantidade() +
+                                                            mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                            data.getAco().getCapacidade()) {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
+                                                            break;
+                                                        } else {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +
+                                                                                        mapa.getCells()[i][j].getBuilding().getProducao());
+                                                            break;
+                                                        }
+                                                    }
+                                                }
+                                            } else if (mapa.getCells()[i - 1][j].getBuilding().designacao() == "elec" &&
+                                                       mapa.getCells()[i - 1][j].getBuilding().getEstado() == 1) {
+                                                for (int z = 0;
+                                                     z < mapa.getCells()[i - 1][j].getWorkers().size(); z++) {
+                                                    if (mapa.getCells()[i - 1][j].getWorkers()[l].designacao() == 'O') {
+                                                        if (data.getAco().Quantidade() +
+                                                            mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                            data.getAco().getCapacidade()) {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
+                                                            break;
+                                                        } else {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +
+                                                                                        mapa.getCells()[i][j].getBuilding().getProducao());
+                                                            break;
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            } else if (i == mapa.getRows() - 1 && j == mapa.getCols() - 1) {
+                                if (mapa.getCells()[i - 1][j].getBuilding().designacao() == "mnf" &&
+                                    mapa.getCells()[i - 1][j].getBuilding().getEstado() == 1) {
+                                    for (int l = 0; l < mapa.getCells()[i - 1][j].getWorkers().size(); l++) {
+                                        if (mapa.getCells()[i - 1][j].getWorkers()[l].designacao() == 'M') {
+                                            if (mapa.getCells()[i][j - 1].getBuilding().designacao() == "mnc" &&
+                                                mapa.getCells()[i][j - 1].getBuilding().getEstado() == 1) {
+                                                for (int z = 0;
+                                                     z < mapa.getCells()[i][j - 1].getWorkers().size(); z++) {
+                                                    if (mapa.getCells()[i][j - 1].getWorkers()[l].designacao() == 'M') {
+                                                        if (data.getAco().Quantidade() +
+                                                            mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                            data.getAco().getCapacidade()) {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
+                                                            break;
+                                                        } else {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +
+                                                                                        mapa.getCells()[i][j].getBuilding().getProducao());
+                                                            break;
+                                                        }
+                                                    }
+                                                }
+                                            } else if (mapa.getCells()[i][j - 1].getBuilding().designacao() == "elec" &&
+                                                       mapa.getCells()[i][j - 1].getBuilding().getEstado() == 1) {
+                                                for (int z = 0;
+                                                     z < mapa.getCells()[i][j - 1].getWorkers().size(); z++) {
+                                                    if (mapa.getCells()[i][j - 1].getWorkers()[l].designacao() == 'O') {
+                                                        if (data.getAco().Quantidade() +
+                                                            mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                            data.getAco().getCapacidade()) {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
+                                                            break;
+                                                        } else {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +
+                                                                                        mapa.getCells()[i][j].getBuilding().getProducao());
+                                                            break;
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                } else if (mapa.getCells()[i][j - 1].getBuilding().designacao() == "mnf" &&
+                                           mapa.getCells()[i - 1][j].getBuilding().getEstado() == 1) {
+                                    for (int l = 0; l < mapa.getCells()[i][j - 1].getWorkers().size(); l++) {
+                                        if (mapa.getCells()[i][j - 1].getWorkers()[l].designacao() == 'M') {
+                                            if (mapa.getCells()[i - 1][j].getBuilding().designacao() == "mnc" &&
+                                                mapa.getCells()[i - 1][j].getBuilding().getEstado() == 1) {
+                                                for (int z = 0;
+                                                     z < mapa.getCells()[i - 1][j].getWorkers().size(); z++) {
+                                                    if (mapa.getCells()[i - 1][j].getWorkers()[l].designacao() == 'M') {
+                                                        if (data.getAco().Quantidade() +
+                                                            mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                            data.getAco().getCapacidade()) {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
+                                                            break;
+                                                        } else {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +
+                                                                                        mapa.getCells()[i][j].getBuilding().getProducao());
+                                                            break;
+                                                        }
+                                                    }
+                                                }
+                                            } else if (mapa.getCells()[i - 1][j].getBuilding().designacao() == "elec" &&
+                                                       mapa.getCells()[i - 1][j].getBuilding().getEstado() == 1) {
+                                                for (int z = 0;
+                                                     z < mapa.getCells()[i - 1][j].getWorkers().size(); z++) {
+                                                    if (mapa.getCells()[i - 1][j].getWorkers()[l].designacao() == 'O') {
+                                                        if (data.getAco().Quantidade() +
+                                                            mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                            data.getAco().getCapacidade()) {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
+                                                            break;
+                                                        } else {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +
+                                                                                        mapa.getCells()[i][j].getBuilding().getProducao());
+                                                            break;
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+
+                            } else if (i > 0 && i < mapa.getRows() - 1 && j == 0) {
+                                if (mapa.getCells()[i - 1][j].getBuilding().designacao() == "mnf" &&
+                                    mapa.getCells()[i - 1][j].getBuilding().getEstado() == 1) {
+                                    for (int l = 0; l < mapa.getCells()[i - 1][j].getWorkers().size(); l++) {
+                                        if (mapa.getCells()[i - 1][j].getWorkers()[l].designacao() == 'M') {
+                                            if (mapa.getCells()[i][j + 1].getBuilding().designacao() == "mnc" &&
+                                                mapa.getCells()[i][j + 1].getBuilding().getEstado() == 1) {
+                                                for (int z = 0;
+                                                     z < mapa.getCells()[i][j + 1].getWorkers().size(); z++) {
+                                                    if (mapa.getCells()[i][j + 1].getWorkers()[l].designacao() == 'M') {
+                                                        if (data.getAco().Quantidade() +
+                                                            mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                            data.getAco().getCapacidade()) {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
+                                                            break;
+                                                        } else {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +
+                                                                                        mapa.getCells()[i][j].getBuilding().getProducao());
+                                                            break;
+                                                        }
+                                                    }
+                                                }
+                                            } else if (mapa.getCells()[i][j + 1].getBuilding().designacao() == "elec" &&
+                                                       mapa.getCells()[i][j + 1].getBuilding().getEstado() == 1) {
+                                                for (int z = 0;
+                                                     z < mapa.getCells()[i][j + 1].getWorkers().size(); z++) {
+                                                    if (mapa.getCells()[i][j + 1].getWorkers()[l].designacao() == 'O') {
+                                                        if (data.getAco().Quantidade() +
+                                                            mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                            data.getAco().getCapacidade()) {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
+                                                            break;
+                                                        } else {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +
+                                                                                        mapa.getCells()[i][j].getBuilding().getProducao());
+                                                            break;
+                                                        }
+                                                    }
+                                                }
+                                            } else if (mapa.getCells()[i + 1][j].getBuilding().designacao() == "mnc" &&
+                                                       mapa.getCells()[i + 1][j].getBuilding().getEstado() == 1) {
+                                                for (int z = 0;
+                                                     z < mapa.getCells()[i + 1][j].getWorkers().size(); z++) {
+                                                    if (mapa.getCells()[i + 1][j].getWorkers()[l].designacao() == 'M') {
+                                                        if (data.getAco().Quantidade() +
+                                                            mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                            data.getAco().getCapacidade()) {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
+                                                            break;
+                                                        } else {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +
+                                                                                        mapa.getCells()[i][j].getBuilding().getProducao());
+                                                            break;
+                                                        }
+                                                    }
+                                                }
+                                            } else if (mapa.getCells()[i + 1][j].getBuilding().designacao() == "elec" &&
+                                                       mapa.getCells()[i + 1][j].getBuilding().getEstado() == 1) {
+                                                for (int z = 0;
+                                                     z < mapa.getCells()[i + 1][j].getWorkers().size(); z++) {
+                                                    if (mapa.getCells()[i + 1][j].getWorkers()[l].designacao() == 'O') {
+                                                        if (data.getAco().Quantidade() +
+                                                            mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                            data.getAco().getCapacidade()) {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
+                                                            break;
+                                                        } else {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +
+                                                                                        mapa.getCells()[i][j].getBuilding().getProducao());
+                                                            break;
+                                                        }
+                                                    }
+                                                }
+                                            }
+
+                                        }
+                                    }
+                                } else if (mapa.getCells()[i + 1][j].getBuilding().designacao() == "mnf" &&
+                                           mapa.getCells()[i + 1][j].getBuilding().getEstado() == 1) {
+                                    for (int l = 0; l < mapa.getCells()[i + 1][j].getWorkers().size(); l++) {
+                                        if (mapa.getCells()[i + 1][j].getWorkers()[l].designacao() == 'M') {
+                                            if (mapa.getCells()[i][j + 1].getBuilding().designacao() == "mnc" &&
+                                                mapa.getCells()[i][j + 1].getBuilding().getEstado() == 1) {
+                                                for (int z = 0;
+                                                     z < mapa.getCells()[i][j + 1].getWorkers().size(); z++) {
+                                                    if (mapa.getCells()[i][j + 1].getWorkers()[l].designacao() == 'M') {
+                                                        if (data.getAco().Quantidade() +
+                                                            mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                            data.getAco().getCapacidade()) {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
+                                                            break;
+                                                        } else {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +
+                                                                                        mapa.getCells()[i][j].getBuilding().getProducao());
+                                                            break;
+                                                        }
+                                                    }
+                                                }
+                                            } else if (mapa.getCells()[i][j + 1].getBuilding().designacao() == "elec" &&
+                                                       mapa.getCells()[i][j + 1].getBuilding().getEstado() == 1) {
+                                                for (int z = 0;
+                                                     z < mapa.getCells()[i][j + 1].getWorkers().size(); z++) {
+                                                    if (mapa.getCells()[i][j + 1].getWorkers()[l].designacao() == 'O') {
+                                                        if (data.getAco().Quantidade() +
+                                                            mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                            data.getAco().getCapacidade()) {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
+                                                            break;
+                                                        } else {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +
+                                                                                        mapa.getCells()[i][j].getBuilding().getProducao());
+                                                            break;
+                                                        }
+                                                    }
+                                                }
+                                            } else if (mapa.getCells()[i - 1][j].getBuilding().designacao() == "mnc" &&
+                                                       mapa.getCells()[i - 1][j].getBuilding().getEstado() == 1) {
+                                                for (int z = 0;
+                                                     z < mapa.getCells()[i - 1][j].getWorkers().size(); z++) {
+                                                    if (mapa.getCells()[i - 1][j].getWorkers()[l].designacao() == 'M') {
+                                                        if (data.getAco().Quantidade() +
+                                                            mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                            data.getAco().getCapacidade()) {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
+                                                            break;
+                                                        } else {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +
+                                                                                        mapa.getCells()[i][j].getBuilding().getProducao());
+                                                            break;
+                                                        }
+                                                    }
+                                                }
+                                            } else if (mapa.getCells()[i - 1][j].getBuilding().designacao() == "elec" &&
+                                                       mapa.getCells()[i - 1][j].getBuilding().getEstado() == 1) {
+                                                for (int z = 0;
+                                                     z < mapa.getCells()[i - 1][j].getWorkers().size(); z++) {
+                                                    if (mapa.getCells()[i - 1][j].getWorkers()[l].designacao() == 'O') {
+                                                        if (data.getAco().Quantidade() +
+                                                            mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                            data.getAco().getCapacidade()) {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
+                                                            break;
+                                                        } else {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +
+                                                                                        mapa.getCells()[i][j].getBuilding().getProducao());
+                                                            break;
+                                                        }
+                                                    }
+                                                }
+                                            }
+
+                                        }
+                                    }
+                                }
+                                if (mapa.getCells()[i][j + 1].getBuilding().designacao() == "mnf" &&
+                                    mapa.getCells()[i][j + 1].getBuilding().getEstado() == 1) {
+                                    for (int l = 0; l < mapa.getCells()[i][j + 1].getWorkers().size(); l++) {
+                                        if (mapa.getCells()[i][j + 1].getWorkers()[l].designacao() == 'M') {
+                                            if (mapa.getCells()[i + 1][j].getBuilding().designacao() == "mnc" &&
+                                                mapa.getCells()[i + 1][j].getBuilding().getEstado() == 1) {
+                                                for (int z = 0;
+                                                     z < mapa.getCells()[i + 1][j].getWorkers().size(); z++) {
+                                                    if (mapa.getCells()[i + 1][j].getWorkers()[l].designacao() == 'M') {
+                                                        if (data.getAco().Quantidade() +
+                                                            mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                            data.getAco().getCapacidade()) {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
+                                                            break;
+                                                        } else {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +
+                                                                                        mapa.getCells()[i][j].getBuilding().getProducao());
+                                                            break;
+                                                        }
+                                                    }
+                                                }
+                                            } else if (mapa.getCells()[i + 1][j].getBuilding().designacao() == "elec" &&
+                                                       mapa.getCells()[i + 1][j].getBuilding().getEstado() == 1) {
+                                                for (int z = 0;
+                                                     z < mapa.getCells()[i + 1][j].getWorkers().size(); z++) {
+                                                    if (mapa.getCells()[i + 1][j].getWorkers()[l].designacao() == 'O') {
+                                                        if (data.getAco().Quantidade() +
+                                                            mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                            data.getAco().getCapacidade()) {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
+                                                            break;
+                                                        } else {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +
+                                                                                        mapa.getCells()[i][j].getBuilding().getProducao());
+                                                            break;
+                                                        }
+                                                    }
+                                                }
+                                            } else if (mapa.getCells()[i - 1][j].getBuilding().designacao() == "mnc" &&
+                                                       mapa.getCells()[i - 1][j].getBuilding().getEstado() == 1) {
+                                                for (int z = 0;
+                                                     z < mapa.getCells()[i - 1][j].getWorkers().size(); z++) {
+                                                    if (mapa.getCells()[i - 1][j].getWorkers()[l].designacao() == 'M') {
+                                                        if (data.getAco().Quantidade() +
+                                                            mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                            data.getAco().getCapacidade()) {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
+                                                            break;
+                                                        } else {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +
+                                                                                        mapa.getCells()[i][j].getBuilding().getProducao());
+                                                            break;
+                                                        }
+                                                    }
+                                                }
+                                            } else if (mapa.getCells()[i - 1][j].getBuilding().designacao() == "elec" &&
+                                                       mapa.getCells()[i - 1][j].getBuilding().getEstado() == 1) {
+                                                for (int z = 0;
+                                                     z < mapa.getCells()[i - 1][j].getWorkers().size(); z++) {
+                                                    if (mapa.getCells()[i - 1][j].getWorkers()[l].designacao() == 'O') {
+                                                        if (data.getAco().Quantidade() +
+                                                            mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                            data.getAco().getCapacidade()) {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
+                                                            break;
+                                                        } else {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +
+                                                                                        mapa.getCells()[i][j].getBuilding().getProducao());
+                                                            break;
+                                                        }
+                                                    }
+                                                }
+                                            }
+
+                                        }
+                                    }
+                                }
+
+                            } else if (i > 0 && i < mapa.getRows() - 1 && j == mapa.getCols() - 1) {
+                                if (mapa.getCells()[i - 1][j].getBuilding().designacao() == "mnf" &&
+                                    mapa.getCells()[i - 1][j].getBuilding().getEstado() == 1) {
+                                    for (int l = 0; l < mapa.getCells()[i - 1][j].getWorkers().size(); l++) {
+                                        if (mapa.getCells()[i - 1][j].getWorkers()[l].designacao() == 'M') {
+                                            if (mapa.getCells()[i][j - 1].getBuilding().designacao() == "mnc" &&
+                                                mapa.getCells()[i][j - 1].getBuilding().getEstado() == 1) {
+                                                for (int z = 0;
+                                                     z < mapa.getCells()[i][j - 1].getWorkers().size(); z++) {
+                                                    if (mapa.getCells()[i][j - 1].getWorkers()[l].designacao() == 'M') {
+                                                        if (data.getAco().Quantidade() +
+                                                            mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                            data.getAco().getCapacidade()) {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
+                                                            break;
+                                                        } else {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +
+                                                                                        mapa.getCells()[i][j].getBuilding().getProducao());
+                                                            break;
+                                                        }
+                                                    }
+                                                }
+                                            } else if (mapa.getCells()[i][j - 1].getBuilding().designacao() == "elec" &&
+                                                       mapa.getCells()[i][j - 1].getBuilding().getEstado() == 1) {
+                                                for (int z = 0;
+                                                     z < mapa.getCells()[i][j - 1].getWorkers().size(); z++) {
+                                                    if (mapa.getCells()[i][j - 1].getWorkers()[l].designacao() == 'O') {
+                                                        if (data.getAco().Quantidade() +
+                                                            mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                            data.getAco().getCapacidade()) {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
+                                                            break;
+                                                        } else {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +
+                                                                                        mapa.getCells()[i][j].getBuilding().getProducao());
+                                                            break;
+                                                        }
+                                                    }
+                                                }
+                                            } else if (mapa.getCells()[i + 1][j].getBuilding().designacao() == "mnc" &&
+                                                       mapa.getCells()[i + 1][j].getBuilding().getEstado() == 1) {
+                                                for (int z = 0;
+                                                     z < mapa.getCells()[i + 1][j].getWorkers().size(); z++) {
+                                                    if (mapa.getCells()[i + 1][j].getWorkers()[l].designacao() == 'M') {
+                                                        if (data.getAco().Quantidade() +
+                                                            mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                            data.getAco().getCapacidade()) {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
+                                                            break;
+                                                        } else {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +
+                                                                                        mapa.getCells()[i][j].getBuilding().getProducao());
+                                                            break;
+                                                        }
+                                                    }
+                                                }
+                                            } else if (mapa.getCells()[i + 1][j].getBuilding().designacao() == "elec" &&
+                                                       mapa.getCells()[i + 1][j].getBuilding().getEstado() == 1) {
+                                                for (int z = 0;
+                                                     z < mapa.getCells()[i + 1][j].getWorkers().size(); z++) {
+                                                    if (mapa.getCells()[i + 1][j].getWorkers()[l].designacao() == 'O') {
+                                                        if (data.getAco().Quantidade() +
+                                                            mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                            data.getAco().getCapacidade()) {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
+                                                            break;
+                                                        } else {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +
+                                                                                        mapa.getCells()[i][j].getBuilding().getProducao());
+                                                            break;
+                                                        }
+                                                    }
+                                                }
+                                            }
+
+                                        }
+                                    }
+                                } else if (mapa.getCells()[i + 1][j].getBuilding().designacao() == "mnf" &&
+                                           mapa.getCells()[i + 1][j].getBuilding().getEstado() == 1) {
+                                    for (int l = 0; l < mapa.getCells()[i + 1][j].getWorkers().size(); l++) {
+                                        if (mapa.getCells()[i + 1][j].getWorkers()[l].designacao() == 'M') {
+                                            if (mapa.getCells()[i][j - 1].getBuilding().designacao() == "mnc" &&
+                                                mapa.getCells()[i][j - 1].getBuilding().getEstado() == 1) {
+                                                for (int z = 0;
+                                                     z < mapa.getCells()[i][j - 1].getWorkers().size(); z++) {
+                                                    if (mapa.getCells()[i][j - 1].getWorkers()[l].designacao() == 'M') {
+                                                        if (data.getAco().Quantidade() +
+                                                            mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                            data.getAco().getCapacidade()) {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
+                                                            break;
+                                                        } else {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +
+                                                                                        mapa.getCells()[i][j].getBuilding().getProducao());
+                                                            break;
+                                                        }
+                                                    }
+                                                }
+                                            } else if (mapa.getCells()[i][j - 1].getBuilding().designacao() == "elec" &&
+                                                       mapa.getCells()[i][j - 1].getBuilding().getEstado() == 1) {
+                                                for (int z = 0;
+                                                     z < mapa.getCells()[i][j - 1].getWorkers().size(); z++) {
+                                                    if (mapa.getCells()[i][j - 1].getWorkers()[l].designacao() == 'O') {
+                                                        if (data.getAco().Quantidade() +
+                                                            mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                            data.getAco().getCapacidade()) {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
+                                                            break;
+                                                        } else {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +
+                                                                                        mapa.getCells()[i][j].getBuilding().getProducao());
+                                                            break;
+                                                        }
+                                                    }
+                                                }
+                                            } else if (mapa.getCells()[i - 1][j].getBuilding().designacao() == "mnc" &&
+                                                       mapa.getCells()[i - 1][j].getBuilding().getEstado() == 1) {
+                                                for (int z = 0;
+                                                     z < mapa.getCells()[i - 1][j].getWorkers().size(); z++) {
+                                                    if (mapa.getCells()[i - 1][j].getWorkers()[l].designacao() == 'M') {
+                                                        if (data.getAco().Quantidade() +
+                                                            mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                            data.getAco().getCapacidade()) {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
+                                                            break;
+                                                        } else {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +
+                                                                                        mapa.getCells()[i][j].getBuilding().getProducao());
+                                                            break;
+                                                        }
+                                                    }
+                                                }
+                                            } else if (mapa.getCells()[i - 1][j].getBuilding().designacao() == "elec" &&
+                                                       mapa.getCells()[i - 1][j].getBuilding().getEstado() == 1) {
+                                                for (int z = 0;
+                                                     z < mapa.getCells()[i - 1][j].getWorkers().size(); z++) {
+                                                    if (mapa.getCells()[i - 1][j].getWorkers()[l].designacao() == 'O') {
+                                                        if (data.getAco().Quantidade() +
+                                                            mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                            data.getAco().getCapacidade()) {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
+                                                            break;
+                                                        } else {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +
+                                                                                        mapa.getCells()[i][j].getBuilding().getProducao());
+                                                            break;
+                                                        }
+                                                    }
+                                                }
+                                            }
+
+                                        }
+                                    }
+                                }
+                                if (mapa.getCells()[i][j - 1].getBuilding().designacao() == "mnf" &&
+                                    mapa.getCells()[i][j - 1].getBuilding().getEstado() == 1) {
+                                    for (int l = 0; l < mapa.getCells()[i][j - 1].getWorkers().size(); l++) {
+                                        if (mapa.getCells()[i][j - 1].getWorkers()[l].designacao() == 'M') {
+                                            if (mapa.getCells()[i + 1][j].getBuilding().designacao() == "mnc" &&
+                                                mapa.getCells()[i + 1][j].getBuilding().getEstado() == 1) {
+                                                for (int z = 0;
+                                                     z < mapa.getCells()[i + 1][j].getWorkers().size(); z++) {
+                                                    if (mapa.getCells()[i + 1][j].getWorkers()[l].designacao() == 'M') {
+                                                        if (data.getAco().Quantidade() +
+                                                            mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                            data.getAco().getCapacidade()) {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
+                                                            break;
+                                                        } else {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +
+                                                                                        mapa.getCells()[i][j].getBuilding().getProducao());
+                                                            break;
+                                                        }
+                                                    }
+                                                }
+                                            } else if (mapa.getCells()[i + 1][j].getBuilding().designacao() == "elec" &&
+                                                       mapa.getCells()[i + 1][j].getBuilding().getEstado() == 1) {
+                                                for (int z = 0;
+                                                     z < mapa.getCells()[i + 1][j].getWorkers().size(); z++) {
+                                                    if (mapa.getCells()[i + 1][j].getWorkers()[l].designacao() == 'O') {
+                                                        if (data.getAco().Quantidade() +
+                                                            mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                            data.getAco().getCapacidade()) {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
+                                                            break;
+                                                        } else {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +
+                                                                                        mapa.getCells()[i][j].getBuilding().getProducao());
+                                                            break;
+                                                        }
+                                                    }
+                                                }
+                                            } else if (mapa.getCells()[i - 1][j].getBuilding().designacao() == "mnc" &&
+                                                       mapa.getCells()[i - 1][j].getBuilding().getEstado() == 1) {
+                                                for (int z = 0;
+                                                     z < mapa.getCells()[i - 1][j].getWorkers().size(); z++) {
+                                                    if (mapa.getCells()[i - 1][j].getWorkers()[l].designacao() == 'M') {
+                                                        if (data.getAco().Quantidade() +
+                                                            mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                            data.getAco().getCapacidade()) {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
+                                                            break;
+                                                        } else {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +
+                                                                                        mapa.getCells()[i][j].getBuilding().getProducao());
+                                                            break;
+                                                        }
+                                                    }
+                                                }
+                                            } else if (mapa.getCells()[i - 1][j].getBuilding().designacao() == "elec" &&
+                                                       mapa.getCells()[i - 1][j].getBuilding().getEstado() == 1) {
+                                                for (int z = 0;
+                                                     z < mapa.getCells()[i - 1][j].getWorkers().size(); z++) {
+                                                    if (mapa.getCells()[i - 1][j].getWorkers()[l].designacao() == 'O') {
+                                                        if (data.getAco().Quantidade() +
+                                                            mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                            data.getAco().getCapacidade()) {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
+                                                            break;
+                                                        } else {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +
+                                                                                        mapa.getCells()[i][j].getBuilding().getProducao());
+                                                            break;
+                                                        }
+                                                    }
+                                                }
+                                            }
+
+                                        }
+                                    }
+                                }
+                            } else if (i == 0 && j > 0 && j < mapa.getCols()) {
+                                if (mapa.getCells()[i][j - 1].getBuilding().designacao() == "mnf" &&
+                                    mapa.getCells()[i][j - 1].getBuilding().getEstado() == 1) {
+                                    for (int l = 0; l < mapa.getCells()[i][j - 1].getWorkers().size(); l++) {
+                                        if (mapa.getCells()[i][j - 1].getWorkers()[l].designacao() == 'M') {
+                                            if (mapa.getCells()[i][j + 1].getBuilding().designacao() == "mnc" &&
+                                                mapa.getCells()[i][j + 1].getBuilding().getEstado() == 1) {
+                                                for (int z = 0;
+                                                     z < mapa.getCells()[i][j + 1].getWorkers().size(); z++) {
+                                                    if (mapa.getCells()[i][j + 1].getWorkers()[l].designacao() == 'M') {
+                                                        if (data.getAco().Quantidade() +
+                                                            mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                            data.getAco().getCapacidade()) {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
+                                                            break;
+                                                        } else {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +
+                                                                                        mapa.getCells()[i][j].getBuilding().getProducao());
+                                                            break;
+                                                        }
+                                                    }
+                                                }
+                                            } else if (mapa.getCells()[i][j + 1].getBuilding().designacao() == "elec" &&
+                                                       mapa.getCells()[i][j + 1].getBuilding().getEstado() == 1) {
+                                                for (int z = 0;
+                                                     z < mapa.getCells()[i][j + 1].getWorkers().size(); z++) {
+                                                    if (mapa.getCells()[i][j + 1].getWorkers()[l].designacao() == 'O') {
+                                                        if (data.getAco().Quantidade() +
+                                                            mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                            data.getAco().getCapacidade()) {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
+                                                            break;
+                                                        } else {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +
+                                                                                        mapa.getCells()[i][j].getBuilding().getProducao());
+                                                            break;
+                                                        }
+                                                    }
+                                                }
+                                            } else if (mapa.getCells()[i + 1][j].getBuilding().designacao() == "mnc" &&
+                                                       mapa.getCells()[i + 1][j].getBuilding().getEstado() == 1) {
+                                                for (int z = 0;
+                                                     z < mapa.getCells()[i + 1][j].getWorkers().size(); z++) {
+                                                    if (mapa.getCells()[i + 1][j].getWorkers()[l].designacao() == 'M') {
+                                                        if (data.getAco().Quantidade() +
+                                                            mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                            data.getAco().getCapacidade()) {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
+                                                            break;
+                                                        } else {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +
+                                                                                        mapa.getCells()[i][j].getBuilding().getProducao());
+                                                            break;
+                                                        }
+                                                    }
+                                                }
+                                            } else if (mapa.getCells()[i + 1][j].getBuilding().designacao() == "elec" &&
+                                                       mapa.getCells()[i + 1][j].getBuilding().getEstado() == 1) {
+                                                for (int z = 0;
+                                                     z < mapa.getCells()[i + 1][j].getWorkers().size(); z++) {
+                                                    if (mapa.getCells()[i + 1][j].getWorkers()[l].designacao() == 'O') {
+                                                        if (data.getAco().Quantidade() +
+                                                            mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                            data.getAco().getCapacidade()) {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
+                                                            break;
+                                                        } else {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +
+                                                                                        mapa.getCells()[i][j].getBuilding().getProducao());
+                                                            break;
+                                                        }
+                                                    }
+                                                }
+                                            }
+
+                                        }
+                                    }
+                                } else if (mapa.getCells()[i + 1][j].getBuilding().designacao() == "mnf" &&
+                                           mapa.getCells()[i + 1][j].getBuilding().getEstado() == 1) {
+                                    for (int l = 0; l < mapa.getCells()[i + 1][j].getWorkers().size(); l++) {
+                                        if (mapa.getCells()[i + 1][j].getWorkers()[l].designacao() == 'M') {
+                                            if (mapa.getCells()[i][j + 1].getBuilding().designacao() == "mnc" &&
+                                                mapa.getCells()[i][j + 1].getBuilding().getEstado() == 1) {
+                                                for (int z = 0;
+                                                     z < mapa.getCells()[i][j + 1].getWorkers().size(); z++) {
+                                                    if (mapa.getCells()[i][j + 1].getWorkers()[l].designacao() == 'M') {
+                                                        if (data.getAco().Quantidade() +
+                                                            mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                            data.getAco().getCapacidade()) {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
+                                                            break;
+                                                        } else {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +
+                                                                                        mapa.getCells()[i][j].getBuilding().getProducao());
+                                                            break;
+                                                        }
+                                                    }
+                                                }
+                                            } else if (mapa.getCells()[i][j + 1].getBuilding().designacao() == "elec" &&
+                                                       mapa.getCells()[i][j + 1].getBuilding().getEstado() == 1) {
+                                                for (int z = 0;
+                                                     z < mapa.getCells()[i][j + 1].getWorkers().size(); z++) {
+                                                    if (mapa.getCells()[i][j + 1].getWorkers()[l].designacao() == 'O') {
+                                                        if (data.getAco().Quantidade() +
+                                                            mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                            data.getAco().getCapacidade()) {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
+                                                            break;
+                                                        } else {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +
+                                                                                        mapa.getCells()[i][j].getBuilding().getProducao());
+                                                            break;
+                                                        }
+                                                    }
+                                                }
+                                            } else if (mapa.getCells()[i][j - 1].getBuilding().designacao() == "mnc" &&
+                                                       mapa.getCells()[i][j - 1].getBuilding().getEstado() == 1) {
+                                                for (int z = 0;
+                                                     z < mapa.getCells()[i][j - 1].getWorkers().size(); z++) {
+                                                    if (mapa.getCells()[i][j - 1].getWorkers()[l].designacao() == 'M') {
+                                                        if (data.getAco().Quantidade() +
+                                                            mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                            data.getAco().getCapacidade()) {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
+                                                            break;
+                                                        } else {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +
+                                                                                        mapa.getCells()[i][j].getBuilding().getProducao());
+                                                            break;
+                                                        }
+                                                    }
+                                                }
+                                            } else if (mapa.getCells()[i][j - 1].getBuilding().designacao() == "elec" &&
+                                                       mapa.getCells()[i][j - 1].getBuilding().getEstado() == 1) {
+                                                for (int z = 0;
+                                                     z < mapa.getCells()[i][j - 1].getWorkers().size(); z++) {
+                                                    if (mapa.getCells()[i][j - 1].getWorkers()[l].designacao() == 'O') {
+                                                        if (data.getAco().Quantidade() +
+                                                            mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                            data.getAco().getCapacidade()) {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
+                                                            break;
+                                                        } else {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +
+                                                                                        mapa.getCells()[i][j].getBuilding().getProducao());
+                                                            break;
+                                                        }
+                                                    }
+                                                }
+                                            }
+
+                                        }
+                                    }
+                                } else if (mapa.getCells()[i][j + 1].getBuilding().designacao() == "mnf" &&
+                                           mapa.getCells()[i][j + 1].getBuilding().getEstado() == 1) {
+                                    for (int l = 0; l < mapa.getCells()[i][j + 1].getWorkers().size(); l++) {
+                                        if (mapa.getCells()[i][j + 1].getWorkers()[l].designacao() == 'M') {
+                                            if (mapa.getCells()[i + 1][j].getBuilding().designacao() == "mnc" &&
+                                                mapa.getCells()[i + 1][j].getBuilding().getEstado() == 1) {
+                                                for (int z = 0;
+                                                     z < mapa.getCells()[i + 1][j].getWorkers().size(); z++) {
+                                                    if (mapa.getCells()[i + 1][j].getWorkers()[l].designacao() == 'M') {
+                                                        if (data.getAco().Quantidade() +
+                                                            mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                            data.getAco().getCapacidade()) {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
+                                                            break;
+                                                        } else {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +
+                                                                                        mapa.getCells()[i][j].getBuilding().getProducao());
+                                                            break;
+                                                        }
+                                                    }
+                                                }
+                                            } else if (mapa.getCells()[i + 1][j].getBuilding().designacao() == "elec" &&
+                                                       mapa.getCells()[i + 1][j].getBuilding().getEstado() == 1) {
+                                                for (int z = 0;
+                                                     z < mapa.getCells()[i + 1][j].getWorkers().size(); z++) {
+                                                    if (mapa.getCells()[i + 1][j].getWorkers()[l].designacao() == 'O') {
+                                                        if (data.getAco().Quantidade() +
+                                                            mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                            data.getAco().getCapacidade()) {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
+                                                            break;
+                                                        } else {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +
+                                                                                        mapa.getCells()[i][j].getBuilding().getProducao());
+                                                            break;
+                                                        }
+                                                    }
+                                                }
+                                            } else if (mapa.getCells()[i - 1][j].getBuilding().designacao() == "mnc" &&
+                                                       mapa.getCells()[i - 1][j].getBuilding().getEstado() == 1) {
+                                                for (int z = 0;
+                                                     z < mapa.getCells()[i - 1][j].getWorkers().size(); z++) {
+                                                    if (mapa.getCells()[i - 1][j].getWorkers()[l].designacao() == 'M') {
+                                                        if (data.getAco().Quantidade() +
+                                                            mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                            data.getAco().getCapacidade()) {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
+                                                            break;
+                                                        } else {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +
+                                                                                        mapa.getCells()[i][j].getBuilding().getProducao());
+                                                            break;
+                                                        }
+                                                    }
+                                                }
+                                            } else if (mapa.getCells()[i - 1][j].getBuilding().designacao() == "elec" &&
+                                                       mapa.getCells()[i - 1][j].getBuilding().getEstado() == 1) {
+                                                for (int z = 0;
+                                                     z < mapa.getCells()[i - 1][j].getWorkers().size(); z++) {
+                                                    if (mapa.getCells()[i - 1][j].getWorkers()[l].designacao() == 'O') {
+                                                        if (data.getAco().Quantidade() +
+                                                            mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                            data.getAco().getCapacidade()) {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
+                                                            break;
+                                                        } else {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +
+                                                                                        mapa.getCells()[i][j].getBuilding().getProducao());
+                                                            break;
+                                                        }
+                                                    }
+                                                }
+                                            }
+
+                                        }
+                                    }
+                                }
+                            } else if (i == mapa.getRows() - 1 && j > 0 && j < mapa.getCols() - 1) {
+                                if (mapa.getCells()[i][j - 1].getBuilding().designacao() == "mnf" &&
+                                    mapa.getCells()[i][j - 1].getBuilding().getEstado() == 1) {
+                                    for (int l = 0; l < mapa.getCells()[i][j - 1].getWorkers().size(); l++) {
+                                        if (mapa.getCells()[i][j - 1].getWorkers()[l].designacao() == 'M') {
+                                            if (mapa.getCells()[i][j + 1].getBuilding().designacao() == "mnc" &&
+                                                mapa.getCells()[i][j + 1].getBuilding().getEstado() == 1) {
+                                                for (int z = 0;
+                                                     z < mapa.getCells()[i][j + 1].getWorkers().size(); z++) {
+                                                    if (mapa.getCells()[i][j + 1].getWorkers()[l].designacao() == 'M') {
+                                                        if (data.getAco().Quantidade() +
+                                                            mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                            data.getAco().getCapacidade()) {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
+                                                            break;
+                                                        } else {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +
+                                                                                        mapa.getCells()[i][j].getBuilding().getProducao());
+                                                            break;
+                                                        }
+                                                    }
+                                                }
+                                            } else if (mapa.getCells()[i][j + 1].getBuilding().designacao() == "elec" &&
+                                                       mapa.getCells()[i][j + 1].getBuilding().getEstado() == 1) {
+                                                for (int z = 0;
+                                                     z < mapa.getCells()[i][j + 1].getWorkers().size(); z++) {
+                                                    if (mapa.getCells()[i][j + 1].getWorkers()[l].designacao() == 'O') {
+                                                        if (data.getAco().Quantidade() +
+                                                            mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                            data.getAco().getCapacidade()) {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
+                                                            break;
+                                                        } else {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +
+                                                                                        mapa.getCells()[i][j].getBuilding().getProducao());
+                                                            break;
+                                                        }
+                                                    }
+                                                }
+                                            } else if (mapa.getCells()[i - 1][j].getBuilding().designacao() == "mnc" &&
+                                                       mapa.getCells()[i - 1][j].getBuilding().getEstado() == 1) {
+                                                for (int z = 0;
+                                                     z < mapa.getCells()[i - 1][j].getWorkers().size(); z++) {
+                                                    if (mapa.getCells()[i - 1][j].getWorkers()[l].designacao() == 'M') {
+                                                        if (data.getAco().Quantidade() +
+                                                            mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                            data.getAco().getCapacidade()) {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
+                                                            break;
+                                                        } else {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +
+                                                                                        mapa.getCells()[i][j].getBuilding().getProducao());
+                                                            break;
+                                                        }
+                                                    }
+                                                }
+                                            } else if (mapa.getCells()[i - 1][j].getBuilding().designacao() == "elec" &&
+                                                       mapa.getCells()[i - 1][j].getBuilding().getEstado() == 1) {
+                                                for (int z = 0;
+                                                     z < mapa.getCells()[i + 1][j].getWorkers().size(); z++) {
+                                                    if (mapa.getCells()[i - 1][j].getWorkers()[l].designacao() == 'O') {
+                                                        if (data.getAco().Quantidade() +
+                                                            mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                            data.getAco().getCapacidade()) {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
+                                                            break;
+                                                        } else {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +
+                                                                                        mapa.getCells()[i][j].getBuilding().getProducao());
+                                                            break;
+                                                        }
+                                                    }
+                                                }
+                                            }
+
+                                        }
+                                    }
+                                } else if (mapa.getCells()[i - 1][j].getBuilding().designacao() == "mnf" &&
+                                           mapa.getCells()[i - 1][j].getBuilding().getEstado() == 1) {
+                                    for (int l = 0; l < mapa.getCells()[i - 1][j].getWorkers().size(); l++) {
+                                        if (mapa.getCells()[i - 1][j].getWorkers()[l].designacao() == 'M') {
+                                            if (mapa.getCells()[i][j + 1].getBuilding().designacao() == "mnc" &&
+                                                mapa.getCells()[i][j + 1].getBuilding().getEstado() == 1) {
+                                                for (int z = 0;
+                                                     z < mapa.getCells()[i][j + 1].getWorkers().size(); z++) {
+                                                    if (mapa.getCells()[i][j + 1].getWorkers()[l].designacao() == 'M') {
+                                                        if (data.getAco().Quantidade() +
+                                                            mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                            data.getAco().getCapacidade()) {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
+                                                            break;
+                                                        } else {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +
+                                                                                        mapa.getCells()[i][j].getBuilding().getProducao());
+                                                            break;
+                                                        }
+                                                    }
+                                                }
+                                            } else if (mapa.getCells()[i][j + 1].getBuilding().designacao() == "elec" &&
+                                                       mapa.getCells()[i][j + 1].getBuilding().getEstado() == 1) {
+                                                for (int z = 0;
+                                                     z < mapa.getCells()[i][j + 1].getWorkers().size(); z++) {
+                                                    if (mapa.getCells()[i][j + 1].getWorkers()[l].designacao() == 'O') {
+                                                        if (data.getAco().Quantidade() +
+                                                            mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                            data.getAco().getCapacidade()) {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
+                                                            break;
+                                                        } else {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +
+                                                                                        mapa.getCells()[i][j].getBuilding().getProducao());
+                                                            break;
+                                                        }
+                                                    }
+                                                }
+                                            } else if (mapa.getCells()[i][j - 1].getBuilding().designacao() == "mnc" &&
+                                                       mapa.getCells()[i][j - 1].getBuilding().getEstado() == 1) {
+                                                for (int z = 0;
+                                                     z < mapa.getCells()[i][j - 1].getWorkers().size(); z++) {
+                                                    if (mapa.getCells()[i][j - 1].getWorkers()[l].designacao() == 'M') {
+                                                        if (data.getAco().Quantidade() +
+                                                            mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                            data.getAco().getCapacidade()) {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
+                                                            break;
+                                                        } else {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +
+                                                                                        mapa.getCells()[i][j].getBuilding().getProducao());
+                                                            break;
+                                                        }
+                                                    }
+                                                }
+                                            } else if (mapa.getCells()[i][j - 1].getBuilding().designacao() == "elec" &&
+                                                       mapa.getCells()[i][j - 1].getBuilding().getEstado() == 1) {
+                                                for (int z = 0;
+                                                     z < mapa.getCells()[i][j - 1].getWorkers().size(); z++) {
+                                                    if (mapa.getCells()[i][j - 1].getWorkers()[l].designacao() == 'O') {
+                                                        if (data.getAco().Quantidade() +
+                                                            mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                            data.getAco().getCapacidade()) {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
+                                                            break;
+                                                        } else {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +
+                                                                                        mapa.getCells()[i][j].getBuilding().getProducao());
+                                                            break;
+                                                        }
+                                                    }
+                                                }
+                                            }
+
+                                        }
+                                    }
+                                }
+                                if (mapa.getCells()[i][j + 1].getBuilding().designacao() == "mnf" &&
+                                    mapa.getCells()[i][j + 1].getBuilding().getEstado() == 1) {
+                                    for (int l = 0; l < mapa.getCells()[i][j + 1].getWorkers().size(); l++) {
+                                        if (mapa.getCells()[i][j + 1].getWorkers()[l].designacao() == 'M') {
+                                            if (mapa.getCells()[i - 1][j].getBuilding().designacao() == "mnc" &&
+                                                mapa.getCells()[i - 1][j].getBuilding().getEstado() == 1) {
+                                                for (int z = 0;
+                                                     z < mapa.getCells()[i - 1][j].getWorkers().size(); z++) {
+                                                    if (mapa.getCells()[i - 1][j].getWorkers()[l].designacao() == 'M') {
+                                                        if (data.getAco().Quantidade() +
+                                                            mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                            data.getAco().getCapacidade()) {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
+                                                            break;
+                                                        } else {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +
+                                                                                        mapa.getCells()[i][j].getBuilding().getProducao());
+                                                            break;
+                                                        }
+                                                    }
+                                                }
+                                            } else if (mapa.getCells()[i - 1][j].getBuilding().designacao() == "elec" &&
+                                                       mapa.getCells()[i - 1][j].getBuilding().getEstado() == 1) {
+                                                for (int z = 0;
+                                                     z < mapa.getCells()[i - 1][j].getWorkers().size(); z++) {
+                                                    if (mapa.getCells()[i - 1][j].getWorkers()[l].designacao() == 'O') {
+                                                        if (data.getAco().Quantidade() +
+                                                            mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                            data.getAco().getCapacidade()) {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
+                                                            break;
+                                                        } else {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +
+                                                                                        mapa.getCells()[i][j].getBuilding().getProducao());
+                                                            break;
+                                                        }
+                                                    }
+                                                }
+                                            } else if (mapa.getCells()[i][j - 1].getBuilding().designacao() == "mnc" &&
+                                                       mapa.getCells()[i][j - 1].getBuilding().getEstado() == 1) {
+                                                for (int z = 0;
+                                                     z < mapa.getCells()[i][j - 1].getWorkers().size(); z++) {
+                                                    if (mapa.getCells()[i][j - 1].getWorkers()[l].designacao() == 'M') {
+                                                        if (data.getAco().Quantidade() +
+                                                            mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                            data.getAco().getCapacidade()) {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
+                                                            break;
+                                                        } else {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +
+                                                                                        mapa.getCells()[i][j].getBuilding().getProducao());
+                                                            break;
+                                                        }
+                                                    }
+                                                }
+                                            } else if (mapa.getCells()[i][j - 1].getBuilding().designacao() == "elec" &&
+                                                       mapa.getCells()[i][j - 1].getBuilding().getEstado() == 1) {
+                                                for (int z = 0;
+                                                     z < mapa.getCells()[i][j - 1].getWorkers().size(); z++) {
+                                                    if (mapa.getCells()[i][j - 1].getWorkers()[l].designacao() == 'O') {
+                                                        if (data.getAco().Quantidade() +
+                                                            mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                            data.getAco().getCapacidade()) {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
+                                                            break;
+                                                        } else {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +
+                                                                                        mapa.getCells()[i][j].getBuilding().getProducao());
+                                                            break;
+                                                        }
+                                                    }
+                                                }
+                                            }
+
+                                        }
+                                    }
+                                }
+
+                            } else {
+                                if (mapa.getCells()[i][j - 1].getBuilding().designacao() == "mnf" &&
+                                    mapa.getCells()[i][j - 1].getBuilding().getEstado() == 1) {
+                                    for (int l = 0; l < mapa.getCells()[i][j - 1].getWorkers().size(); l++) {
+                                        if (mapa.getCells()[i][j - 1].getWorkers()[l].designacao() == 'M') {
+                                            if (mapa.getCells()[i][j + 1].getBuilding().designacao() == "mnc" &&
+                                                mapa.getCells()[i][j + 1].getBuilding().getEstado() == 1) {
+                                                for (int z = 0;
+                                                     z < mapa.getCells()[i][j + 1].getWorkers().size(); z++) {
+                                                    if (data.getAco().Quantidade() +
+                                                        mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                        data.getAco().getCapacidade()) {
+                                                        data.getCarvao().setQuantidade(
+                                                                data.getCarvao().Quantidade() - 0.5);
+                                                        data.getFerro().setQuantidade(
+                                                                data.getFerro().Quantidade() - 1.5);
+                                                        data.getAco().setQuantidade(data.getAco().getCapacidade());
+                                                        break;
+                                                    } else {
+                                                        data.getCarvao().setQuantidade(
+                                                                data.getCarvao().Quantidade() - 0.5);
+                                                        data.getFerro().setQuantidade(
+                                                                data.getFerro().Quantidade() - 1.5);
+                                                        data.getAco().setQuantidade(data.getAco().Quantidade() +
+                                                                                    mapa.getCells()[i][j].getBuilding().getProducao());
+                                                        break;
+                                                    }
+                                                }
+                                            } else if (mapa.getCells()[i][j + 1].getBuilding().designacao() == "elec" &&
+                                                       mapa.getCells()[i][j + 1].getBuilding().getEstado() == 1) {
+                                                for (int z = 0;
+                                                     z < mapa.getCells()[i][j + 1].getWorkers().size(); z++) {
+                                                    if (mapa.getCells()[i][j + 1].getWorkers()[l].designacao() == 'O') {
+                                                        if (data.getAco().Quantidade() +
+                                                            mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                            data.getAco().getCapacidade()) {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
+                                                            break;
+                                                        } else {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +
+                                                                                        mapa.getCells()[i][j].getBuilding().getProducao());
+                                                            break;
+                                                        }
+                                                    }
+                                                }
+                                            } else if (mapa.getCells()[i - 1][j].getBuilding().designacao() == "mnc" &&
+                                                       mapa.getCells()[i - 1][j].getBuilding().getEstado() == 1) {
+                                                for (int z = 0;
+                                                     z < mapa.getCells()[i - 1][j].getWorkers().size(); z++) {
+                                                    if (mapa.getCells()[i - 1][j].getWorkers()[l].designacao() == 'M') {
+                                                        if (data.getAco().Quantidade() +
+                                                            mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                            data.getAco().getCapacidade()) {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
+                                                            break;
+                                                        } else {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +
+                                                                                        mapa.getCells()[i][j].getBuilding().getProducao());
+                                                            break;
+                                                        }
+                                                    }
+                                                }
+                                            } else if (mapa.getCells()[i - 1][j].getBuilding().designacao() == "elec" &&
+                                                       mapa.getCells()[i - 1][j].getBuilding().getEstado() == 1) {
+                                                for (int z = 0;
+                                                     z < mapa.getCells()[i + 1][j].getWorkers().size(); z++) {
+                                                    if (mapa.getCells()[i - 1][j].getWorkers()[l].designacao() == 'O') {
+                                                        if (data.getAco().Quantidade() +
+                                                            mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                            data.getAco().getCapacidade()) {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
+                                                            break;
+                                                        } else {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +
+                                                                                        mapa.getCells()[i][j].getBuilding().getProducao());
+                                                            break;
+                                                        }
+                                                    }
+                                                }
+                                            } else if (mapa.getCells()[i + 1][j].getBuilding().designacao() == "mnc" &&
+                                                       mapa.getCells()[i + 1][j].getBuilding().getEstado() == 1) {
+                                                for (int z = 0;
+                                                     z < mapa.getCells()[i + 1][j].getWorkers().size(); z++) {
+                                                    if (mapa.getCells()[i + 1][j].getWorkers()[l].designacao() == 'M') {
+                                                        if (data.getAco().Quantidade() +
+                                                            mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                            data.getAco().getCapacidade()) {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
+                                                            break;
+                                                        } else {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +
+                                                                                        mapa.getCells()[i][j].getBuilding().getProducao());
+                                                            break;
+                                                        }
+                                                    }
+                                                }
+                                            } else if (mapa.getCells()[i + 1][j].getBuilding().designacao() == "elec" &&
+                                                       mapa.getCells()[i + 1][j].getBuilding().getEstado() == 1) {
+                                                for (int z = 0;
+                                                     z < mapa.getCells()[i + 1][j].getWorkers().size(); z++) {
+                                                    if (mapa.getCells()[i + 1][j].getWorkers()[l].designacao() == 'O') {
+                                                        if (data.getAco().Quantidade() +
+                                                            mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                            data.getAco().getCapacidade()) {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
+                                                            break;
+                                                        } else {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +
+                                                                                        mapa.getCells()[i][j].getBuilding().getProducao());
+                                                            break;
+                                                        }
+                                                    }
+                                                }
+                                            }
+
+
+                                        }
+                                    }
+                                } else if (mapa.getCells()[i - 1][j].getBuilding().designacao() == "mnf" &&
+                                           mapa.getCells()[i - 1][j].getBuilding().getEstado() == 1) {
+                                    for (int l = 0; l < mapa.getCells()[i - 1][j].getWorkers().size(); l++) {
+                                        if (mapa.getCells()[i - 1][j].getWorkers()[l].designacao() == 'M') {
+                                            if (mapa.getCells()[i][j + 1].getBuilding().designacao() == "mnc" &&
+                                                mapa.getCells()[i][j + 1].getBuilding().getEstado() == 1) {
+                                                for (int z = 0;
+                                                     z < mapa.getCells()[i][j + 1].getWorkers().size(); z++) {
+                                                    if (mapa.getCells()[i][j + 1].getWorkers()[l].designacao() == 'M') {
+                                                        if (data.getAco().Quantidade() +
+                                                            mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                            data.getAco().getCapacidade()) {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
+                                                            break;
+                                                        } else {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +
+                                                                                        mapa.getCells()[i][j].getBuilding().getProducao());
+                                                            break;
+                                                        }
+                                                    }
+                                                }
+                                            } else if (mapa.getCells()[i][j + 1].getBuilding().designacao() == "elec" &&
+                                                       mapa.getCells()[i][j + 1].getBuilding().getEstado() == 1) {
+                                                for (int z = 0;
+                                                     z < mapa.getCells()[i][j + 1].getWorkers().size(); z++) {
+                                                    if (mapa.getCells()[i][j + 1].getWorkers()[l].designacao() == 'O') {
+                                                        if (data.getAco().Quantidade() +
+                                                            mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                            data.getAco().getCapacidade()) {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
+                                                            break;
+                                                        } else {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +
+                                                                                        mapa.getCells()[i][j].getBuilding().getProducao());
+                                                            break;
+                                                        }
+                                                    }
+                                                }
+                                            } else if (mapa.getCells()[i][j - 1].getBuilding().designacao() == "mnc" &&
+                                                       mapa.getCells()[i][j - 1].getBuilding().getEstado() == 1) {
+                                                for (int z = 0;
+                                                     z < mapa.getCells()[i][j - 1].getWorkers().size(); z++) {
+                                                    if (mapa.getCells()[i][j - 1].getWorkers()[l].designacao() == 'M') {
+                                                        if (data.getAco().Quantidade() +
+                                                            mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                            data.getAco().getCapacidade()) {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
+                                                            break;
+                                                        } else {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +
+                                                                                        mapa.getCells()[i][j].getBuilding().getProducao());
+                                                            break;
+                                                        }
+                                                    }
+                                                }
+                                            } else if (mapa.getCells()[i][j - 1].getBuilding().designacao() == "elec" &&
+                                                       mapa.getCells()[i][j - 1].getBuilding().getEstado() == 1) {
+                                                for (int z = 0;
+                                                     z < mapa.getCells()[i][j - 1].getWorkers().size(); z++) {
+                                                    if (mapa.getCells()[i][j - 1].getWorkers()[l].designacao() == 'O') {
+                                                        if (data.getAco().Quantidade() +
+                                                            mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                            data.getAco().getCapacidade()) {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
+                                                            break;
+                                                        } else {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +
+                                                                                        mapa.getCells()[i][j].getBuilding().getProducao());
+                                                            break;
+                                                        }
+                                                    }
+                                                }
+                                            } else if (mapa.getCells()[i + 1][j].getBuilding().designacao() == "mnc" &&
+                                                       mapa.getCells()[i + 1][j].getBuilding().getEstado() == 1) {
+                                                for (int z = 0;
+                                                     z < mapa.getCells()[i + 1][j].getWorkers().size(); z++) {
+                                                    if (mapa.getCells()[i + 1][j].getWorkers()[l].designacao() == 'M') {
+                                                        if (data.getAco().Quantidade() +
+                                                            mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                            data.getAco().getCapacidade()) {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
+                                                            break;
+                                                        } else {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +
+                                                                                        mapa.getCells()[i][j].getBuilding().getProducao());
+                                                            break;
+                                                        }
+                                                    }
+                                                }
+                                            } else if (mapa.getCells()[i + 1][j].getBuilding().designacao() == "elec" &&
+                                                       mapa.getCells()[i + 1][j].getBuilding().getEstado() == 1) {
+                                                for (int z = 0;
+                                                     z < mapa.getCells()[i + 1][j].getWorkers().size(); z++) {
+                                                    if (mapa.getCells()[i + 1][j].getWorkers()[l].designacao() == 'O') {
+                                                        if (data.getAco().Quantidade() +
+                                                            mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                            data.getAco().getCapacidade()) {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
+                                                            break;
+                                                        } else {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +
+                                                                                        mapa.getCells()[i][j].getBuilding().getProducao());
+                                                            break;
+                                                        }
+                                                    }
+                                                }
+                                            }
+
+                                        }
+                                    }
+                                } else if (mapa.getCells()[i][j + 1].getBuilding().designacao() == "mnf" &&
+                                           mapa.getCells()[i][j + 1].getBuilding().getEstado() == 1) {
+                                    for (int l = 0; l < mapa.getCells()[i][j + 1].getWorkers().size(); l++) {
+                                        if (mapa.getCells()[i][j + 1].getWorkers()[l].designacao() == 'M') {
+                                            if (mapa.getCells()[i - 1][j].getBuilding().designacao() == "mnc" &&
+                                                mapa.getCells()[i - 1][j].getBuilding().getEstado() == 1) {
+                                                for (int z = 0;
+                                                     z < mapa.getCells()[i - 1][j].getWorkers().size(); z++) {
+                                                    if (mapa.getCells()[i - 1][j].getWorkers()[l].designacao() == 'M') {
+                                                        if (data.getAco().Quantidade() +
+                                                            mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                            data.getAco().getCapacidade()) {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
+                                                            break;
+                                                        } else {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +
+                                                                                        mapa.getCells()[i][j].getBuilding().getProducao());
+                                                            break;
+                                                        }
+                                                    }
+                                                }
+                                            } else if (mapa.getCells()[i - 1][j].getBuilding().designacao() == "elec" &&
+                                                       mapa.getCells()[i - 1][j].getBuilding().getEstado() == 1) {
+                                                for (int z = 0;
+                                                     z < mapa.getCells()[i - 1][j].getWorkers().size(); z++) {
+                                                    if (mapa.getCells()[i - 1][j].getWorkers()[l].designacao() == 'O') {
+                                                        if (data.getAco().Quantidade() +
+                                                            mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                            data.getAco().getCapacidade()) {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
+                                                            break;
+                                                        } else {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +
+                                                                                        mapa.getCells()[i][j].getBuilding().getProducao());
+                                                            break;
+                                                        }
+                                                    }
+                                                }
+                                            } else if (mapa.getCells()[i][j - 1].getBuilding().designacao() == "mnc" &&
+                                                       mapa.getCells()[i][j - 1].getBuilding().getEstado() == 1) {
+                                                for (int z = 0;
+                                                     z < mapa.getCells()[i][j - 1].getWorkers().size(); z++) {
+                                                    if (mapa.getCells()[i][j - 1].getWorkers()[l].designacao() == 'M') {
+                                                        if (data.getAco().Quantidade() +
+                                                            mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                            data.getAco().getCapacidade()) {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
+                                                            break;
+                                                        } else {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +
+                                                                                        mapa.getCells()[i][j].getBuilding().getProducao());
+                                                            break;
+                                                        }
+                                                    }
+                                                }
+                                            } else if (mapa.getCells()[i][j - 1].getBuilding().designacao() == "elec" &&
+                                                       mapa.getCells()[i][j - 1].getBuilding().getEstado() == 1) {
+                                                for (int z = 0;
+                                                     z < mapa.getCells()[i][j - 1].getWorkers().size(); z++) {
+                                                    if (mapa.getCells()[i][j - 1].getWorkers()[l].designacao() == 'O') {
+                                                        if (data.getAco().Quantidade() +
+                                                            mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                            data.getAco().getCapacidade()) {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
+                                                            break;
+                                                        } else {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +
+                                                                                        mapa.getCells()[i][j].getBuilding().getProducao());
+                                                            break;
+                                                        }
+                                                    }
+                                                }
+                                            } else if (mapa.getCells()[i + 1][j].getBuilding().designacao() == "mnc" &&
+                                                       mapa.getCells()[i + 1][j].getBuilding().getEstado() == 1) {
+                                                for (int z = 0;
+                                                     z < mapa.getCells()[i + 1][j].getWorkers().size(); z++) {
+                                                    if (mapa.getCells()[i + 1][j].getWorkers()[l].designacao() == 'M') {
+                                                        if (data.getAco().Quantidade() +
+                                                            mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                            data.getAco().getCapacidade()) {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
+                                                            break;
+                                                        } else {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +
+                                                                                        mapa.getCells()[i][j].getBuilding().getProducao());
+                                                            break;
+                                                        }
+                                                    }
+                                                }
+                                            } else if (mapa.getCells()[i + 1][j].getBuilding().designacao() == "elec" &&
+                                                       mapa.getCells()[i + 1][j].getBuilding().getEstado() == 1) {
+                                                for (int z = 0;
+                                                     z < mapa.getCells()[i + 1][j].getWorkers().size(); z++) {
+                                                    if (mapa.getCells()[i + 1][j].getWorkers()[l].designacao() == 'O') {
+                                                        if (data.getAco().Quantidade() +
+                                                            mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                            data.getAco().getCapacidade()) {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
+                                                            break;
+                                                        } else {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +
+                                                                                        mapa.getCells()[i][j].getBuilding().getProducao());
+                                                            break;
+                                                        }
+                                                    }
+                                                }
+                                            }
+
+                                        }
+                                    }
+                                } else if (mapa.getCells()[i + 1][j].getBuilding().designacao() == "mnf" &&
+                                           mapa.getCells()[i + 1][j].getBuilding().getEstado() == 1) {
+                                    for (int l = 0; l < mapa.getCells()[i + 1][j].getWorkers().size(); l++) {
+                                        if (mapa.getCells()[i + 1][j].getWorkers()[l].designacao() == 'M') {
+                                            if (mapa.getCells()[i][j + 1].getBuilding().designacao() == "mnc" &&
+                                                mapa.getCells()[i][j + 1].getBuilding().getEstado() == 1) {
+                                                for (int z = 0;
+                                                     z < mapa.getCells()[i][j + 1].getWorkers().size(); z++) {
+                                                    if (mapa.getCells()[i][j + 1].getWorkers()[l].designacao() == 'M') {
+                                                        if (data.getAco().Quantidade() +
+                                                            mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                            data.getAco().getCapacidade()) {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
+                                                            break;
+                                                        } else {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +
+                                                                                        mapa.getCells()[i][j].getBuilding().getProducao());
+                                                            break;
+                                                        }
+                                                    }
+                                                }
+                                            } else if (mapa.getCells()[i][j + 1].getBuilding().designacao() == "elec" &&
+                                                       mapa.getCells()[i][j + 1].getBuilding().getEstado() == 1) {
+                                                for (int z = 0;
+                                                     z < mapa.getCells()[i][j + 1].getWorkers().size(); z++) {
+                                                    if (mapa.getCells()[i][j + 1].getWorkers()[l].designacao() == 'O') {
+                                                        if (data.getAco().Quantidade() +
+                                                            mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                            data.getAco().getCapacidade()) {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
+                                                            break;
+                                                        } else {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +
+                                                                                        mapa.getCells()[i][j].getBuilding().getProducao());
+                                                            break;
+                                                        }
+                                                    }
+                                                }
+                                            } else if (mapa.getCells()[i][j - 1].getBuilding().designacao() == "mnc" &&
+                                                       mapa.getCells()[i][j - 1].getBuilding().getEstado() == 1) {
+                                                for (int z = 0;
+                                                     z < mapa.getCells()[i][j - 1].getWorkers().size(); z++) {
+                                                    if (mapa.getCells()[i][j - 1].getWorkers()[l].designacao() == 'M') {
+                                                        if (data.getAco().Quantidade() +
+                                                            mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                            data.getAco().getCapacidade()) {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
+                                                            break;
+                                                        } else {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +
+                                                                                        mapa.getCells()[i][j].getBuilding().getProducao());
+                                                            break;
+                                                        }
+                                                    }
+                                                }
+                                            } else if (mapa.getCells()[i][j - 1].getBuilding().designacao() == "elec" &&
+                                                       mapa.getCells()[i][j - 1].getBuilding().getEstado() == 1) {
+                                                for (int z = 0;
+                                                     z < mapa.getCells()[i][j - 1].getWorkers().size(); z++) {
+                                                    if (mapa.getCells()[i][j - 1].getWorkers()[l].designacao() == 'O') {
+                                                        if (data.getAco().Quantidade() +
+                                                            mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                            data.getAco().getCapacidade()) {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
+                                                            break;
+                                                        } else {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +
+                                                                                        mapa.getCells()[i][j].getBuilding().getProducao());
+                                                            break;
+                                                        }
+                                                    }
+                                                }
+                                            } else if (mapa.getCells()[i - 1][j].getBuilding().designacao() == "mnc" &&
+                                                       mapa.getCells()[i - 1][j].getBuilding().getEstado() == 1) {
+                                                for (int z = 0;
+                                                     z < mapa.getCells()[i - 1][j].getWorkers().size(); z++) {
+                                                    if (mapa.getCells()[i - 1][j].getWorkers()[l].designacao() == 'M') {
+                                                        if (data.getAco().Quantidade() +
+                                                            mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                            data.getAco().getCapacidade()) {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
+                                                            break;
+                                                        } else {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +
+                                                                                        mapa.getCells()[i][j].getBuilding().getProducao());
+                                                            break;
+                                                        }
+                                                    }
+                                                }
+                                            } else if (mapa.getCells()[i - 1][j].getBuilding().designacao() == "elec" &&
+                                                       mapa.getCells()[i - 1][j].getBuilding().getEstado() == 1) {
+                                                for (int z = 0;
+                                                     z < mapa.getCells()[i - 1][j].getWorkers().size(); z++) {
+                                                    if (mapa.getCells()[i - 1][j].getWorkers()[l].designacao() == 'O') {
+                                                        if (data.getAco().Quantidade() +
+                                                            mapa.getCells()[i][j].getBuilding().getProducao() >=
+                                                            data.getAco().getCapacidade()) {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
+                                                            break;
+                                                        } else {
+                                                            data.getCarvao().setQuantidade(
+                                                                    data.getCarvao().Quantidade() - 0.5);
+                                                            data.getFerro().setQuantidade(
+                                                                    data.getFerro().Quantidade() - 1.5);
+                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +
+                                                                                        mapa.getCells()[i][j].getBuilding().getProducao());
+                                                            break;
+                                                        }
+                                                    }
+                                                }
+                                            }
+
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
                 }
             }
         }
     }
-    cout << "fim" << endl;
 }
+
+
+
 void Commands::despedimentos() {
 
     for(int i = 0;i < mapa.getRows();i++){
         for(int j = 0; j < mapa.getCols();j++){
 
             for(int k = 0; k < mapa.getCells()[i][j].getWorkers().size();k++){
-                if(mapa.getCells()[i][j].getWorkers()[k].designacao() == 'O' && mapa.getCells()[i][j].getWorkers()[k].getDias() >= 10){
-                    if((1+rand()% 100) < 5){
-                        mapa.getCells()[i][j].getWorkers().erase(mapa.getCells()[i][j].getWorkers().begin() + k);
+                if(mapa.getCells()[i][j].getBiome().designacao() != "pas"){
+                    if(mapa.getCells()[i][j].getWorkers()[k].designacao() == 'O' && mapa.getCells()[i][j].getWorkers()[k].getDias() >= 10){
+                        if((1+rand()% 100) < 5){
+                            mapa.getCells()[i][j].getWorkers().erase(mapa.getCells()[i][j].getWorkers().begin() + k);
+                        }
+                    }
+                    if(mapa.getCells()[i][j].getWorkers()[k].designacao() == 'M' && mapa.getCells()[i][j].getWorkers()[k].getDias() >= 1){
+                        if((1+rand()% 100) < 10){
+                            mapa.getCells()[i][j].getWorkers().erase(mapa.getCells()[i][j].getWorkers().begin() + k);
+                        }
                     }
                 }
-            };
+            }
         }
     }
 
@@ -1919,6 +4652,11 @@ bool isNumber(const string &s){
 
             return false;
         }
+    }
+    if (s == "0"){
+        cout << "As linhas/colunas nao devem ser 0" << endl;
+        system("pause");
+        return false;
     }
     return true;
 }

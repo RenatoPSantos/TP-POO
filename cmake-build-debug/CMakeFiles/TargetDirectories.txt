@@ -1,3 +1,3 @@
-C:/Users/ssasu/Desktop/Trabalho/cmake-build-debug/CMakeFiles/Trabalho.dir
-C:/Users/ssasu/Desktop/Trabalho/cmake-build-debug/CMakeFiles/edit_cache.dir
-C:/Users/ssasu/Desktop/Trabalho/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+C:/Users/User/Desktop/PORTAL/Universidade/POO/TP-POO-main/cmake-build-debug/CMakeFiles/Trabalho.dir
+C:/Users/User/Desktop/PORTAL/Universidade/POO/TP-POO-main/cmake-build-debug/CMakeFiles/edit_cache.dir
+C:/Users/User/Desktop/PORTAL/Universidade/POO/TP-POO-main/cmake-build-debug/CMakeFiles/rebuild_cache.dir

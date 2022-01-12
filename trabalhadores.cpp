@@ -22,11 +22,11 @@ Trabalhadores::Trabalhadores(int dia, int sal, int diasTr) :  salario(sal){
         id = stringWorkers + '.' + stringDia;
         diasTrab = diasTr;
 }
-/*Trabalhadores::Trabalhadores(const Trabalhadores &t){
+/* Trabalhadores::Trabalhadores(const Trabalhadores &t){
     salario = t.salario;
     id = t.id;
     diasTrab = t.diasTrab;
-}*/
+} */
 
 void Trabalhadores::setSalario(int valor) {
 
@@ -47,4 +47,7 @@ char Trabalhadores::designacao() {
 }
 string Trabalhadores::getId() {
     return id;
+}
+int Trabalhadores::getQuantity() const{
+    return quantity;
 }

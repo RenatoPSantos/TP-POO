@@ -18,17 +18,13 @@ void Edificios::upgradeEdificio(){
         cout << "Nivel maximo do edificio atingido" << endl;
         return;
     }
-/*
-
-    if(....){
-
-
+    if(nivel < 5){
     producao += upgradeProducao;
-    armanezamento += upgradeArmazenamento;
     nivel++;
-
    }
-*/
+}
+bool Edificios::getEstado() {
+    return estado;
 }
 void Edificios::liga() {
 
@@ -75,4 +71,10 @@ int Edificios::getArmazenamento() const {
 }
 void Edificios::setArmazenamento(int valor) {
     armanezamento = valor;
+}
+int Edificios::getUpgradePrecoVigas() const{
+    return upgradePrecoVigas;
+}
+int Edificios::getUpgradeArmazenamento() const{
+    return upgradeArmazenamento;
 }
