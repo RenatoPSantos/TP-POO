@@ -15,10 +15,6 @@ vector
 -
 comandos.h
 C:/Users/User/Desktop/PORTAL/Universidade/POO/TP-POO-main/comandos.h
-trabalhadores.h
-C:/Users/User/Desktop/PORTAL/Universidade/POO/TP-POO-main/trabalhadores.h
-recursos.h
-C:/Users/User/Desktop/PORTAL/Universidade/POO/TP-POO-main/recursos.h
 
 C:/Users/User/Desktop/PORTAL/Universidade/POO/TP-POO-main/comandos.h
 iostream
@@ -39,8 +35,6 @@ recursos.h
 C:/Users/User/Desktop/PORTAL/Universidade/POO/TP-POO-main/recursos.h
 edificios.h
 C:/Users/User/Desktop/PORTAL/Universidade/POO/TP-POO-main/edificios.h
-saves.h
-C:/Users/User/Desktop/PORTAL/Universidade/POO/TP-POO-main/saves.h
 
 C:/Users/User/Desktop/PORTAL/Universidade/POO/TP-POO-main/edificios.h
 string
@@ -57,18 +51,6 @@ ctime
 -
 map.h
 C:/Users/User/Desktop/PORTAL/Universidade/POO/TP-POO-main/map.h
-edificios.h
-C:/Users/User/Desktop/PORTAL/Universidade/POO/TP-POO-main/edificios.h
-comandos.h
-C:/Users/User/Desktop/PORTAL/Universidade/POO/TP-POO-main/comandos.h
-recursos.h
-C:/Users/User/Desktop/PORTAL/Universidade/POO/TP-POO-main/recursos.h
-trabalhadores.h
-C:/Users/User/Desktop/PORTAL/Universidade/POO/TP-POO-main/trabalhadores.h
-zonas.h
-C:/Users/User/Desktop/PORTAL/Universidade/POO/TP-POO-main/zonas.h
-saves.h
-C:/Users/User/Desktop/PORTAL/Universidade/POO/TP-POO-main/saves.h
 
 C:/Users/User/Desktop/PORTAL/Universidade/POO/TP-POO-main/map.cpp
 iostream
@@ -110,18 +92,6 @@ string
 iostream
 -
 
-C:/Users/User/Desktop/PORTAL/Universidade/POO/TP-POO-main/saves.cpp
-saves.h
-C:/Users/User/Desktop/PORTAL/Universidade/POO/TP-POO-main/saves.h
-
-C:/Users/User/Desktop/PORTAL/Universidade/POO/TP-POO-main/saves.h
-iostream
--
-map.h
-C:/Users/User/Desktop/PORTAL/Universidade/POO/TP-POO-main/map.h
-recursos.h
-C:/Users/User/Desktop/PORTAL/Universidade/POO/TP-POO-main/recursos.h
-
 C:/Users/User/Desktop/PORTAL/Universidade/POO/TP-POO-main/trabalhadores.cpp
 string
 -
@@ -149,6 +119,10 @@ fstream
 -
 comandos.h
 C:/Users/User/Desktop/PORTAL/Universidade/POO/TP-POO-main/comandos.h
+
+C:/Users/User/Desktop/PORTAL/Universidade/POO/TP-POO-main/zonas.cpp
+zonas.h
+C:/Users/User/Desktop/PORTAL/Universidade/POO/TP-POO-main/zonas.h
 
 C:/Users/User/Desktop/PORTAL/Universidade/POO/TP-POO-main/zonas.h
 stdlib.h

@@ -7,7 +7,6 @@ CMakeFiles/Trabalho.dir/comandos.cpp.obj
  C:/Users/User/Desktop/PORTAL/Universidade/POO/TP-POO-main/edificios.h
  C:/Users/User/Desktop/PORTAL/Universidade/POO/TP-POO-main/map.h
  C:/Users/User/Desktop/PORTAL/Universidade/POO/TP-POO-main/recursos.h
- C:/Users/User/Desktop/PORTAL/Universidade/POO/TP-POO-main/saves.h
  C:/Users/User/Desktop/PORTAL/Universidade/POO/TP-POO-main/trabalhadores.h
  C:/Users/User/Desktop/PORTAL/Universidade/POO/TP-POO-main/zonas.h
 CMakeFiles/Trabalho.dir/edificios.cpp.obj
@@ -19,7 +18,6 @@ CMakeFiles/Trabalho.dir/main.cpp.obj
  C:/Users/User/Desktop/PORTAL/Universidade/POO/TP-POO-main/main.cpp
  C:/Users/User/Desktop/PORTAL/Universidade/POO/TP-POO-main/map.h
  C:/Users/User/Desktop/PORTAL/Universidade/POO/TP-POO-main/recursos.h
- C:/Users/User/Desktop/PORTAL/Universidade/POO/TP-POO-main/saves.h
  C:/Users/User/Desktop/PORTAL/Universidade/POO/TP-POO-main/trabalhadores.h
  C:/Users/User/Desktop/PORTAL/Universidade/POO/TP-POO-main/zonas.h
 CMakeFiles/Trabalho.dir/map.cpp.obj
@@ -28,27 +26,16 @@ CMakeFiles/Trabalho.dir/map.cpp.obj
  C:/Users/User/Desktop/PORTAL/Universidade/POO/TP-POO-main/map.cpp
  C:/Users/User/Desktop/PORTAL/Universidade/POO/TP-POO-main/map.h
  C:/Users/User/Desktop/PORTAL/Universidade/POO/TP-POO-main/recursos.h
- C:/Users/User/Desktop/PORTAL/Universidade/POO/TP-POO-main/saves.h
  C:/Users/User/Desktop/PORTAL/Universidade/POO/TP-POO-main/trabalhadores.h
  C:/Users/User/Desktop/PORTAL/Universidade/POO/TP-POO-main/zonas.h
 CMakeFiles/Trabalho.dir/recursos.cpp.obj
  C:/Users/User/Desktop/PORTAL/Universidade/POO/TP-POO-main/recursos.cpp
  C:/Users/User/Desktop/PORTAL/Universidade/POO/TP-POO-main/recursos.h
-CMakeFiles/Trabalho.dir/saves.cpp.obj
- C:/Users/User/Desktop/PORTAL/Universidade/POO/TP-POO-main/comandos.h
- C:/Users/User/Desktop/PORTAL/Universidade/POO/TP-POO-main/edificios.h
- C:/Users/User/Desktop/PORTAL/Universidade/POO/TP-POO-main/map.h
- C:/Users/User/Desktop/PORTAL/Universidade/POO/TP-POO-main/recursos.h
- C:/Users/User/Desktop/PORTAL/Universidade/POO/TP-POO-main/saves.cpp
- C:/Users/User/Desktop/PORTAL/Universidade/POO/TP-POO-main/saves.h
- C:/Users/User/Desktop/PORTAL/Universidade/POO/TP-POO-main/trabalhadores.h
- C:/Users/User/Desktop/PORTAL/Universidade/POO/TP-POO-main/zonas.h
 CMakeFiles/Trabalho.dir/trabalhadores.cpp.obj
  C:/Users/User/Desktop/PORTAL/Universidade/POO/TP-POO-main/comandos.h
  C:/Users/User/Desktop/PORTAL/Universidade/POO/TP-POO-main/edificios.h
  C:/Users/User/Desktop/PORTAL/Universidade/POO/TP-POO-main/map.h
  C:/Users/User/Desktop/PORTAL/Universidade/POO/TP-POO-main/recursos.h
- C:/Users/User/Desktop/PORTAL/Universidade/POO/TP-POO-main/saves.h
  C:/Users/User/Desktop/PORTAL/Universidade/POO/TP-POO-main/trabalhadores.cpp
  C:/Users/User/Desktop/PORTAL/Universidade/POO/TP-POO-main/trabalhadores.h
  C:/Users/User/Desktop/PORTAL/Universidade/POO/TP-POO-main/zonas.h
