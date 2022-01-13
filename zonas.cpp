@@ -7,29 +7,29 @@
 string Zona::designacao() const{
     return nome;
 }
-void Floresta::setProducao (int valor) {
+void Zona::setProducao (float valor) {
     prod = valor;
 }
-void Floresta::setTotalArvores(int valor) {
+void Zona::setTotalArvores(float valor) {
     totalArvores = valor;
 }
-int Floresta::getProducao() {
+float Zona::getProducao() {
     return prod;
 }
-int Floresta::getTotalArvores() {
+float Zona::getTotalArvores() {
     return totalArvores;
 }
-int Floresta::getDiasAtivos() {
+int Zona::getDiasAtivos() {
     return diasAtivos;
 }
-void Floresta::setDiasAtivos(int valor) {
+void Zona::setDiasAtivos(int valor) {
     diasAtivos = valor;
 }
 
 
-void Pantano::setDias(int valor){
+void Zona::setDias(int valor){
     dias = valor;
 }
-int Pantano::getDias() {
+int Zona::getDias() {
     return dias;
 }

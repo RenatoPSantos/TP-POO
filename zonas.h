@@ -14,18 +14,25 @@ using namespace std;
 class Zona {
 protected:
     string nome;
+
+    float totalArvores;
+    float maxArvores;
+    float prod;
+    int diasAtivos;
+    int dias;
+
 public:
     Zona(){}
     string designacao() const;
-    virtual void setTotalArvores(int valor) {}
-    virtual void setProducao(int valor) {}
-    virtual int getTotalArvores() {return 1;}
-    virtual int getProducao() {return 1;}
-    virtual void setDiasAtivos(int valor) {}
-    virtual int getDiasAtivos() {return 1;}
+    void setTotalArvores(float valor) ;
+    void setProducao(float valor);
+    float getTotalArvores() ;
+    float getProducao();
+    int getDiasAtivos();
+    void setDiasAtivos(int valor);
 
-    virtual int getDias() {return 1;}
-    virtual void setDias(int valor) {}
+    int getDias();
+    void setDias(int valor);
 
 
 };
@@ -46,36 +53,15 @@ public:
 };
 class Floresta : public Zona{
 
-    int totalArvores;
-    int maxArvores;
-    int prod;
-    int diasAtivos;
-
-
 public:
-    Floresta(){
-        nome = "flr";
-        totalArvores = rand()% 21 + 20;
-        prod = 1;
-        maxArvores = 100;
-        diasAtivos = 0;
-    };
-    void setTotalArvores(int valor) override;
-    void setProducao(int valor) override;
-    int getTotalArvores() override;
-    int getProducao() override;
-    int getDiasAtivos() override;
-    void setDiasAtivos(int valor) override ;
+     Floresta(){nome = "flr";};
+
 };
 class Pantano : public Zona{
-        int dias;
+
 
 public:
-    Pantano(){ nome = "pnt";
-               dias = 0;
-    };
-    int getDias();
-    void setDias(int valor);
+    Pantano(){ nome = "pnt";};
 
 };
 class Tundra : public Zona{

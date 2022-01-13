@@ -5,12 +5,12 @@
 #include "recursos.h"
 using namespace std;
 
-void Resources::adicionaResources(int quant) {
+void Resources::adicionaResources(float quant) {
 
     quantidade += quant;
 }
 
-int Resources::Preco() const{
+float Resources::Preco() const{
     return preco;
 }
 float Resources::Quantidade() const{
@@ -28,10 +28,10 @@ void Resources::addQuantidade(float ammount){
 void Resources::subtractQuantidade(float ammount){
     quantidade -= ammount;
 }
-int Resources::getCapacidade() const{
+float Resources::getCapacidade() const{
     return capacidade;
 }
-void Resources::setCapacidade(int quantidade){
+void Resources::setCapacidade(float quantidade){
     capacidade += quantidade;
 }
 Data::Data(Ferro& ferro, Aco& aco, Carvao& carvao, Madeira& madeira, Vigas& vigas, Eletricidade& eletricidade)

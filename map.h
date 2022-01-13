@@ -50,8 +50,8 @@ public:
     vector<vector<Cell>>& getCells();                           //obtém mapa de Cells
     bool checkRowsCols(const string& rows, const string& cols); //verifica se as linhas/colunas introduzidas pelo utilizador existem no mapa
 
-    void moveWorker(int row, int col, string id);   //desloca trabalhador para outra célula
-    void killWorker(string id);   //desloca trabalhador para outra célula
+    void moveWorker(int row, int col, string id);                //desloca trabalhador para outra célula
+    void killWorker(string id);                                  //desloca trabalhador para outra célula
 };
 
 #endif //TRABALHO_MAP_H

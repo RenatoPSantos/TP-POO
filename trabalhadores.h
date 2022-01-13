@@ -15,9 +15,10 @@ using namespace std;
 
 
 class Trabalhadores {
-    int salario;
+    float salario;
     static int quantity;
     string id;
+    int diasContratado;
     int diasTrab;
     int diasPantano;
 protected:
@@ -25,36 +26,36 @@ protected:
 public:
     Trabalhadores(int dia,int sal = 0,int diasTr = 0);
     /* Trabalhadores(const Trabalhadores &t); */
-    char designacao();
-    void setSalario(int valor);
-    int getSalario() const;
+    char designacao() const;
+    void setSalario(float valor);
+    float getSalario() const;
     string getId();
-    int getDias();
+    int getDias() const;
     void setDias(int valor);
     void addDias(int valor);
     int getQuantity() const;
 
+    void setDiasContratado(int valor);
+    int getDiasContratado() const;
+
     void setDiasPantano(int valor);
-    int getDiasPantano();
+    int getDiasPantano() const;
 };
 
 class Operario : public Trabalhadores{
-    int diasDesp = 10;
+
 public:
     Operario(int dia,int sal = 15,int diasTr = 0) : Trabalhadores(dia,sal,diasTr){nome = 'O';};
 
 };
 class Lenhador : public Trabalhadores {
-    int diasTrab;
-public:
-    Lenhador(int dia,int sal = 2,int diasTr = 0) : Trabalhadores(dia,sal,diasTr) {
-        nome = 'L';
-        diasTrab = 0;
 
+public:
+    Lenhador(int dia,int sal = 2,int diasTr = 0) : Trabalhadores(dia,sal,diasTr) {nome = 'L';
     };
 };
 class Mineiro : public Trabalhadores{
-    int diasDesp = 2;
+
 public:
     Mineiro(int dia,int sal = 10,int diasTr = 0) : Trabalhadores(dia,sal,diasTr){nome = 'M';};
 };

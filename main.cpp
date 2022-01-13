@@ -4,12 +4,6 @@
 #include <ctime>
 
 #include "map.h"
-#include "edificios.h"
-#include "comandos.h"
-#include "recursos.h"
-#include "trabalhadores.h"
-#include "zonas.h"
-#include "saves.h"
 
 //IDEIAS EDIFICIO X => "Administração" => Reduz chance de despedimento
 
@@ -18,7 +12,7 @@ using namespace std;
 int main() {
     srand( (unsigned int) time(nullptr) );
     int rows,cols;
-    bool vef = true;
+
     cout << "rows, cols" << endl;
     cin >> rows >> cols;
     Map mapa(rows, cols);
@@ -31,6 +25,10 @@ int main() {
     Eletricidade eletricidade;
 
     Data data(ferro, aco, carvao, madeira, vigas, eletricidade);
+
+    data.getVigas().setQuantidade(50);
+
+    data.getMadeira().setQuantidade(50);
    
 
     Commands commands(mapa, data);
@@ -48,6 +46,8 @@ int main() {
             commands.entregaRecursos();
             commands.despedimentos();
             data.setDia(data.getDia() + 1);
+
+
 
             commands.setNext(false);
         }

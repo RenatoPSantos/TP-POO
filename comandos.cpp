@@ -7,8 +7,6 @@
 #include <vector>
 
 #include "comandos.h"
-#include "trabalhadores.h"
-#include "recursos.h"
 
 using namespace std;
 
@@ -36,7 +34,7 @@ void Commands::printScreen() const {
     cout << "Ids Lenhadores -> " << listWorkers('L') << endl;
     cout << "Ids Operarios -> " << listWorkers('O') << endl;
 }
-void Commands::setCommands(string command){
+void Commands::setCommands(const string& command){
     int i = 0;
     string word;
     istringstream iss(command);
@@ -49,7 +47,7 @@ void Commands::setCommands(string command){
     }
     execCommands();
 }
-void Commands::update(string command){
+void Commands::update(const string& command){
     int i = 0;
     string word;
     istringstream iss(command);
@@ -118,7 +116,7 @@ int Commands::execCommands() {
                     if (mapa.getCells()[stoi(commands[1])-1][stoi(commands[2])-1].getBuilding().designacao() != "") {
                         mapa.getCells()[stoi(commands[1])-1][stoi(commands[2])-1].getBuilding().liga();
                     } else {
-                        cout << "Não existe edificio nestas coordenadas" << endl;
+                        cout << "Nao existe edificio nestas coordenadas" << endl;
                         return 1;
                     }
                 }
@@ -143,7 +141,7 @@ int Commands::execCommands() {
                         mapa.getCells()[stoi(commands[1])-1][stoi(commands[2])-1].getBuilding().desliga();
 
                 } else {
-                        cout << "Não existe edificio nestas coordenadas" << endl;
+                        cout << "Nao existe edificio nestas coordenadas" << endl;
                         return 1;
                     }
                 }
@@ -178,21 +176,21 @@ int Commands::execCommands() {
     }
     if (commands[0] == "vende") {
         if (checkArguments(2)) {
-            if (isNumber(commands[1]) && isNumber(commands[2])) {
+            if (!isNumber(commands[1],true) && isNumber(commands[2],true)) {
+                vende((commands[1]),stoi(commands[2]));
+                return 1;
+            }
+            else if(isNumber(commands[1]) && isNumber(commands[2])){
                 if (mapa.checkRowsCols(commands[1], commands[2])) {
 
                     vende(stoi(commands[1]) - 1,stoi(commands[2]) - 1);
+                    return 1;
 
                 } else {
                     return 1;
                 }
             }
-        } else {
-            if (isNumber(commands[2])){
-
-                vende(commands[1],stoi(commands[2]));
-
-            } else {
+            else{
                 return 1;
             }
         }
@@ -318,37 +316,8 @@ int Commands::execCommands() {
     if (commands[0] == "config") {
 
         if (checkArguments(1) == 1) {
-
-            if (commands[1].substr(commands[1].length() - 4) != ".txt") {
-                commands[1]+=".txt";
-                cout << commands[1] << endl;
-            }
-            fstream file;
-            file.open(commands[1].c_str(), ios::in);
-
-
-            if (file.is_open()) {
-                string reader;
-                vector<string> configs; //armazena dados da file | Formato: "<nome> <valor>"
-                while (file >> reader) {
-                    configs.push_back(reader);
-                }
-                file.close();
-
-                vector<string> names;
-                vector<int> values;
-                for (int i = 0;i < configs.size() / 2; i++) //cria dois vetores, um que contem os nomes das variaveis
-                {                                          //e outro que contém os valores das variáveis
-                    names.push_back(configs[2 * i]);
-                    values.push_back(stoi(configs[(2 * i + 1)]));
-                }
-                cout << "Ficheiro " << commands[1] << " lido com sucesso" << endl;
-                cout << "Mudanca a variaveis por implementar" << endl;
-
-            } else {
-                cout << "Erro ao verificar file (Requer que ficheiro esteja dentro da pasta cmake-build-debug)"
-                     << endl;
-            }
+            cout << "Nao foi Implementado" << endl;
+            system("pause");
         }
     }
     if (commands[0] == "debcash") {
@@ -403,7 +372,7 @@ string Commands::listWorkers(char type) const{
         {
             for(int k = 0; k < mapa.getCells()[i][j].getWorkers().size(); k++)
                 if(mapa.getCells()[i][j].getWorkers()[k].designacao() == type)
-                    str = str + mapa.getCells()[i][j].getWorkers()[k].getId() + " ";
+                    str += mapa.getCells()[i][j].getWorkers()[k].getId() + " ";
         }
     }
     return str;
@@ -492,22 +461,25 @@ void Commands::adicionaDias() {
     for(int i = 0;i < mapa.getRows(); i++){
         for(int j= 0; j < mapa.getCols();j++) {
 
-            if ((mapa.getCells()[i][j].getBuilding().designacao() != "" && mapa.getCells()[i][j].getBuilding().getEstado() == 1 && mapa.getCells()[i][j].getBiome().designacao()!= "flr")) {
+            if ((mapa.getCells()[i][j].getBuilding().designacao() != "" && mapa.getCells()[i][j].getBuilding().getEstado() == 1)) {
                 for (int k = 0; k < mapa.getCells()[i][j].getWorkers().size(); k++) {
 
-                    mapa.getCells()[i][j].getWorkers()[k].setDias(mapa.getCells()[i][j].getWorkers()[k].getDias() + 1);
-                    cout << "diasADiciona : " <<mapa.getCells()[i][j].getWorkers()[k].getDias()<< endl;
-
-                }
-            }
-            if ((mapa.getCells()[i][j].getBiome().designacao() == "flr" )) {
-                for (int k = 0; k < mapa.getCells()[i][j].getWorkers().size(); k++) {
-                    if(mapa.getCells()[i][j].getWorkers()[k].designacao() == 'L'){
+                    if(mapa.getCells()[i][j].getBuilding().designacao() == "elec" || mapa.getCells()[i][j].getBuilding().designacao() == "fun" || mapa.getCells()[i][j].getBuilding().designacao() == "serr"&& mapa.getCells()[i][j].getWorkers()[k].designacao() == 'O'){
                         mapa.getCells()[i][j].getWorkers()[k].setDias(mapa.getCells()[i][j].getWorkers()[k].getDias() + 1);
                     }
+                   if(mapa.getCells()[i][j].getBuilding().designacao() == "mnf" || mapa.getCells()[i][j].getBuilding().designacao() == "mnc" && mapa.getCells()[i][j].getWorkers()[k].designacao() == 'M'){
+                       mapa.getCells()[i][j].getWorkers()[k].setDias(mapa.getCells()[i][j].getWorkers()[k].getDias() + 1);
+                   }
 
                 }
             }
+            for (int k = 0; k < mapa.getCells()[i][j].getWorkers().size(); k++) {
+                if(mapa.getCells()[i][j].getWorkers()[k].designacao() == 'L'){
+                    mapa.getCells()[i][j].getWorkers()[k].setDias(mapa.getCells()[i][j].getWorkers()[k].getDias() + 1);
+                }
+                mapa.getCells()[i][j].getWorkers()[k].setDiasContratado(mapa.getCells()[i][j].getWorkers()[k].getDiasContratado() + 1);
+            }
+
         }
     }
 }
@@ -540,21 +512,20 @@ bool Commands::getQuit() const{
 void Commands::vende(int linha, int coluna) {
 
     if(mapa.getCells()[linha][coluna].getBuilding().designacao() != ""){
-        data.addMoney(mapa.getCells()[linha][coluna].getBuilding().getPreco() +
-                           mapa.getCells()[linha][coluna].getBuilding().getNivel() *
-                           mapa.getCells()[linha][coluna].getBuilding().getUpgradePreco());
-        decreaseCapacity(mapa.getCells()[linha][coluna].getBuilding(), mapa.getCells()[linha][coluna].getBuilding().getArmazenamento()
-                         + mapa.getCells()[linha][coluna].getBuilding().getNivel() * mapa.getCells()[linha][coluna].getBuilding().getUpgradeArmazenamento());
-        mapa.getCells()[linha][coluna].destroyBuilding();
+
+            data.addMoney(mapa.getCells()[linha][coluna].getBuilding().getPreco() + mapa.getCells()[linha][coluna].getBuilding().getPrecoVigas() * 10 +(mapa.getCells()[linha][coluna].getBuilding().getNivel()-1) *(mapa.getCells()[linha][coluna].getBuilding().getUpgradePreco() +mapa.getCells()[linha][coluna].getBuilding().getUpgradePrecoVigas()));
+            decreaseCapacity(mapa.getCells()[linha][coluna].getBuilding(), -(mapa.getCells()[linha][coluna].getBuilding().getArmazenamento()+ (mapa.getCells()[linha][coluna].getBuilding().getNivel()-1) * mapa.getCells()[linha][coluna].getBuilding().getUpgradeArmazenamento()));
+            mapa.getCells()[linha][coluna].destroyBuilding();
+
     }
     else{
         cout << "Nao se encontra nenhum edificio nesse local" << endl;
     }
 }
 
-void Commands::vende(string tipo, int quant) {
+void Commands::vende(string tipo, float quant) {
     if(tipo == "ferro"){
-        if(data.getFerro().Quantidade()>quant){
+        if(data.getFerro().Quantidade()>=quant){
             data.getFerro().setQuantidade(data.getFerro().Quantidade()-quant);
 
             data.addMoney(quant * data.getFerro().Preco());
@@ -625,13 +596,19 @@ void Commands::efeitos() {
 
                if(mapa.getCells()[i][j].getBiome().designacao() == "dsr" && mapa.getCells()[i][j].getBuilding().getEfeitos()==0) {
                    if (mapa.getCells()[i][j].getBuilding().designacao() == "mnf" || mapa.getCells()[i][j].getBuilding().designacao() == "mnc"){
+
                        mapa.getCells()[i][j].getBuilding().setProducao(mapa.getCells()[i][j].getBuilding().getProducao()/2);
                        mapa.getCells()[i][j].getBuilding().setUpgradeProducao(mapa.getCells()[i][j].getBuilding().getUpgradeProducao()/2);
 
                        mapa.getCells()[i][j].getBuilding().setEfeitos(1);
+
                    }
                }
                if(mapa.getCells()[i][j].getBiome().designacao() == "flr"){
+                   cout << "total de arvores: " << mapa.getCells()[i][j].getBiome().getTotalArvores() << endl;
+                   cout << "total de producao: " << mapa.getCells()[i][j].getBiome().getProducao() << endl;
+                   cout << "total de dias ativos: " << mapa.getCells()[i][j].getBiome().getDiasAtivos() << endl;
+                   cout << "total de dias: " << mapa.getCells()[i][j].getBiome().getDias() << endl << endl;
                    if(mapa.getCells()[i][j].getBuilding().designacao() != ""){
 
                        if(mapa.getCells()[i][j].getBiome().getTotalArvores()> 0){
@@ -643,7 +620,7 @@ void Commands::efeitos() {
                    else{
 
                        mapa.getCells()[i][j].getBiome().setDiasAtivos(mapa.getCells()[i][j].getBiome().getDiasAtivos() + 1);
-                       cout << "Dias ativos : " <<mapa.getCells()[i][j].getBiome().getDiasAtivos() << endl;
+
                        if(mapa.getCells()[i][j].getBiome().getDiasAtivos() == 2){
                            if(mapa.getCells()[i][j].getBiome().getTotalArvores() < 100) {
                                mapa.getCells()[i][j].getBiome().setDiasAtivos(0);
@@ -651,31 +628,28 @@ void Commands::efeitos() {
                            }
                        }
                    }
-                   cout << "Arvores totais : " << mapa.getCells()[i][j].getBiome().getTotalArvores() << endl;
-               }
-               if(mapa.getCells()[i][j].getBiome().designacao() == "mnt" ){
 
-                   if(mapa.getCells()[i][j].getBuilding().getEfeitos() == 0){
+               }
+               if(mapa.getCells()[i][j].getBiome().designacao() == "mnt"){
+
+                   if(mapa.getCells()[i][j].getBuilding().getEfeitos() == 0 && mapa.getCells()[i][j].getBuilding().designacao() == "mnf" || mapa.getCells()[i][j].getBuilding().designacao() == "mnc"){
                        mapa.getCells()[i][j].getBuilding().setProducao(mapa.getCells()[i][j].getBuilding().getProducao()*2);
                        mapa.getCells()[i][j].getBuilding().setPreco(mapa.getCells()[i][j].getBuilding().getPreco()*2);
 
                        mapa.getCells()[i][j].getBuilding().setEfeitos(1);
                    }
 
-                   int count = 0;
-                   for(int k = 0 ;k < mapa.getRows();k++){
-                       for(int z = 0;z < mapa.getCols();z++){
-                           if(mapa.getCells()[k][z].getBiome().designacao() == "mnt" && mapa.getCells()[i][j].getBuilding().designacao() == ""){
-                               count = count + mapa.getCells()[k][z].getWorkers().size();
-                           }
-                       }
-                   }
+
+
+                   float count = mapa.getCells()[i][j].getWorkers().size();
+
                    if(data.getFerro().Quantidade()+(count*0.1)<=data.getFerro().getCapacidade()){
                        data.getFerro().setQuantidade(data.getFerro().Quantidade()+(count*0.1));
                    }
                    else{
                        data.getFerro().setQuantidade(data.getFerro().getCapacidade());
                    }
+                   count = 0;
 
                }
                if(mapa.getCells()[i][j].getBiome().designacao() == "pnt"){
@@ -706,7 +680,7 @@ void Commands::efeitos() {
    }
 }
 
-void Commands::decreaseCapacity(Edificios edificio, int quantidade){
+void Commands::decreaseCapacity(Edificios edificio, float quantidade){
     string str = edificio.designacao();
     if(str == "mnf"){
         data.getFerro().setCapacidade(quantidade);
@@ -724,7 +698,7 @@ void Commands::decreaseCapacity(Edificios edificio, int quantidade){
         data.getAco().setCapacidade(quantidade);
     }
 }
-void Commands::increaseCapacity(Edificios edificio, int quantidade)
+void Commands::increaseCapacity(Edificios edificio, float quantidade)
 {
     string str = edificio.designacao();
     if(str == "mnf"){
@@ -753,7 +727,7 @@ int Commands::cons(string* commands, int row, int col){
     if(mapa.insertBuilding(commands) == false)
         return 0;
     increaseCapacity(mapa.getCells()[row][col].getBuilding());
-    int falta = mapa.getCells()[row][col].getBuilding().getPrecoVigas() - data.getVigas().Quantidade();
+    float falta = mapa.getCells()[row][col].getBuilding().getPrecoVigas() - data.getVigas().Quantidade();
 
     if(data.getVigas().Quantidade() >= mapa.getCells()[row][col].getBuilding().getPrecoVigas()) {
         if (data.getMoney() >= mapa.getCells()[row][col].getBuilding().getPreco()) {
@@ -805,7 +779,6 @@ void Commands::entregaRecursos() {
                             } else {
                                 data.getFerro().addQuantidade(mapa.getCells()[i][j].getBuilding().getProducao());
 
-
                             }
                         }
                     }
@@ -813,9 +786,8 @@ void Commands::entregaRecursos() {
                 if (mapa.getCells()[i][j].getBuilding().designacao() == "mnc" && mapa.getCells()[i][j].getBuilding().getEstado()==1) {
                     for (int k = 0; k < mapa.getCells()[i][j].getWorkers().size(); k++) {
                         if (mapa.getCells()[i][j].getWorkers()[k].designacao() == 'M') {
-                            if (data.getCarvao().Quantidade() + mapa.getCells()[i][j].getBuilding().getProducao() >=
-                                data.getCarvao().getCapacidade()) {
-                                data.getCarvao().setCapacidade(data.getCarvao().getCapacidade());
+                            if (data.getCarvao().Quantidade() + mapa.getCells()[i][j].getBuilding().getProducao() >=data.getCarvao().getCapacidade()) {
+                                data.getCarvao().setQuantidade(data.getCarvao().getCapacidade());
                                 break;
                             } else {
                                 data.getCarvao().addQuantidade(mapa.getCells()[i][j].getBuilding().getProducao());
@@ -845,6 +817,30 @@ void Commands::entregaRecursos() {
                         }
                     }
                 }
+                if (mapa.getCells()[i][j].getBuilding().designacao() == "serr" &&mapa.getCells()[i][j].getBuilding().getEstado() == 1){
+                        for (int k = 0; k < mapa.getCells()[i][j].getWorkers().size(); k++) {
+                            if (mapa.getCells()[i][j].getWorkers()[k].designacao() == 'O') {
+                                if(data.getVigas().Quantidade() + mapa.getCells()[i][j].getBuilding().getProducao() <=data.getVigas().getCapacidade()){
+                                     if(data.getMadeira().Quantidade()>=1){
+                                        data.getMadeira().setQuantidade(data.getMadeira().Quantidade()-1);
+                                        data.getVigas().setQuantidade(data.getVigas().Quantidade()+1);
+                                    }
+                                    else{
+                                        break;
+                                    }
+                                }
+                                else{
+                                    if(data.getMadeira().Quantidade()>=1){
+                                        data.getMadeira().setQuantidade(data.getMadeira().Quantidade()-1);
+                                        data.getVigas().setQuantidade(data.getVigas().getCapacidade());
+                                    }
+                                    else{
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                }
 
 
                 if (mapa.getCells()[i][j].getBuilding().designacao() == "elec" &&mapa.getCells()[i][j].getBuilding().getEstado() == 1) {
@@ -857,18 +853,9 @@ void Commands::entregaRecursos() {
                                             if (mapa.getCells()[i][j + 1].getWorkers()[l].designacao() == 'L') {
                                                 if (mapa.getCells()[i][j + 1].getWorkers()[l].getDias() <= 4) {
                                                     if (mapa.getCells()[i + 1][j].getBuilding().designacao() == "bat") {
-                                                        if (data.getMadeira().Quantidade() - 1 != 0 &&data.getCarvao().Quantidade() - 1 != 0) {
-                                                            if (data.getEletricidade().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getEletricidade().getCapacidade()) {
-                                                                data.getMadeira().setQuantidade(data.getMadeira().Quantidade() - 1);
-                                                                data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 1);
-                                                                data.getEletricidade().setCapacidade(data.getEletricidade().getCapacidade());
-                                                                break;
-                                                            } else {
-                                                                data.getMadeira().setQuantidade(data.getMadeira().Quantidade() - 1);
-                                                                data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 1);
-                                                                data.getEletricidade().addQuantidade((mapa.getCells()[i][j].getBuilding().getProducao()));
-                                                                break;
-                                                            }
+
+                                                        if(recolheRecursosElec(i,j)){
+                                                            break;
                                                         }
                                                     }
                                                 }
@@ -880,19 +867,8 @@ void Commands::entregaRecursos() {
                                             if (mapa.getCells()[i + 1][j].getWorkers()[l].designacao() == 'L') {
                                                 if (mapa.getCells()[i + 1][j].getWorkers()[l].getDias() <= 4) {
                                                     if (mapa.getCells()[i][j + 1].getBuilding().designacao() == "bat") {
-                                                        if (data.getMadeira().Quantidade() - 1 != 0 &&data.getCarvao().Quantidade() - 1 != 0) {
-                                                            if (data.getEletricidade().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getEletricidade().getCapacidade()) {
-                                                                data.getMadeira().setQuantidade(data.getMadeira().Quantidade() - 1);
-                                                                data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 1);
-                                                                data.getEletricidade().setCapacidade(data.getEletricidade().getCapacidade());
-
-                                                                break;
-                                                            } else {
-                                                                data.getMadeira().setQuantidade(data.getMadeira().Quantidade() - 1);
-                                                                data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 1);
-                                                                data.getEletricidade().addQuantidade((mapa.getCells()[i][j].getBuilding().getProducao()));
-                                                                break;
-                                                            }
+                                                        if(recolheRecursosElec(i,j)){
+                                                            break;
                                                         }
                                                     }
                                                 }
@@ -909,18 +885,8 @@ void Commands::entregaRecursos() {
                                             if (mapa.getCells()[i][j - 1].getWorkers()[l].designacao() == 'L') {
                                                 if (mapa.getCells()[i][j - 1].getWorkers()[l].getDias() <= 4) {
                                                     if (mapa.getCells()[i + 1][j].getBuilding().designacao() == "bat") {
-                                                        if (data.getMadeira().Quantidade() - 1 != 0 &&data.getCarvao().Quantidade() - 1 != 0) {
-                                                            if (data.getEletricidade().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getEletricidade().getCapacidade()) {
-                                                                data.getMadeira().setQuantidade(data.getMadeira().Quantidade() - 1);
-                                                                data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 1);
-                                                                data.getEletricidade().setCapacidade(data.getEletricidade().getCapacidade());
-                                                                break;
-                                                            } else {
-                                                                data.getMadeira().setQuantidade(data.getMadeira().Quantidade() - 1);
-                                                                data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 1);
-                                                                data.getEletricidade().addQuantidade((mapa.getCells()[i][j].getBuilding().getProducao()));
-                                                                break;
-                                                            }
+                                                        if(recolheRecursosElec(i,j)){
+                                                            break;
                                                         }
                                                     }
                                                 }
@@ -932,18 +898,8 @@ void Commands::entregaRecursos() {
                                             if (mapa.getCells()[i + 1][j].getWorkers()[l].designacao() == 'L') {
                                                 if (mapa.getCells()[i + 1][j].getWorkers()[l].getDias() <= 4) {
                                                     if (mapa.getCells()[i][j - 1].getBuilding().designacao() == "bat") {
-                                                        if (data.getMadeira().Quantidade() - 1 != 0 &&data.getCarvao().Quantidade() - 1 != 0) {
-                                                            if (data.getEletricidade().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getEletricidade().getCapacidade()) {
-                                                                data.getMadeira().setQuantidade(data.getMadeira().Quantidade() - 1);
-                                                                data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 1);
-                                                                data.getEletricidade().setCapacidade(data.getEletricidade().getCapacidade());
-                                                                break;
-                                                            } else {
-                                                                data.getMadeira().setQuantidade(data.getMadeira().Quantidade() - 1);
-                                                                data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 1);
-                                                                data.getEletricidade().addQuantidade((mapa.getCells()[i][j].getBuilding().getProducao()));
-                                                                break;
-                                                            }
+                                                        if(recolheRecursosElec(i,j)){
+                                                            break;
                                                         }
                                                     }
                                                 }
@@ -957,20 +913,8 @@ void Commands::entregaRecursos() {
                                             if (mapa.getCells()[i - 1][j].getWorkers()[l].designacao() == 'L') {
                                                 if (mapa.getCells()[i - 1][j].getWorkers()[l].getDias() <= 4) {
                                                     if (mapa.getCells()[i][j + 1].getBuilding().designacao() == "bat") {
-                                                        if (data.getMadeira().Quantidade() - 1 != 0 &&data.getCarvao().Quantidade() - 1 != 0) {
-                                                            if (data.getEletricidade().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getEletricidade().getCapacidade()) {
-                                                                data.getMadeira().setQuantidade(data.getMadeira().Quantidade() - 1);
-                                                                data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 1);
-                                                                data.getEletricidade().setCapacidade(data.getEletricidade().getCapacidade());
-
-                                                                break;
-                                                            } else {
-                                                                data.getMadeira().setQuantidade(data.getMadeira().Quantidade() - 1);
-                                                                data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 1);
-                                                                data.getEletricidade().addQuantidade((mapa.getCells()[i][j].getBuilding().getProducao()));
-
-                                                                break;
-                                                            }
+                                                        if(recolheRecursosElec(i,j)){
+                                                            break;
                                                         }
                                                     }
                                                 }
@@ -982,20 +926,8 @@ void Commands::entregaRecursos() {
                                             if (mapa.getCells()[i][j + 1].getWorkers()[l].designacao() == 'L') {
                                                 if (mapa.getCells()[i][j + 1].getWorkers()[l].getDias() <= 4) {
                                                     if (mapa.getCells()[i - 1][j].getBuilding().designacao() == "bat") {
-                                                        if (data.getMadeira().Quantidade() - 1 != 0 &&data.getCarvao().Quantidade() - 1 != 0) {
-                                                            if (data.getEletricidade().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getEletricidade().getCapacidade()) {
-                                                                data.getMadeira().setQuantidade(data.getMadeira().Quantidade() - 1);
-                                                                data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 1);
-                                                                data.getEletricidade().setCapacidade(data.getEletricidade().getCapacidade());
-
-                                                                break;
-                                                            } else {
-                                                                data.getMadeira().setQuantidade(data.getMadeira().Quantidade() - 1);
-                                                                data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 1);
-                                                                data.getEletricidade().addQuantidade((mapa.getCells()[i][j].getBuilding().getProducao()));
-
-                                                                break;
-                                                            }
+                                                        if(recolheRecursosElec(i,j)){
+                                                            break;
                                                         }
                                                     }
                                                 }
@@ -1009,21 +941,8 @@ void Commands::entregaRecursos() {
                                             if (mapa.getCells()[i - 1][j].getWorkers()[l].designacao() == 'L') {
                                                 if (mapa.getCells()[i - 1][j].getWorkers()[l].getDias() <= 4) {
                                                     if (mapa.getCells()[i][j - 1].getBuilding().designacao() == "bat") {
-                                                        if (data.getMadeira().Quantidade() - 1 != 0 &&data.getCarvao().Quantidade() - 1 != 0) {
-                                                            if (data.getEletricidade().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getEletricidade().getCapacidade()) {
-                                                                data.getMadeira().setQuantidade(data.getMadeira().Quantidade() - 1);
-                                                                data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 1);
-                                                                data.getEletricidade().setCapacidade(data.getEletricidade().getCapacidade());
-
-                                                                break;
-                                                            } else {
-                                                                data.getMadeira().setQuantidade(data.getMadeira().Quantidade() - 1);
-                                                                data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 1);
-                                                                data.getEletricidade().addQuantidade(
-                                                                        (mapa.getCells()[i][j].getBuilding().getProducao()));
-
-                                                                break;
-                                                            }
+                                                        if(recolheRecursosElec(i,j)){
+                                                            break;
                                                         }
                                                     }
                                                 }
@@ -1036,21 +955,8 @@ void Commands::entregaRecursos() {
                                             if (mapa.getCells()[i][j - 1].getWorkers()[l].designacao() == 'L') {
                                                 if (mapa.getCells()[i][j - 1].getWorkers()[l].getDias() <= 4) {
                                                     if (mapa.getCells()[i - 1][j].getBuilding().designacao() == "bat") {
-                                                        if (data.getMadeira().Quantidade() - 1 != 0 &&
-                                                            data.getCarvao().Quantidade() - 1 != 0) {
-                                                            if (data.getEletricidade().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getEletricidade().getCapacidade()) {
-                                                                data.getMadeira().setQuantidade(data.getMadeira().Quantidade() - 1);
-                                                                data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 1);
-                                                                data.getEletricidade().setCapacidade(data.getEletricidade().getCapacidade());
-
-                                                                break;
-                                                            } else {
-                                                                data.getMadeira().setQuantidade(data.getMadeira().Quantidade() - 1);
-                                                                data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 1);
-                                                                data.getEletricidade().addQuantidade((mapa.getCells()[i][j].getBuilding().getProducao()));
-
-                                                                break;
-                                                            }
+                                                        if(recolheRecursosElec(i,j)){
+                                                            break;
                                                         }
                                                     }
                                                 }
@@ -1065,35 +971,12 @@ void Commands::entregaRecursos() {
                                             if (mapa.getCells()[i - 1][j].getWorkers()[l].designacao() == 'L') {
                                                 if (mapa.getCells()[i - 1][j].getWorkers()[l].getDias() <= 4) {
                                                     if (mapa.getCells()[i][j + 1].getBuilding().designacao() == "bat") {
-                                                        if (data.getMadeira().Quantidade() - 1 != 0 &&data.getCarvao().Quantidade() - 1 != 0) {
-                                                            if (data.getEletricidade().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getEletricidade().getCapacidade()) {
-                                                                data.getMadeira().setQuantidade(data.getMadeira().Quantidade() - 1);
-                                                                data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 1);
-                                                                data.getEletricidade().setCapacidade(data.getEletricidade().getCapacidade());
-
-                                                                break;
-                                                            } else {
-                                                                data.getMadeira().setQuantidade(data.getMadeira().Quantidade() - 1);
-                                                                data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 1);
-                                                                data.getEletricidade().addQuantidade((mapa.getCells()[i][j].getBuilding().getProducao()));
-
-                                                                break;
-                                                            }
-
+                                                        if(recolheRecursosElec(i,j)){
+                                                            break;
                                                         }
                                                     } else if (mapa.getCells()[i + 1][j].getBuilding().designacao() =="bat") {
-                                                        if (data.getMadeira().Quantidade() - 1 != 0 &&data.getCarvao().Quantidade() - 1 != 0) {
-                                                            if (data.getEletricidade().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=
-                                                                data.getEletricidade().getCapacidade()) {data.getMadeira().setQuantidade(data.getMadeira().Quantidade() - 1);
-                                                                data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 1);
-                                                                data.getEletricidade().setCapacidade(data.getEletricidade().getCapacidade());
-                                                                break;
-                                                            } else {
-                                                                data.getMadeira().setQuantidade(data.getMadeira().Quantidade() - 1);
-                                                                data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 1);
-                                                                data.getEletricidade().addQuantidade((mapa.getCells()[i -1][j].getBuilding().getProducao()));
-                                                                break;
-                                                            }
+                                                        if(recolheRecursosElec(i,j)){
+                                                            break;
                                                         }
                                                     }
                                                 }
@@ -1105,35 +988,12 @@ void Commands::entregaRecursos() {
                                             if (mapa.getCells()[i + 1][j].getWorkers()[l].designacao() == 'L') {
                                                 if (mapa.getCells()[i + 1][j].getWorkers()[l].getDias() <= 4) {
                                                     if (mapa.getCells()[i][j + 1].getBuilding().designacao() == "bat") {
-                                                        if (data.getMadeira().Quantidade() - 1 != 0 &&
-                                                            data.getCarvao().Quantidade() - 1 != 0) {
-                                                            if (data.getEletricidade().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getEletricidade().getCapacidade()) {
-                                                                data.getMadeira().setQuantidade(data.getMadeira().Quantidade() - 1);
-                                                                data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 1);
-                                                                data.getEletricidade().setCapacidade(data.getEletricidade().getCapacidade());
-                                                                break;
-                                                            } else {
-                                                                data.getMadeira().setQuantidade(data.getMadeira().Quantidade() - 1);
-                                                                data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 1);
-                                                                data.getEletricidade().addQuantidade((mapa.getCells()[i][j].getBuilding().getProducao()));
-                                                                break;
-                                                            }
+                                                        if(recolheRecursosElec(i,j)){
+                                                            break;
                                                         }
                                                     } else if (mapa.getCells()[i - 1][j].getBuilding().designacao() =="bat") {
-                                                        if (data.getMadeira().Quantidade() - 1 != 0 &&data.getCarvao().Quantidade() - 1 != 0) {
-                                                            if (data.getEletricidade().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getEletricidade().getCapacidade()) {
-                                                                data.getMadeira().setQuantidade(data.getMadeira().Quantidade() - 1);
-                                                                data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 1);
-                                                                data.getEletricidade().setCapacidade(data.getEletricidade().getCapacidade());
-
-                                                                break;
-                                                            } else {
-                                                                data.getMadeira().setQuantidade(data.getMadeira().Quantidade() - 1);
-                                                                data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 1);
-                                                                data.getEletricidade().addQuantidade((mapa.getCells()[i][j].getBuilding().getProducao()));
-
-                                                                break;
-                                                            }
+                                                        if(recolheRecursosElec(i,j)){
+                                                            break;
                                                         }
                                                     }
                                                 }
@@ -1146,34 +1006,12 @@ void Commands::entregaRecursos() {
                                             if (mapa.getCells()[i][j + 1].getWorkers()[l].designacao() == 'L') {
                                                 if (mapa.getCells()[i][j + 1].getWorkers()[l].getDias() < 4) {
                                                     if (mapa.getCells()[i - 1][j].getBuilding().designacao() == "bat") {
-                                                        if (data.getMadeira().Quantidade() - 1 != 0 &&
-                                                            data.getCarvao().Quantidade() - 1 != 0) {
-                                                            if (data.getEletricidade().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getEletricidade().getCapacidade()) {
-                                                                data.getMadeira().setQuantidade(data.getMadeira().Quantidade() - 1);
-                                                                data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 1);
-                                                                data.getEletricidade().setCapacidade(data.getEletricidade().getCapacidade());
-                                                                break;
-                                                            } else {
-                                                                data.getMadeira().setQuantidade(data.getMadeira().Quantidade() - 1);
-                                                                data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 1);
-                                                                data.getEletricidade().addQuantidade((mapa.getCells()[i][j].getBuilding().getProducao()));
-                                                                break;
-                                                            }
+                                                        if(recolheRecursosElec(i,j)){
+                                                            break;
                                                         }
                                                     } else if (mapa.getCells()[i + 1][j].getBuilding().designacao() =="bat") {
-                                                        if (data.getMadeira().Quantidade() - 1 != 0 &&data.getCarvao().Quantidade() - 1 != 0) {
-                                                            if (data.getEletricidade().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getEletricidade().getCapacidade()) {
-                                                                data.getMadeira().setQuantidade(data.getMadeira().Quantidade() - 1);
-                                                                data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 1);
-                                                                data.getEletricidade().setCapacidade(data.getEletricidade().getCapacidade());
-                                                                break;
-                                                            } else {
-                                                                data.getMadeira().setQuantidade(data.getMadeira().Quantidade() - 1);
-                                                                data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 1);
-                                                                data.getEletricidade().addQuantidade((mapa.getCells()[i][j].getBuilding().getProducao()));
-
-                                                                break;
-                                                            }
+                                                        if(recolheRecursosElec(i,j)){
+                                                            break;
                                                         }
                                                     }
                                                 }
@@ -1188,36 +1026,12 @@ void Commands::entregaRecursos() {
                                             if (mapa.getCells()[i][j - 1].getWorkers()[l].designacao() == 'L') {
                                                 if (mapa.getCells()[i][j - 1].getWorkers()[l].getDias() <= 4) {
                                                     if (mapa.getCells()[i + 1][j].getBuilding().designacao() == "bat") {
-                                                        if (data.getMadeira().Quantidade() - 1 != 0 &&data.getCarvao().Quantidade() - 1 != 0) {
-                                                            if (data.getEletricidade().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getEletricidade().getCapacidade()) {
-                                                                data.getMadeira().setQuantidade(data.getMadeira().Quantidade() - 1);
-                                                                data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 1);
-                                                                data.getEletricidade().setCapacidade(data.getEletricidade().getCapacidade());
-
-                                                                break;
-                                                            } else {
-                                                                data.getMadeira().setQuantidade(data.getMadeira().Quantidade() - 1);
-                                                                data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 1);
-                                                                data.getEletricidade().addQuantidade((mapa.getCells()[i][j].getBuilding().getProducao()));
-
-                                                                break;
-                                                            }
+                                                        if(recolheRecursosElec(i,j)){
+                                                            break;
                                                         }
                                                     } else if (mapa.getCells()[i - 1][j].getBuilding().designacao() =="bat") {
-                                                        if (data.getMadeira().Quantidade() - 1 != 0 &&data.getCarvao().Quantidade() - 1 != 0) {
-                                                            if (data.getEletricidade().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getEletricidade().getCapacidade()) {
-                                                                data.getMadeira().setQuantidade(data.getMadeira().Quantidade() - 1);
-                                                                data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 1);
-                                                                data.getEletricidade().setCapacidade(data.getEletricidade().getCapacidade());
-
-                                                                break;
-                                                            } else {
-                                                                data.getMadeira().setQuantidade(data.getMadeira().Quantidade() - 1);
-                                                                data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 1);
-                                                                data.getEletricidade().addQuantidade((mapa.getCells()[i][j].getBuilding().getProducao()));
-
-                                                                break;
-                                                            }
+                                                        if(recolheRecursosElec(i,j)){
+                                                            break;
                                                         }
                                                     }
                                                 }
@@ -1229,32 +1043,12 @@ void Commands::entregaRecursos() {
                                             if (mapa.getCells()[i - 1][j].getWorkers()[l].designacao() == 'L') {
                                                 if (mapa.getCells()[i - 1][j].getWorkers()[l].getDias() <= 4) {
                                                     if (mapa.getCells()[i][j - 1].getBuilding().designacao() == "bat") {
-                                                        if (data.getMadeira().Quantidade() - 1 != 0 &&data.getCarvao().Quantidade() - 1 != 0) {
-                                                            if (data.getEletricidade().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getEletricidade().getCapacidade()) {
-                                                                data.getMadeira().setQuantidade(data.getMadeira().Quantidade() - 1);
-                                                                data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 1);
-                                                                data.getEletricidade().setCapacidade(data.getEletricidade().getCapacidade());
-                                                                break;
-                                                            } else {
-                                                                data.getMadeira().setQuantidade(data.getMadeira().Quantidade() - 1);
-                                                                data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 1);
-                                                                data.getEletricidade().addQuantidade((mapa.getCells()[i][j].getBuilding().getProducao()));
-                                                                break;
-                                                            }
+                                                        if(recolheRecursosElec(i,j)){
+                                                            break;
                                                         }
                                                     } else if (mapa.getCells()[i + 1][j].getBuilding().designacao() =="bat") {
-                                                        if (data.getMadeira().Quantidade() - 1 != 0 &&data.getCarvao().Quantidade() - 1 != 0) {
-                                                            if (data.getEletricidade().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getEletricidade().getCapacidade()) {
-                                                                data.getMadeira().setQuantidade(data.getMadeira().Quantidade() - 1);
-                                                                data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 1);
-                                                                data.getEletricidade().setCapacidade(data.getEletricidade().getCapacidade());
-                                                                break;
-                                                            } else {
-                                                                data.getMadeira().setQuantidade(data.getMadeira().Quantidade() - 1);
-                                                                data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 1);
-                                                                data.getEletricidade().addQuantidade((mapa.getCells()[i][j].getBuilding().getProducao()));
-                                                                break;
-                                                            }
+                                                        if(recolheRecursosElec(i,j)){
+                                                            break;
                                                         }
                                                     }
                                                 }
@@ -1267,33 +1061,12 @@ void Commands::entregaRecursos() {
                                             if (mapa.getCells()[i + 1][j].getWorkers()[l].designacao() == 'L') {
                                                 if (mapa.getCells()[i + 1][j].getWorkers()[l].getDias() <= 4) {
                                                     if (mapa.getCells()[i][j - 1].getBuilding().designacao() == "bat") {
-                                                        if (data.getMadeira().Quantidade() - 1 != 0 &&
-                                                            data.getCarvao().Quantidade() - 1 != 0) {
-                                                            if (data.getEletricidade().Quantidade()+mapa.getCells()[i][j].getBuilding().getProducao() >=data.getEletricidade().getCapacidade()) {
-                                                                data.getMadeira().setQuantidade(data.getMadeira().Quantidade() - 1);
-                                                                data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 1);
-                                                                data.getEletricidade().setCapacidade(data.getEletricidade().getCapacidade());
-                                                                break;
-                                                            } else {
-                                                                data.getMadeira().setQuantidade(data.getMadeira().Quantidade() - 1);
-                                                                data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 1);
-                                                                data.getEletricidade().addQuantidade((mapa.getCells()[i][j].getBuilding().getProducao()));
-                                                                break;
-                                                            }
+                                                        if(recolheRecursosElec(i,j)){
+                                                            break;
                                                         }
                                                     } else if (mapa.getCells()[i - 1][j].getBuilding().designacao() =="bat") {
-                                                        if (data.getMadeira().Quantidade() - 1 != 0 &&data.getCarvao().Quantidade() - 1 != 0) {
-                                                            if (data.getEletricidade().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getEletricidade().getCapacidade()) {
-                                                                data.getMadeira().setQuantidade(data.getMadeira().Quantidade() - 1);
-                                                                data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 1);
-                                                                data.getEletricidade().setCapacidade(data.getEletricidade().getCapacidade());
-                                                                break;
-                                                            } else {
-                                                                data.getMadeira().setQuantidade(data.getMadeira().Quantidade() - 1);
-                                                                data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 1);
-                                                                data.getEletricidade().addQuantidade((mapa.getCells()[i][j].getBuilding().getProducao()));
-                                                                break;
-                                                            }
+                                                        if(recolheRecursosElec(i,j)){
+                                                            break;
                                                         }
                                                     }
 
@@ -1308,33 +1081,13 @@ void Commands::entregaRecursos() {
                                             if (mapa.getCells()[i][j - 1].getWorkers()[l].designacao() == 'L') {
                                                 if (mapa.getCells()[i][j - 1].getWorkers()[l].getDias() <= 4) {
                                                     if (mapa.getCells()[i + 1][j].getBuilding().designacao() == "bat") {
-                                                        if (data.getMadeira().Quantidade() - 1 != 0 &&data.getCarvao().Quantidade() - 1 != 0) {
-                                                            if (data.getEletricidade().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getEletricidade().getCapacidade()) {
-                                                                data.getMadeira().setQuantidade(data.getMadeira().Quantidade() - 1);
-                                                                data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 1);
-                                                                data.getEletricidade().setCapacidade(data.getEletricidade().getCapacidade());
-                                                                break;
-                                                            } else {
-                                                                data.getMadeira().setQuantidade(data.getMadeira().Quantidade() - 1);
-                                                                data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 1);
-                                                                data.getEletricidade().addQuantidade((mapa.getCells()[i][j].getBuilding().getProducao()));
-                                                                break;
-                                                            }
+                                                        if(recolheRecursosElec(i,j)){
+                                                            break;
                                                         }
                                                     } else if (
                                                             mapa.getCells()[i][j + 1].getBuilding().designacao() =="bat") {
-                                                        if (data.getMadeira().Quantidade() - 1 != 0 &&data.getCarvao().Quantidade() - 1 != 0) {
-                                                            if (data.getEletricidade().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getEletricidade().getCapacidade()) {
-                                                                data.getMadeira().setQuantidade(data.getMadeira().Quantidade() - 1);
-                                                                data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 1);
-                                                                data.getEletricidade().setCapacidade(data.getEletricidade().getCapacidade());
-                                                                break;
-                                                            } else {
-                                                                data.getMadeira().setQuantidade(data.getMadeira().Quantidade() - 1);
-                                                                data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 1);
-                                                                data.getEletricidade().addQuantidade((mapa.getCells()[i][j].getBuilding().getProducao()));
-                                                                break;
-                                                            }
+                                                        if(recolheRecursosElec(i,j)){
+                                                            break;
                                                         }
                                                     }
                                                 }
@@ -1346,33 +1099,13 @@ void Commands::entregaRecursos() {
                                             if (mapa.getCells()[i][j + 1].getWorkers()[l].designacao() == 'L') {
                                                 if (mapa.getCells()[i][j + 1].getWorkers()[l].getDias() <= 4) {
                                                     if (mapa.getCells()[i][j - 1].getBuilding().designacao() == "bat") {
-                                                        if (data.getMadeira().Quantidade() - 1 != 0 &&data.getCarvao().Quantidade() - 1 != 0) {
-                                                            if (data.getEletricidade().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getEletricidade().getCapacidade()) {
-                                                                data.getMadeira().setQuantidade(data.getMadeira().Quantidade() - 1);
-                                                                data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 1);
-                                                                data.getEletricidade().setCapacidade(data.getEletricidade().getCapacidade());
-                                                                break;
-                                                            } else {
-                                                                data.getMadeira().setQuantidade(data.getMadeira().Quantidade() - 1);
-                                                                data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 1);
-                                                                data.getEletricidade().addQuantidade((mapa.getCells()[i][j].getBuilding().getProducao()));
-                                                                break;
-                                                            }
+                                                        if(recolheRecursosElec(i,j)){
+                                                            break;
                                                         }
                                                     } else if (
                                                             mapa.getCells()[i + 1][j].getBuilding().designacao() =="bat") {
-                                                        if (data.getMadeira().Quantidade() - 1 != 0 &&data.getCarvao().Quantidade() - 1 != 0) {
-                                                            if (data.getEletricidade().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getEletricidade().getCapacidade()) {
-                                                                data.getMadeira().setQuantidade(data.getMadeira().Quantidade() - 1);
-                                                                data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 1);
-                                                                data.getEletricidade().setCapacidade(data.getEletricidade().getCapacidade());
-                                                                break;
-                                                            } else {
-                                                                data.getMadeira().setQuantidade(data.getMadeira().Quantidade() - 1);
-                                                                data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 1);
-                                                                data.getEletricidade().addQuantidade((mapa.getCells()[i][j].getBuilding().getProducao()));
-                                                                break;
-                                                            }
+                                                        if(recolheRecursosElec(i,j)){
+                                                            break;
                                                         }
                                                     }
 
@@ -1386,33 +1119,13 @@ void Commands::entregaRecursos() {
                                             if (mapa.getCells()[i + 1][j].getWorkers()[l].designacao() == 'L') {
                                                 if (mapa.getCells()[i + 1][j].getWorkers()[l].getDias() <= 4) {
                                                     if (mapa.getCells()[i][j - 1].getBuilding().designacao() == "bat") {
-                                                        if (data.getMadeira().Quantidade() - 1 != 0 &&data.getCarvao().Quantidade() - 1 != 0) {
-                                                            if (data.getEletricidade().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getEletricidade().getCapacidade()) {
-                                                                data.getMadeira().setQuantidade(data.getMadeira().Quantidade() - 1);
-                                                                data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 1);
-                                                                data.getEletricidade().setCapacidade(data.getEletricidade().getCapacidade());
-                                                                break;
-                                                            } else {
-                                                                data.getMadeira().setQuantidade(data.getMadeira().Quantidade() - 1);
-                                                                data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 1);
-                                                                data.getEletricidade().addQuantidade((mapa.getCells()[i][j].getBuilding().getProducao()));
-                                                                break;
-                                                            }
+                                                        if(recolheRecursosElec(i,j)){
+                                                            break;
                                                         }
                                                     } else if (
                                                             mapa.getCells()[i][j + 1].getBuilding().designacao() =="bat") {
-                                                        if (data.getMadeira().Quantidade() - 1 != 0 &&data.getCarvao().Quantidade() - 1 != 0) {
-                                                            if (data.getEletricidade().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getEletricidade().getCapacidade()) {
-                                                                data.getMadeira().setQuantidade(data.getMadeira().Quantidade() - 1);
-                                                                data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 1);
-                                                                data.getEletricidade().setCapacidade(data.getEletricidade().getCapacidade());
-                                                                break;
-                                                            } else {
-                                                                data.getMadeira().setQuantidade(data.getMadeira().Quantidade() - 1);
-                                                                data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 1);
-                                                                data.getEletricidade().addQuantidade((mapa.getCells()[i][j].getBuilding().getProducao()));
-                                                                break;
-                                                            }
+                                                        if(recolheRecursosElec(i,j)){
+                                                            break;
                                                         }
                                                     }
                                                 }
@@ -1428,33 +1141,13 @@ void Commands::entregaRecursos() {
                                             if (mapa.getCells()[i][j - 1].getWorkers()[l].designacao() == 'L') {
                                                 if (mapa.getCells()[i][j - 1].getWorkers()[l].getDias() <= 4) {
                                                     if (mapa.getCells()[i][j + 1].getBuilding().designacao() == "bat") {
-                                                        if (data.getMadeira().Quantidade() - 1 != 0 &&data.getCarvao().Quantidade() - 1 != 0) {
-                                                            if (data.getEletricidade().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getEletricidade().getCapacidade()) {
-                                                                data.getMadeira().setQuantidade(data.getMadeira().Quantidade() - 1);
-                                                                data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 1);
-                                                                data.getEletricidade().setCapacidade(data.getEletricidade().getCapacidade());
-                                                                break;
-                                                            } else {
-                                                                data.getMadeira().setQuantidade(data.getMadeira().Quantidade() - 1);
-                                                                data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 1);
-                                                                data.getEletricidade().addQuantidade((mapa.getCells()[i][j].getBuilding().getProducao()));
-                                                                break;
-                                                            }
+                                                        if(recolheRecursosElec(i,j)){
+                                                            break;
                                                         }
                                                     } else if (
                                                             mapa.getCells()[i - 1][j].getBuilding().designacao() =="bat") {
-                                                        if (data.getMadeira().Quantidade() - 1 != 0 &&data.getCarvao().Quantidade() - 1 != 0) {
-                                                            if (data.getEletricidade().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getEletricidade().getCapacidade()) {
-                                                                data.getMadeira().setQuantidade(data.getMadeira().Quantidade() - 1);
-                                                                data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 1);
-                                                                data.getEletricidade().setCapacidade(data.getEletricidade().getCapacidade());
-                                                                break;
-                                                            } else {
-                                                                data.getMadeira().setQuantidade(data.getMadeira().Quantidade() - 1);
-                                                                data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 1);
-                                                                data.getEletricidade().addQuantidade((mapa.getCells()[i][j].getBuilding().getProducao()));
-                                                                break;
-                                                            }
+                                                        if(recolheRecursosElec(i,j)){
+                                                            break;
                                                         }
                                                     }
                                                 }
@@ -1466,33 +1159,13 @@ void Commands::entregaRecursos() {
                                             if (mapa.getCells()[i - 1][j].getWorkers()[l].designacao() == 'L') {
                                                 if (mapa.getCells()[i - 1][j].getWorkers()[l].getDias() <= 4) {
                                                     if (mapa.getCells()[i][j - 1].getBuilding().designacao() == "bat") {
-                                                        if (data.getMadeira().Quantidade() - 1 != 0 &&data.getCarvao().Quantidade() - 1 != 0) {
-                                                            if (data.getEletricidade().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getEletricidade().getCapacidade()) {
-                                                                data.getMadeira().setQuantidade(data.getMadeira().Quantidade() - 1);
-                                                                data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 1);
-                                                                data.getEletricidade().setCapacidade(data.getEletricidade().getCapacidade());
-                                                                break;
-                                                            } else {
-                                                                data.getMadeira().setQuantidade(data.getMadeira().Quantidade() - 1);
-                                                                data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 1);
-                                                                data.getEletricidade().addQuantidade((mapa.getCells()[i][j].getBuilding().getProducao()));
-                                                                break;
-                                                            }
+                                                        if(recolheRecursosElec(i,j)){
+                                                            break;
                                                         }
                                                     } else if (
                                                             mapa.getCells()[i][j + 1].getBuilding().designacao() =="bat") {
-                                                        if (data.getMadeira().Quantidade() - 1 != 0 &&data.getCarvao().Quantidade() - 1 != 0) {
-                                                            if (data.getEletricidade().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getEletricidade().getCapacidade()) {
-                                                                data.getMadeira().setQuantidade(data.getMadeira().Quantidade() - 1);
-                                                                data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 1);
-                                                                data.getEletricidade().setCapacidade(data.getEletricidade().getCapacidade());
-                                                                break;
-                                                            } else {
-                                                                data.getMadeira().setQuantidade(data.getMadeira().Quantidade() - 1);
-                                                                data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 1);
-                                                                data.getEletricidade().addQuantidade((mapa.getCells()[i][j].getBuilding().getProducao()));
-                                                                break;
-                                                            }
+                                                        if(recolheRecursosElec(i,j)){
+                                                            break;
                                                         }
                                                     }
                                                 }
@@ -1506,33 +1179,13 @@ void Commands::entregaRecursos() {
                                             if (mapa.getCells()[i][j + 1].getWorkers()[l].designacao() == 'L') {
                                                 if (mapa.getCells()[i][j + 1].getWorkers()[l].getDias() <= 4) {
                                                     if (mapa.getCells()[i][j - 1].getBuilding().designacao() == "bat") {
-                                                        if (data.getMadeira().Quantidade() - 1 != 0 &&data.getCarvao().Quantidade() - 1 != 0) {
-                                                            if (data.getEletricidade().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getEletricidade().getCapacidade()) {
-                                                                data.getMadeira().setQuantidade(data.getMadeira().Quantidade() - 1);
-                                                                data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 1);
-                                                                data.getEletricidade().setCapacidade(data.getEletricidade().getCapacidade());
-                                                                break;
-                                                            } else {
-                                                                data.getMadeira().setQuantidade(data.getMadeira().Quantidade() - 1);
-                                                                data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 1);
-                                                                data.getEletricidade().addQuantidade((mapa.getCells()[i][j].getBuilding().getProducao()));
-                                                                break;
-                                                            }
+                                                        if(recolheRecursosElec(i,j)){
+                                                            break;
                                                         }
                                                     } else if (
                                                             mapa.getCells()[i - 1][j].getBuilding().designacao() =="bat") {
-                                                        if (data.getMadeira().Quantidade() - 1 != 0 &&data.getCarvao().Quantidade() - 1 != 0) {
-                                                            if (data.getEletricidade().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getEletricidade().getCapacidade()) {
-                                                                data.getMadeira().setQuantidade(data.getMadeira().Quantidade() - 1);
-                                                                data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 1);
-                                                                data.getEletricidade().setCapacidade(data.getEletricidade().getCapacidade());
-                                                                break;
-                                                            } else {
-                                                                data.getMadeira().setQuantidade(data.getMadeira().Quantidade() - 1);
-                                                                data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 1);
-                                                                data.getEletricidade().addQuantidade((mapa.getCells()[i][j].getBuilding().getProducao()));
-                                                                break;
-                                                            }
+                                                        if(recolheRecursosElec(i,j)){
+                                                            break;
                                                         }
                                                     }
                                                 }
@@ -1547,48 +1200,18 @@ void Commands::entregaRecursos() {
                                             if (mapa.getCells()[i + 1][j].getWorkers()[l].designacao() == 'L') {
                                                 if (mapa.getCells()[i + 1][j].getWorkers()[l].getDias() <= 4) {
                                                     if (mapa.getCells()[i][j + 1].getBuilding().designacao() == "bat") {
-                                                        if (data.getMadeira().Quantidade() - 1 != 0 &&data.getCarvao().Quantidade() - 1 != 0) {
-                                                            if (data.getEletricidade().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getEletricidade().getCapacidade()) {
-                                                                data.getMadeira().setQuantidade(data.getMadeira().Quantidade() - 1);
-                                                                data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 1);
-                                                                data.getEletricidade().setCapacidade(data.getEletricidade().getCapacidade());
-                                                                break;
-                                                            } else {
-                                                                data.getMadeira().setQuantidade(data.getMadeira().Quantidade() - 1);
-                                                                data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 1);
-                                                                data.getEletricidade().addQuantidade((mapa.getCells()[i][j].getBuilding().getProducao()));
-                                                                break;
-                                                            }
+                                                        if(recolheRecursosElec(i,j)){
+                                                            break;
                                                         }
                                                     } else if (
                                                             mapa.getCells()[i - 1][j].getBuilding().designacao() =="bat") {
-                                                        if (data.getMadeira().Quantidade() - 1 != 0 &&data.getCarvao().Quantidade() - 1 != 0) {
-                                                            if (data.getEletricidade().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getEletricidade().getCapacidade()) {
-                                                                data.getMadeira().setQuantidade(data.getMadeira().Quantidade() - 1);
-                                                                data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 1);
-                                                                data.getEletricidade().setCapacidade(data.getEletricidade().getCapacidade());
-                                                                break;
-                                                            } else {
-                                                                data.getMadeira().setQuantidade(data.getMadeira().Quantidade() - 1);
-                                                                data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 1);
-                                                                data.getEletricidade().addQuantidade((mapa.getCells()[i][j].getBuilding().getProducao()));
-                                                                break;
-                                                            }
+                                                        if(recolheRecursosElec(i,j)){
+                                                            break;
                                                         }
                                                     } else if (
                                                             mapa.getCells()[i][j - 1].getBuilding().designacao() =="bat") {
-                                                        if (data.getMadeira().Quantidade() - 1 != 0 &&data.getCarvao().Quantidade() - 1 != 0) {
-                                                            if (data.getEletricidade().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getEletricidade().getCapacidade()) {
-                                                                data.getMadeira().setQuantidade(data.getMadeira().Quantidade() - 1);
-                                                                data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 1);
-                                                                data.getEletricidade().setCapacidade(data.getEletricidade().getCapacidade());
-                                                                break;
-                                                            } else {
-                                                                data.getMadeira().setQuantidade(data.getMadeira().Quantidade() - 1);
-                                                                data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 1);
-                                                                data.getEletricidade().addQuantidade((mapa.getCells()[i][j].getBuilding().getProducao()));
-                                                                break;
-                                                            }
+                                                        if(recolheRecursosElec(i,j)){
+                                                            break;
                                                         }
                                                     }
                                                 }
@@ -1600,48 +1223,18 @@ void Commands::entregaRecursos() {
                                             if (mapa.getCells()[i][j + 1].getWorkers()[l].designacao() == 'L') {
                                                 if (mapa.getCells()[i][j + 1].getWorkers()[l].getDias() <= 4) {
                                                     if (mapa.getCells()[i][j - 1].getBuilding().designacao() == "bat") {
-                                                        if (data.getMadeira().Quantidade() - 1 != 0 &&data.getCarvao().Quantidade() - 1 != 0) {
-                                                            if (data.getEletricidade().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getEletricidade().getCapacidade()) {
-                                                                data.getMadeira().setQuantidade(data.getMadeira().Quantidade() - 1);
-                                                                data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 1);
-                                                                data.getEletricidade().setCapacidade(data.getEletricidade().getCapacidade());
-                                                                break;
-                                                            } else {
-                                                                data.getMadeira().setQuantidade(data.getMadeira().Quantidade() - 1);
-                                                                data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 1);
-                                                                data.getEletricidade().addQuantidade((mapa.getCells()[i][j].getBuilding().getProducao()));
-                                                                break;
-                                                            }
+                                                        if(recolheRecursosElec(i,j)){
+                                                            break;
                                                         }
                                                     } else if (
                                                             mapa.getCells()[i - 1][j].getBuilding().designacao() =="bat") {
-                                                        if (data.getMadeira().Quantidade() - 1 != 0 &&data.getCarvao().Quantidade() - 1 != 0) {
-                                                            if (data.getEletricidade().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getEletricidade().getCapacidade()) {
-                                                                data.getMadeira().setQuantidade(data.getMadeira().Quantidade() - 1);
-                                                                data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 1);
-                                                                data.getEletricidade().setCapacidade(data.getEletricidade().getCapacidade());
-                                                                break;
-                                                            } else {
-                                                                data.getMadeira().setQuantidade(data.getMadeira().Quantidade() - 1);
-                                                                data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 1);
-                                                                data.getEletricidade().addQuantidade((mapa.getCells()[i][j].getBuilding().getProducao()));
-                                                                break;
-                                                            }
+                                                        if(recolheRecursosElec(i,j)){
+                                                            break;
                                                         }
                                                     } else if (
                                                             mapa.getCells()[i + 1][j].getBuilding().designacao() =="bat") {
-                                                        if (data.getMadeira().Quantidade() - 1 != 0 &&data.getCarvao().Quantidade() - 1 != 0) {
-                                                            if (data.getEletricidade().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getEletricidade().getCapacidade()) {
-                                                                data.getMadeira().setQuantidade(data.getMadeira().Quantidade() - 1);
-                                                                data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 1);
-                                                                data.getEletricidade().setCapacidade(data.getEletricidade().getCapacidade());
-                                                                break;
-                                                            } else {
-                                                                data.getMadeira().setQuantidade(data.getMadeira().Quantidade() - 1);
-                                                                data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 1);
-                                                                data.getEletricidade().addQuantidade((mapa.getCells()[i][j].getBuilding().getProducao()));
-                                                                break;
-                                                            }
+                                                        if(recolheRecursosElec(i,j)){
+                                                            break;
                                                         }
                                                     }
                                                 }
@@ -1653,48 +1246,18 @@ void Commands::entregaRecursos() {
                                             if (mapa.getCells()[i - 1][j].getWorkers()[l].designacao() == 'L')
                                                 if (mapa.getCells()[i - 1][j].getWorkers()[l].getDias() <= 4) {
                                                     if (mapa.getCells()[i][j + 1].getBuilding().designacao() == "bat") {
-                                                        if (data.getMadeira().Quantidade() - 1 != 0 &&data.getCarvao().Quantidade() - 1 != 0) {
-                                                            if (data.getEletricidade().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getEletricidade().getCapacidade()) {
-                                                                data.getMadeira().setQuantidade(data.getMadeira().Quantidade() - 1);
-                                                                data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 1);
-                                                                data.getEletricidade().setCapacidade(data.getEletricidade().getCapacidade());
-                                                                break;
-                                                            } else {
-                                                                data.getMadeira().setQuantidade(data.getMadeira().Quantidade() - 1);
-                                                                data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 1);
-                                                                data.getEletricidade().addQuantidade((mapa.getCells()[i][j].getBuilding().getProducao()));
-                                                                break;
-                                                            }
+                                                        if(recolheRecursosElec(i,j)){
+                                                            break;
                                                         }
                                                     } else if (
                                                             mapa.getCells()[i][j - 1].getBuilding().designacao() =="bat") {
-                                                        if (data.getMadeira().Quantidade() - 1 != 0 &&data.getCarvao().Quantidade() - 1 != 0) {
-                                                            if (data.getEletricidade().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getEletricidade().getCapacidade()) {
-                                                                data.getMadeira().setQuantidade(data.getMadeira().Quantidade() - 1);
-                                                                data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 1);
-                                                                data.getEletricidade().setCapacidade(data.getEletricidade().getCapacidade());
-                                                                break;
-                                                            } else {
-                                                                data.getMadeira().setQuantidade(data.getMadeira().Quantidade() - 1);
-                                                                data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 1);
-                                                                data.getEletricidade().addQuantidade((mapa.getCells()[i][j].getBuilding().getProducao()));
-                                                                break;
-                                                            }
+                                                        if(recolheRecursosElec(i,j)){
+                                                            break;
                                                         }
                                                     } else if (
                                                             mapa.getCells()[i + 1][j].getBuilding().designacao() =="bat") {
-                                                        if (data.getMadeira().Quantidade() - 1 != 0 &&data.getCarvao().Quantidade() - 1 != 0) {
-                                                            if (data.getEletricidade().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getEletricidade().getCapacidade()) {
-                                                                data.getMadeira().setQuantidade(data.getMadeira().Quantidade() - 1);
-                                                                data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 1);
-                                                                data.getEletricidade().setCapacidade(data.getEletricidade().getCapacidade());
-                                                                break;
-                                                            } else {
-                                                                data.getMadeira().setQuantidade(data.getMadeira().Quantidade() - 1);
-                                                                data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 1);
-                                                                data.getEletricidade().addQuantidade((mapa.getCells()[i][j].getBuilding().getProducao()));
-                                                                break;
-                                                            }
+                                                        if(recolheRecursosElec(i,j)){
+                                                            break;
                                                         }
                                                     }
                                                 }
@@ -1707,47 +1270,19 @@ void Commands::entregaRecursos() {
                                                 if (mapa.getCells()[i][j - 1].getWorkers()[l].getDias() <= 4) {
                                                     if (mapa.getCells()[i][j + 1].getBuilding().designacao() == "bat") {
                                                         if (data.getMadeira().Quantidade() - 1 != 0 &&data.getCarvao().Quantidade() - 1 != 0) {
-                                                            if (data.getEletricidade().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getEletricidade().getCapacidade()) {
-                                                                data.getMadeira().setQuantidade(data.getMadeira().Quantidade() - 1);
-                                                                data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 1);
-                                                                data.getEletricidade().setCapacidade(data.getEletricidade().getCapacidade());
-                                                                break;
-                                                            } else {
-                                                                data.getMadeira().setQuantidade(data.getMadeira().Quantidade() - 1);
-                                                                data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 1);
-                                                                data.getEletricidade().addQuantidade((mapa.getCells()[i][j].getBuilding().getProducao()));
+                                                            if(recolheRecursosElec(i,j)){
                                                                 break;
                                                             }
                                                         }
                                                     } else if (
                                                             mapa.getCells()[i - 1][j].getBuilding().designacao() =="bat") {
-                                                        if (data.getMadeira().Quantidade() - 1 != 0 &&data.getCarvao().Quantidade() - 1 != 0) {
-                                                            if (data.getEletricidade().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getEletricidade().getCapacidade()) {
-                                                                data.getMadeira().setQuantidade(data.getMadeira().Quantidade() - 1);
-                                                                data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 1);
-                                                                data.getEletricidade().setCapacidade(data.getEletricidade().getCapacidade());
-                                                                break;
-                                                            } else {
-                                                                data.getMadeira().setQuantidade(data.getMadeira().Quantidade() - 1);
-                                                                data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 1);
-                                                                data.getEletricidade().addQuantidade((mapa.getCells()[i][j].getBuilding().getProducao()));
-                                                                break;
-                                                            }
+                                                        if(recolheRecursosElec(i,j)){
+                                                            break;
                                                         }
                                                     } else if (
                                                             mapa.getCells()[i + 1][j].getBuilding().designacao() =="bat") {
-                                                        if (data.getMadeira().Quantidade() - 1 != 0 &&data.getCarvao().Quantidade() - 1 != 0) {
-                                                            if (data.getEletricidade().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getEletricidade().getCapacidade()) {
-                                                                data.getMadeira().setQuantidade(data.getMadeira().Quantidade() - 1);
-                                                                data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 1);
-                                                                data.getEletricidade().setCapacidade(data.getEletricidade().getCapacidade());
-                                                                break;
-                                                            } else {
-                                                                data.getMadeira().setQuantidade(data.getMadeira().Quantidade() - 1);
-                                                                data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 1);
-                                                                data.getEletricidade().addQuantidade((mapa.getCells()[i][j].getBuilding().getProducao()));
-                                                                break;
-                                                            }
+                                                        if(recolheRecursosElec(i,j)){
+                                                            break;
                                                         }
                                                     }
                                                 }
@@ -1771,15 +1306,7 @@ void Commands::entregaRecursos() {
                                             if (mapa.getCells()[i + 1][j].getBuilding().designacao() == "mnc" &&mapa.getCells()[i + 1][j].getBuilding().getEstado() == 1) {
                                                 for (int z = 0;z < mapa.getCells()[i + 1][j].getWorkers().size(); z++) {
                                                     if (mapa.getCells()[i + 1][j].getWorkers()[l].designacao() == 'M') {
-                                                        if (data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getAco().getCapacidade()) {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
-                                                            break;
-                                                        } else {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao());
+                                                        if(recolheRecursosFund(i,j)){
                                                             break;
                                                         }
                                                     }
@@ -1787,15 +1314,7 @@ void Commands::entregaRecursos() {
                                             } else if (mapa.getCells()[i + 1][j].getBuilding().designacao() == "elec" &&mapa.getCells()[i + 1][j].getBuilding().getEstado() == 1) {
                                                 for (int z = 0;z < mapa.getCells()[i + 1][j].getWorkers().size(); z++) {
                                                     if (mapa.getCells()[i + 1][j].getWorkers()[l].designacao() == 'O') {
-                                                        if (data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getAco().getCapacidade()) {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
-                                                            break;
-                                                        } else {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao());
+                                                        if(recolheRecursosFund(i,j)){
                                                             break;
                                                         }
                                                     }
@@ -1809,15 +1328,7 @@ void Commands::entregaRecursos() {
                                             if (mapa.getCells()[i][j + 1].getBuilding().designacao() == "mnc" &&mapa.getCells()[i][j + 1].getBuilding().getEstado() == 1) {
                                                 for (int z = 0;z < mapa.getCells()[i][j + 1].getWorkers().size(); z++) {
                                                     if (mapa.getCells()[i][j + 1].getWorkers()[l].designacao() == 'M') {
-                                                        if (data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getAco().getCapacidade()) {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
-                                                            break;
-                                                        } else {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao());
+                                                        if(recolheRecursosFund(i,j)){
                                                             break;
                                                         }
                                                     }
@@ -1847,15 +1358,7 @@ void Commands::entregaRecursos() {
                                             if (mapa.getCells()[i + 1][j].getBuilding().designacao() == "mnc" &&mapa.getCells()[i + 1][j].getBuilding().getEstado() == 1) {
                                                 for (int z = 0;z < mapa.getCells()[i + 1][j].getWorkers().size(); z++) {
                                                     if (mapa.getCells()[i + 1][j].getWorkers()[l].designacao() == 'M') {
-                                                        if (data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getAco().getCapacidade()) {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
-                                                            break;
-                                                        } else {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao());
+                                                        if(recolheRecursosFund(i,j)){
                                                             break;
                                                         }
                                                     }
@@ -1863,15 +1366,7 @@ void Commands::entregaRecursos() {
                                             } else if (mapa.getCells()[i + 1][j].getBuilding().designacao() == "elec" &&mapa.getCells()[i + 1][j].getBuilding().getEstado() == 1) {
                                                 for (int z = 0;z < mapa.getCells()[i + 1][j].getWorkers().size(); z++) {
                                                     if (mapa.getCells()[i + 1][j].getWorkers()[l].designacao() == 'O') {
-                                                        if (data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getAco().getCapacidade()) {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
-                                                            break;
-                                                        } else {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao());
+                                                        if(recolheRecursosFund(i,j)){
                                                             break;
                                                         }
                                                     }
@@ -1885,15 +1380,7 @@ void Commands::entregaRecursos() {
                                             if (mapa.getCells()[i][j - 1].getBuilding().designacao() == "mnc" &&mapa.getCells()[i][j - 1].getBuilding().getEstado() == 1) {
                                                 for (int z = 0;z < mapa.getCells()[i][j - 1].getWorkers().size(); z++) {
                                                     if (mapa.getCells()[i][j - 1].getWorkers()[l].designacao() == 'M') {
-                                                        if (data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getAco().getCapacidade()) {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
-                                                            break;
-                                                        } else {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao());
+                                                        if(recolheRecursosFund(i,j)){
                                                             break;
                                                         }
                                                     }
@@ -1901,15 +1388,7 @@ void Commands::entregaRecursos() {
                                             } else if (mapa.getCells()[i][j - 1].getBuilding().designacao() == "elec" &&mapa.getCells()[i][j - 1].getBuilding().getEstado() == 1) {
                                                 for (int z = 0;z < mapa.getCells()[i][j - 1].getWorkers().size(); z++) {
                                                     if (mapa.getCells()[i][j - 1].getWorkers()[l].designacao() == 'O') {
-                                                        if (data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getAco().getCapacidade()) {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
-                                                            break;
-                                                        } else {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao());
+                                                        if(recolheRecursosFund(i,j)){
                                                             break;
                                                         }
                                                     }
@@ -1925,15 +1404,7 @@ void Commands::entregaRecursos() {
                                             if (mapa.getCells()[i][j + 1].getBuilding().designacao() == "mnc" &&mapa.getCells()[i][j + 1].getBuilding().getEstado() == 1) {
                                                 for (int z = 0;z < mapa.getCells()[i][j + 1].getWorkers().size(); z++) {
                                                     if (mapa.getCells()[i][j + 1].getWorkers()[l].designacao() == 'M') {
-                                                        if (data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getAco().getCapacidade()) {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
-                                                            break;
-                                                        } else {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao());
+                                                        if(recolheRecursosFund(i,j)){
                                                             break;
                                                         }
                                                     }
@@ -1941,15 +1412,7 @@ void Commands::entregaRecursos() {
                                             } else if (mapa.getCells()[i][j + 1].getBuilding().designacao() == "elec" &&mapa.getCells()[i][j + 1].getBuilding().getEstado() == 1) {
                                                 for (int z = 0;z < mapa.getCells()[i][j + 1].getWorkers().size(); z++) {
                                                     if (mapa.getCells()[i][j + 1].getWorkers()[l].designacao() == 'O') {
-                                                        if (data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getAco().getCapacidade()) {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
-                                                            break;
-                                                        } else {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao());
+                                                        if(recolheRecursosFund(i,j)){
                                                             break;
                                                         }
                                                     }
@@ -1963,15 +1426,7 @@ void Commands::entregaRecursos() {
                                             if (mapa.getCells()[i - 1][j].getBuilding().designacao() == "mnc" &&mapa.getCells()[i - 1][j].getBuilding().getEstado() == 1) {
                                                 for (int z = 0;z < mapa.getCells()[i - 1][1].getWorkers().size(); z++) {
                                                     if (mapa.getCells()[i - 1][j].getWorkers()[l].designacao() == 'M') {
-                                                        if (data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getAco().getCapacidade()) {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
-                                                            break;
-                                                        } else {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao());
+                                                        if(recolheRecursosFund(i,j)){
                                                             break;
                                                         }
                                                     }
@@ -1979,15 +1434,7 @@ void Commands::entregaRecursos() {
                                             } else if (mapa.getCells()[i - 1][j].getBuilding().designacao() == "elec" &&mapa.getCells()[i - 1][j].getBuilding().getEstado() == 1) {
                                                 for (int z = 0;z < mapa.getCells()[i - 1][j].getWorkers().size(); z++) {
                                                     if (mapa.getCells()[i - 1][j].getWorkers()[l].designacao() == 'O') {
-                                                        if (data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getAco().getCapacidade()) {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
-                                                            break;
-                                                        } else {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao());
+                                                        if(recolheRecursosFund(i,j)){
                                                             break;
                                                         }
                                                     }
@@ -2003,15 +1450,7 @@ void Commands::entregaRecursos() {
                                             if (mapa.getCells()[i][j - 1].getBuilding().designacao() == "mnc" &&mapa.getCells()[i][j - 1].getBuilding().getEstado() == 1) {
                                                 for (int z = 0;z < mapa.getCells()[i][j - 1].getWorkers().size(); z++) {
                                                     if (mapa.getCells()[i][j - 1].getWorkers()[l].designacao() == 'M') {
-                                                        if (data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getAco().getCapacidade()) {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
-                                                            break;
-                                                        } else {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao());
+                                                        if(recolheRecursosFund(i,j)){
                                                             break;
                                                         }
                                                     }
@@ -2019,15 +1458,7 @@ void Commands::entregaRecursos() {
                                             } else if (mapa.getCells()[i][j - 1].getBuilding().designacao() == "elec" &&mapa.getCells()[i][j - 1].getBuilding().getEstado() == 1) {
                                                 for (int z = 0;z < mapa.getCells()[i][j - 1].getWorkers().size(); z++) {
                                                     if (mapa.getCells()[i][j - 1].getWorkers()[l].designacao() == 'O') {
-                                                        if (data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getAco().getCapacidade()) {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
-                                                            break;
-                                                        } else {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao());
+                                                        if(recolheRecursosFund(i,j)){
                                                             break;
                                                         }
                                                     }
@@ -2041,15 +1472,7 @@ void Commands::entregaRecursos() {
                                             if (mapa.getCells()[i - 1][j].getBuilding().designacao() == "mnc" &&mapa.getCells()[i - 1][j].getBuilding().getEstado() == 1) {
                                                 for (int z = 0;z < mapa.getCells()[i - 1][j].getWorkers().size(); z++) {
                                                     if (mapa.getCells()[i - 1][j].getWorkers()[l].designacao() == 'M') {
-                                                        if (data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getAco().getCapacidade()) {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
-                                                            break;
-                                                        } else {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao());
+                                                        if(recolheRecursosFund(i,j)){
                                                             break;
                                                         }
                                                     }
@@ -2057,15 +1480,7 @@ void Commands::entregaRecursos() {
                                             } else if (mapa.getCells()[i - 1][j].getBuilding().designacao() == "elec" &&mapa.getCells()[i - 1][j].getBuilding().getEstado() == 1) {
                                                 for (int z = 0;z < mapa.getCells()[i - 1][j].getWorkers().size(); z++) {
                                                     if (mapa.getCells()[i - 1][j].getWorkers()[l].designacao() == 'O') {
-                                                        if (data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getAco().getCapacidade()) {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
-                                                            break;
-                                                        } else {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao());
+                                                        if(recolheRecursosFund(i,j)){
                                                             break;
                                                         }
                                                     }
@@ -2082,15 +1497,7 @@ void Commands::entregaRecursos() {
                                             if (mapa.getCells()[i][j + 1].getBuilding().designacao() == "mnc" &&mapa.getCells()[i][j + 1].getBuilding().getEstado() == 1) {
                                                 for (int z = 0;z < mapa.getCells()[i][j + 1].getWorkers().size(); z++) {
                                                     if (mapa.getCells()[i][j + 1].getWorkers()[l].designacao() == 'M') {
-                                                        if (data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getAco().getCapacidade()) {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
-                                                            break;
-                                                        } else {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao());
+                                                        if(recolheRecursosFund(i,j)){
                                                             break;
                                                         }
                                                     }
@@ -2098,15 +1505,7 @@ void Commands::entregaRecursos() {
                                             } else if (mapa.getCells()[i][j + 1].getBuilding().designacao() == "elec" &&mapa.getCells()[i][j + 1].getBuilding().getEstado() == 1) {
                                                 for (int z = 0;z < mapa.getCells()[i][j + 1].getWorkers().size(); z++) {
                                                     if (mapa.getCells()[i][j + 1].getWorkers()[l].designacao() == 'O') {
-                                                        if (data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getAco().getCapacidade()) {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
-                                                            break;
-                                                        } else {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao());
+                                                        if(recolheRecursosFund(i,j)){
                                                             break;
                                                         }
                                                     }
@@ -2114,15 +1513,7 @@ void Commands::entregaRecursos() {
                                             } else if (mapa.getCells()[i + 1][j].getBuilding().designacao() == "mnc" &&mapa.getCells()[i + 1][j].getBuilding().getEstado() == 1) {
                                                 for (int z = 0;z < mapa.getCells()[i + 1][j].getWorkers().size(); z++) {
                                                     if (mapa.getCells()[i + 1][j].getWorkers()[l].designacao() == 'M') {
-                                                        if (data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getAco().getCapacidade()) {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
-                                                            break;
-                                                        } else {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao());
+                                                        if(recolheRecursosFund(i,j)){
                                                             break;
                                                         }
                                                     }
@@ -2130,15 +1521,7 @@ void Commands::entregaRecursos() {
                                             } else if (mapa.getCells()[i + 1][j].getBuilding().designacao() == "elec" &&mapa.getCells()[i + 1][j].getBuilding().getEstado() == 1) {
                                                 for (int z = 0;z < mapa.getCells()[i + 1][j].getWorkers().size(); z++) {
                                                     if (mapa.getCells()[i + 1][j].getWorkers()[l].designacao() == 'O') {
-                                                        if (data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getAco().getCapacidade()) {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
-                                                            break;
-                                                        } else {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao());
+                                                        if(recolheRecursosFund(i,j)){
                                                             break;
                                                         }
                                                     }
@@ -2153,15 +1536,7 @@ void Commands::entregaRecursos() {
                                             if (mapa.getCells()[i][j + 1].getBuilding().designacao() == "mnc" &&mapa.getCells()[i][j + 1].getBuilding().getEstado() == 1) {
                                                 for (int z = 0;z < mapa.getCells()[i][j + 1].getWorkers().size(); z++) {
                                                     if (mapa.getCells()[i][j + 1].getWorkers()[l].designacao() == 'M') {
-                                                        if (data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getAco().getCapacidade()) {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
-                                                            break;
-                                                        } else {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao());
+                                                        if(recolheRecursosFund(i,j)){
                                                             break;
                                                         }
                                                     }
@@ -2169,15 +1544,7 @@ void Commands::entregaRecursos() {
                                             } else if (mapa.getCells()[i][j + 1].getBuilding().designacao() == "elec" &&mapa.getCells()[i][j + 1].getBuilding().getEstado() == 1) {
                                                 for (int z = 0;z < mapa.getCells()[i][j + 1].getWorkers().size(); z++) {
                                                     if (mapa.getCells()[i][j + 1].getWorkers()[l].designacao() == 'O') {
-                                                        if (data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getAco().getCapacidade()) {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
-                                                            break;
-                                                        } else {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao());
+                                                        if(recolheRecursosFund(i,j)){
                                                             break;
                                                         }
                                                     }
@@ -2185,15 +1552,7 @@ void Commands::entregaRecursos() {
                                             } else if (mapa.getCells()[i - 1][j].getBuilding().designacao() == "mnc" &&mapa.getCells()[i - 1][j].getBuilding().getEstado() == 1) {
                                                 for (int z = 0;z < mapa.getCells()[i - 1][j].getWorkers().size(); z++) {
                                                     if (mapa.getCells()[i - 1][j].getWorkers()[l].designacao() == 'M') {
-                                                        if (data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getAco().getCapacidade()) {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
-                                                            break;
-                                                        } else {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao());
+                                                        if(recolheRecursosFund(i,j)){
                                                             break;
                                                         }
                                                     }
@@ -2201,15 +1560,7 @@ void Commands::entregaRecursos() {
                                             } else if (mapa.getCells()[i - 1][j].getBuilding().designacao() == "elec" &&mapa.getCells()[i - 1][j].getBuilding().getEstado() == 1) {
                                                 for (int z = 0;z < mapa.getCells()[i - 1][j].getWorkers().size(); z++) {
                                                     if (mapa.getCells()[i - 1][j].getWorkers()[l].designacao() == 'O') {
-                                                        if (data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getAco().getCapacidade()) {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
-                                                            break;
-                                                        } else {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao());
+                                                        if(recolheRecursosFund(i,j)){
                                                             break;
                                                         }
                                                     }
@@ -2225,15 +1576,7 @@ void Commands::entregaRecursos() {
                                             if (mapa.getCells()[i + 1][j].getBuilding().designacao() == "mnc" &&mapa.getCells()[i + 1][j].getBuilding().getEstado() == 1) {
                                                 for (int z = 0;z < mapa.getCells()[i + 1][j].getWorkers().size(); z++) {
                                                     if (mapa.getCells()[i + 1][j].getWorkers()[l].designacao() == 'M') {
-                                                        if (data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getAco().getCapacidade()) {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
-                                                            break;
-                                                        } else {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao());
+                                                        if(recolheRecursosFund(i,j)){
                                                             break;
                                                         }
                                                     }
@@ -2241,15 +1584,7 @@ void Commands::entregaRecursos() {
                                             } else if (mapa.getCells()[i + 1][j].getBuilding().designacao() == "elec" &&mapa.getCells()[i + 1][j].getBuilding().getEstado() == 1) {
                                                 for (int z = 0;z < mapa.getCells()[i + 1][j].getWorkers().size(); z++) {
                                                     if (mapa.getCells()[i + 1][j].getWorkers()[l].designacao() == 'O') {
-                                                        if (data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getAco().getCapacidade()) {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
-                                                            break;
-                                                        } else {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao());
+                                                        if(recolheRecursosFund(i,j)){
                                                             break;
                                                         }
                                                     }
@@ -2257,15 +1592,7 @@ void Commands::entregaRecursos() {
                                             } else if (mapa.getCells()[i - 1][j].getBuilding().designacao() == "mnc" &&mapa.getCells()[i - 1][j].getBuilding().getEstado() == 1) {
                                                 for (int z = 0;z < mapa.getCells()[i - 1][j].getWorkers().size(); z++) {
                                                     if (mapa.getCells()[i - 1][j].getWorkers()[l].designacao() == 'M') {
-                                                        if (data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getAco().getCapacidade()) {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
-                                                            break;
-                                                        } else {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao());
+                                                        if(recolheRecursosFund(i,j)){
                                                             break;
                                                         }
                                                     }
@@ -2273,15 +1600,7 @@ void Commands::entregaRecursos() {
                                             } else if (mapa.getCells()[i - 1][j].getBuilding().designacao() == "elec" &&mapa.getCells()[i - 1][j].getBuilding().getEstado() == 1) {
                                                 for (int z = 0;z < mapa.getCells()[i - 1][j].getWorkers().size(); z++) {
                                                     if (mapa.getCells()[i - 1][j].getWorkers()[l].designacao() == 'O') {
-                                                        if (data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getAco().getCapacidade()) {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
-                                                            break;
-                                                        } else {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao());
+                                                        if(recolheRecursosFund(i,j)){
                                                             break;
                                                         }
                                                     }
@@ -2299,15 +1618,7 @@ void Commands::entregaRecursos() {
                                             if (mapa.getCells()[i][j - 1].getBuilding().designacao() == "mnc" &&mapa.getCells()[i][j - 1].getBuilding().getEstado() == 1) {
                                                 for (int z = 0;z < mapa.getCells()[i][j - 1].getWorkers().size(); z++) {
                                                     if (mapa.getCells()[i][j - 1].getWorkers()[l].designacao() == 'M') {
-                                                        if (data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getAco().getCapacidade()) {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
-                                                            break;
-                                                        } else {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao());
+                                                        if(recolheRecursosFund(i,j)){
                                                             break;
                                                         }
                                                     }
@@ -2315,15 +1626,7 @@ void Commands::entregaRecursos() {
                                             } else if (mapa.getCells()[i][j - 1].getBuilding().designacao() == "elec" &&mapa.getCells()[i][j - 1].getBuilding().getEstado() == 1) {
                                                 for (int z = 0;z < mapa.getCells()[i][j - 1].getWorkers().size(); z++) {
                                                     if (mapa.getCells()[i][j - 1].getWorkers()[l].designacao() == 'O') {
-                                                        if (data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getAco().getCapacidade()) {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
-                                                            break;
-                                                        } else {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao());
+                                                        if(recolheRecursosFund(i,j)){
                                                             break;
                                                         }
                                                     }
@@ -2331,15 +1634,7 @@ void Commands::entregaRecursos() {
                                             } else if (mapa.getCells()[i + 1][j].getBuilding().designacao() == "mnc" &&mapa.getCells()[i + 1][j].getBuilding().getEstado() == 1) {
                                                 for (int z = 0;z < mapa.getCells()[i + 1][j].getWorkers().size(); z++) {
                                                     if (mapa.getCells()[i + 1][j].getWorkers()[l].designacao() == 'M') {
-                                                        if (data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getAco().getCapacidade()) {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
-                                                            break;
-                                                        } else {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao());
+                                                        if(recolheRecursosFund(i,j)){
                                                             break;
                                                         }
                                                     }
@@ -2347,15 +1642,7 @@ void Commands::entregaRecursos() {
                                             } else if (mapa.getCells()[i + 1][j].getBuilding().designacao() == "elec" &&mapa.getCells()[i + 1][j].getBuilding().getEstado() == 1) {
                                                 for (int z = 0;z < mapa.getCells()[i + 1][j].getWorkers().size(); z++) {
                                                     if (mapa.getCells()[i + 1][j].getWorkers()[l].designacao() == 'O') {
-                                                        if (data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getAco().getCapacidade()) {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
-                                                            break;
-                                                        } else {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao());
+                                                        if(recolheRecursosFund(i,j)){
                                                             break;
                                                         }
                                                     }
@@ -2370,15 +1657,7 @@ void Commands::entregaRecursos() {
                                             if (mapa.getCells()[i][j - 1].getBuilding().designacao() == "mnc" &&mapa.getCells()[i][j - 1].getBuilding().getEstado() == 1) {
                                                 for (int z = 0;z < mapa.getCells()[i][j - 1].getWorkers().size(); z++) {
                                                     if (mapa.getCells()[i][j - 1].getWorkers()[l].designacao() == 'M') {
-                                                        if (data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getAco().getCapacidade()) {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
-                                                            break;
-                                                        } else {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao());
+                                                        if(recolheRecursosFund(i,j)){
                                                             break;
                                                         }
                                                     }
@@ -2386,15 +1665,7 @@ void Commands::entregaRecursos() {
                                             } else if (mapa.getCells()[i][j - 1].getBuilding().designacao() == "elec" &&mapa.getCells()[i][j - 1].getBuilding().getEstado() == 1) {
                                                 for (int z = 0;z < mapa.getCells()[i][j - 1].getWorkers().size(); z++) {
                                                     if (mapa.getCells()[i][j - 1].getWorkers()[l].designacao() == 'O') {
-                                                        if (data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getAco().getCapacidade()) {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
-                                                            break;
-                                                        } else {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao());
+                                                        if(recolheRecursosFund(i,j)){
                                                             break;
                                                         }
                                                     }
@@ -2402,15 +1673,7 @@ void Commands::entregaRecursos() {
                                             } else if (mapa.getCells()[i - 1][j].getBuilding().designacao() == "mnc" &&mapa.getCells()[i - 1][j].getBuilding().getEstado() == 1) {
                                                 for (int z = 0;z < mapa.getCells()[i - 1][j].getWorkers().size(); z++) {
                                                     if (mapa.getCells()[i - 1][j].getWorkers()[l].designacao() == 'M') {
-                                                        if (data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getAco().getCapacidade()) {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
-                                                            break;
-                                                        } else {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao());
+                                                        if(recolheRecursosFund(i,j)){
                                                             break;
                                                         }
                                                     }
@@ -2418,15 +1681,7 @@ void Commands::entregaRecursos() {
                                             } else if (mapa.getCells()[i - 1][j].getBuilding().designacao() == "elec" &&mapa.getCells()[i - 1][j].getBuilding().getEstado() == 1) {
                                                 for (int z = 0;z < mapa.getCells()[i - 1][j].getWorkers().size(); z++) {
                                                     if (mapa.getCells()[i - 1][j].getWorkers()[l].designacao() == 'O') {
-                                                        if (data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getAco().getCapacidade()) {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
-                                                            break;
-                                                        } else {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao());
+                                                        if(recolheRecursosFund(i,j)){
                                                             break;
                                                         }
                                                     }
@@ -2442,15 +1697,7 @@ void Commands::entregaRecursos() {
                                             if (mapa.getCells()[i + 1][j].getBuilding().designacao() == "mnc" &&mapa.getCells()[i + 1][j].getBuilding().getEstado() == 1) {
                                                 for (int z = 0;z < mapa.getCells()[i + 1][j].getWorkers().size(); z++) {
                                                     if (mapa.getCells()[i + 1][j].getWorkers()[l].designacao() == 'M') {
-                                                        if (data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getAco().getCapacidade()) {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
-                                                            break;
-                                                        } else {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao());
+                                                        if(recolheRecursosFund(i,j)){
                                                             break;
                                                         }
                                                     }
@@ -2458,15 +1705,7 @@ void Commands::entregaRecursos() {
                                             } else if (mapa.getCells()[i + 1][j].getBuilding().designacao() == "elec" &&mapa.getCells()[i + 1][j].getBuilding().getEstado() == 1) {
                                                 for (int z = 0;z < mapa.getCells()[i + 1][j].getWorkers().size(); z++) {
                                                     if (mapa.getCells()[i + 1][j].getWorkers()[l].designacao() == 'O') {
-                                                        if (data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getAco().getCapacidade()) {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
-                                                            break;
-                                                        } else {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao());
+                                                        if(recolheRecursosFund(i,j)){
                                                             break;
                                                         }
                                                     }
@@ -2474,15 +1713,7 @@ void Commands::entregaRecursos() {
                                             } else if (mapa.getCells()[i - 1][j].getBuilding().designacao() == "mnc" &&mapa.getCells()[i - 1][j].getBuilding().getEstado() == 1) {
                                                 for (int z = 0;z < mapa.getCells()[i - 1][j].getWorkers().size(); z++) {
                                                     if (mapa.getCells()[i - 1][j].getWorkers()[l].designacao() == 'M') {
-                                                        if (data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getAco().getCapacidade()) {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
-                                                            break;
-                                                        } else {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao());
+                                                        if(recolheRecursosFund(i,j)){
                                                             break;
                                                         }
                                                     }
@@ -2490,15 +1721,7 @@ void Commands::entregaRecursos() {
                                             } else if (mapa.getCells()[i - 1][j].getBuilding().designacao() == "elec" &&mapa.getCells()[i - 1][j].getBuilding().getEstado() == 1) {
                                                 for (int z = 0;z < mapa.getCells()[i - 1][j].getWorkers().size(); z++) {
                                                     if (mapa.getCells()[i - 1][j].getWorkers()[l].designacao() == 'O') {
-                                                        if (data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getAco().getCapacidade()) {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
-                                                            break;
-                                                        } else {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao());
+                                                        if(recolheRecursosFund(i,j)){
                                                             break;
                                                         }
                                                     }
@@ -2515,15 +1738,7 @@ void Commands::entregaRecursos() {
                                             if (mapa.getCells()[i][j + 1].getBuilding().designacao() == "mnc" &&mapa.getCells()[i][j + 1].getBuilding().getEstado() == 1) {
                                                 for (int z = 0;z < mapa.getCells()[i][j + 1].getWorkers().size(); z++) {
                                                     if (mapa.getCells()[i][j + 1].getWorkers()[l].designacao() == 'M') {
-                                                        if (data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getAco().getCapacidade()) {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
-                                                            break;
-                                                        } else {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao());
+                                                        if(recolheRecursosFund(i,j)){
                                                             break;
                                                         }
                                                     }
@@ -2531,15 +1746,7 @@ void Commands::entregaRecursos() {
                                             } else if (mapa.getCells()[i][j + 1].getBuilding().designacao() == "elec" &&mapa.getCells()[i][j + 1].getBuilding().getEstado() == 1) {
                                                 for (int z = 0;z < mapa.getCells()[i][j + 1].getWorkers().size(); z++) {
                                                     if (mapa.getCells()[i][j + 1].getWorkers()[l].designacao() == 'O') {
-                                                        if (data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getAco().getCapacidade()) {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
-                                                            break;
-                                                        } else {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao());
+                                                        if(recolheRecursosFund(i,j)){
                                                             break;
                                                         }
                                                     }
@@ -2547,15 +1754,7 @@ void Commands::entregaRecursos() {
                                             } else if (mapa.getCells()[i + 1][j].getBuilding().designacao() == "mnc" &&mapa.getCells()[i + 1][j].getBuilding().getEstado() == 1) {
                                                 for (int z = 0;z < mapa.getCells()[i + 1][j].getWorkers().size(); z++) {
                                                     if (mapa.getCells()[i + 1][j].getWorkers()[l].designacao() == 'M') {
-                                                        if (data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getAco().getCapacidade()) {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
-                                                            break;
-                                                        } else {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao());
+                                                        if(recolheRecursosFund(i,j)){
                                                             break;
                                                         }
                                                     }
@@ -2563,15 +1762,7 @@ void Commands::entregaRecursos() {
                                             } else if (mapa.getCells()[i + 1][j].getBuilding().designacao() == "elec" &&mapa.getCells()[i + 1][j].getBuilding().getEstado() == 1) {
                                                 for (int z = 0;z < mapa.getCells()[i + 1][j].getWorkers().size(); z++) {
                                                     if (mapa.getCells()[i + 1][j].getWorkers()[l].designacao() == 'O') {
-                                                        if (data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getAco().getCapacidade()) {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
-                                                            break;
-                                                        } else {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao());
+                                                        if(recolheRecursosFund(i,j)){
                                                             break;
                                                         }
                                                     }
@@ -2586,15 +1777,7 @@ void Commands::entregaRecursos() {
                                             if (mapa.getCells()[i][j + 1].getBuilding().designacao() == "mnc" &&mapa.getCells()[i][j + 1].getBuilding().getEstado() == 1) {
                                                 for (int z = 0;z < mapa.getCells()[i][j + 1].getWorkers().size(); z++) {
                                                     if (mapa.getCells()[i][j + 1].getWorkers()[l].designacao() == 'M') {
-                                                        if (data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getAco().getCapacidade()) {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
-                                                            break;
-                                                        } else {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao());
+                                                        if(recolheRecursosFund(i,j)){
                                                             break;
                                                         }
                                                     }
@@ -2602,15 +1785,7 @@ void Commands::entregaRecursos() {
                                             } else if (mapa.getCells()[i][j + 1].getBuilding().designacao() == "elec" &&mapa.getCells()[i][j + 1].getBuilding().getEstado() == 1) {
                                                 for (int z = 0;z < mapa.getCells()[i][j + 1].getWorkers().size(); z++) {
                                                     if (mapa.getCells()[i][j + 1].getWorkers()[l].designacao() == 'O') {
-                                                        if (data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getAco().getCapacidade()) {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
-                                                            break;
-                                                        } else {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao());
+                                                        if(recolheRecursosFund(i,j)){
                                                             break;
                                                         }
                                                     }
@@ -2618,15 +1793,7 @@ void Commands::entregaRecursos() {
                                             } else if (mapa.getCells()[i][j - 1].getBuilding().designacao() == "mnc" &&mapa.getCells()[i][j - 1].getBuilding().getEstado() == 1) {
                                                 for (int z = 0;z < mapa.getCells()[i][j - 1].getWorkers().size(); z++) {
                                                     if (mapa.getCells()[i][j - 1].getWorkers()[l].designacao() == 'M') {
-                                                        if (data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getAco().getCapacidade()) {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
-                                                            break;
-                                                        } else {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao());
+                                                        if(recolheRecursosFund(i,j)){
                                                             break;
                                                         }
                                                     }
@@ -2634,15 +1801,7 @@ void Commands::entregaRecursos() {
                                             } else if (mapa.getCells()[i][j - 1].getBuilding().designacao() == "elec" &&mapa.getCells()[i][j - 1].getBuilding().getEstado() == 1) {
                                                 for (int z = 0;z < mapa.getCells()[i][j - 1].getWorkers().size(); z++) {
                                                     if (mapa.getCells()[i][j - 1].getWorkers()[l].designacao() == 'O') {
-                                                        if (data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getAco().getCapacidade()) {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
-                                                            break;
-                                                        } else {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao());
+                                                        if(recolheRecursosFund(i,j)){
                                                             break;
                                                         }
                                                     }
@@ -2657,15 +1816,7 @@ void Commands::entregaRecursos() {
                                             if (mapa.getCells()[i + 1][j].getBuilding().designacao() == "mnc" &&mapa.getCells()[i + 1][j].getBuilding().getEstado() == 1) {
                                                 for (int z = 0;z < mapa.getCells()[i + 1][j].getWorkers().size(); z++) {
                                                     if (mapa.getCells()[i + 1][j].getWorkers()[l].designacao() == 'M') {
-                                                        if (data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getAco().getCapacidade()) {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
-                                                            break;
-                                                        } else {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao());
+                                                        if(recolheRecursosFund(i,j)){
                                                             break;
                                                         }
                                                     }
@@ -2673,15 +1824,7 @@ void Commands::entregaRecursos() {
                                             } else if (mapa.getCells()[i + 1][j].getBuilding().designacao() == "elec" &&mapa.getCells()[i + 1][j].getBuilding().getEstado() == 1) {
                                                 for (int z = 0;z < mapa.getCells()[i + 1][j].getWorkers().size(); z++) {
                                                     if (mapa.getCells()[i + 1][j].getWorkers()[l].designacao() == 'O') {
-                                                        if (data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getAco().getCapacidade()) {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
-                                                            break;
-                                                        } else {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao());
+                                                        if(recolheRecursosFund(i,j)){
                                                             break;
                                                         }
                                                     }
@@ -2689,15 +1832,7 @@ void Commands::entregaRecursos() {
                                             } else if (mapa.getCells()[i - 1][j].getBuilding().designacao() == "mnc" &&mapa.getCells()[i - 1][j].getBuilding().getEstado() == 1) {
                                                 for (int z = 0;z < mapa.getCells()[i - 1][j].getWorkers().size(); z++) {
                                                     if (mapa.getCells()[i - 1][j].getWorkers()[l].designacao() == 'M') {
-                                                        if (data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getAco().getCapacidade()) {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
-                                                            break;
-                                                        } else {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao());
+                                                        if(recolheRecursosFund(i,j)){
                                                             break;
                                                         }
                                                     }
@@ -2705,15 +1840,7 @@ void Commands::entregaRecursos() {
                                             } else if (mapa.getCells()[i - 1][j].getBuilding().designacao() == "elec" &&mapa.getCells()[i - 1][j].getBuilding().getEstado() == 1) {
                                                 for (int z = 0;z < mapa.getCells()[i - 1][j].getWorkers().size(); z++) {
                                                     if (mapa.getCells()[i - 1][j].getWorkers()[l].designacao() == 'O') {
-                                                        if (data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getAco().getCapacidade()) {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
-                                                            break;
-                                                        } else {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao());
+                                                        if(recolheRecursosFund(i,j)){
                                                             break;
                                                         }
                                                     }
@@ -2730,15 +1857,7 @@ void Commands::entregaRecursos() {
                                             if (mapa.getCells()[i][j + 1].getBuilding().designacao() == "mnc" &&mapa.getCells()[i][j + 1].getBuilding().getEstado() == 1) {
                                                 for (int z = 0;z < mapa.getCells()[i][j + 1].getWorkers().size(); z++) {
                                                     if (mapa.getCells()[i][j + 1].getWorkers()[l].designacao() == 'M') {
-                                                        if (data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getAco().getCapacidade()) {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
-                                                            break;
-                                                        } else {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao());
+                                                        if(recolheRecursosFund(i,j)){
                                                             break;
                                                         }
                                                     }
@@ -2746,15 +1865,7 @@ void Commands::entregaRecursos() {
                                             } else if (mapa.getCells()[i][j + 1].getBuilding().designacao() == "elec" &&mapa.getCells()[i][j + 1].getBuilding().getEstado() == 1) {
                                                 for (int z = 0;z < mapa.getCells()[i][j + 1].getWorkers().size(); z++) {
                                                     if (mapa.getCells()[i][j + 1].getWorkers()[l].designacao() == 'O') {
-                                                        if (data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getAco().getCapacidade()) {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
-                                                            break;
-                                                        } else {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao());
+                                                        if(recolheRecursosFund(i,j)){
                                                             break;
                                                         }
                                                     }
@@ -2762,15 +1873,7 @@ void Commands::entregaRecursos() {
                                             } else if (mapa.getCells()[i - 1][j].getBuilding().designacao() == "mnc" &&mapa.getCells()[i - 1][j].getBuilding().getEstado() == 1) {
                                                 for (int z = 0;z < mapa.getCells()[i - 1][j].getWorkers().size(); z++) {
                                                     if (mapa.getCells()[i - 1][j].getWorkers()[l].designacao() == 'M') {
-                                                        if (data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getAco().getCapacidade()) {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
-                                                            break;
-                                                        } else {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao());
+                                                        if(recolheRecursosFund(i,j)){
                                                             break;
                                                         }
                                                     }
@@ -2778,15 +1881,7 @@ void Commands::entregaRecursos() {
                                             } else if (mapa.getCells()[i - 1][j].getBuilding().designacao() == "elec" &&mapa.getCells()[i - 1][j].getBuilding().getEstado() == 1) {
                                                 for (int z = 0;z < mapa.getCells()[i + 1][j].getWorkers().size(); z++) {
                                                     if (mapa.getCells()[i - 1][j].getWorkers()[l].designacao() == 'O') {
-                                                        if (data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getAco().getCapacidade()) {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
-                                                            break;
-                                                        } else {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao());
+                                                        if(recolheRecursosFund(i,j)){
                                                             break;
                                                         }
                                                     }
@@ -2800,15 +1895,7 @@ void Commands::entregaRecursos() {
                                             if (mapa.getCells()[i][j + 1].getBuilding().designacao() == "mnc" &&mapa.getCells()[i][j + 1].getBuilding().getEstado() == 1) {
                                                 for (int z = 0;z < mapa.getCells()[i][j + 1].getWorkers().size(); z++) {
                                                     if (mapa.getCells()[i][j + 1].getWorkers()[l].designacao() == 'M') {
-                                                        if (data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getAco().getCapacidade()) {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
-                                                            break;
-                                                        } else {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao());
+                                                        if(recolheRecursosFund(i,j)){
                                                             break;
                                                         }
                                                     }
@@ -2816,15 +1903,7 @@ void Commands::entregaRecursos() {
                                             } else if (mapa.getCells()[i][j + 1].getBuilding().designacao() == "elec" &&mapa.getCells()[i][j + 1].getBuilding().getEstado() == 1) {
                                                 for (int z = 0;z < mapa.getCells()[i][j + 1].getWorkers().size(); z++) {
                                                     if (mapa.getCells()[i][j + 1].getWorkers()[l].designacao() == 'O') {
-                                                        if (data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getAco().getCapacidade()) {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
-                                                            break;
-                                                        } else {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao());
+                                                        if(recolheRecursosFund(i,j)){
                                                             break;
                                                         }
                                                     }
@@ -2832,15 +1911,7 @@ void Commands::entregaRecursos() {
                                             } else if (mapa.getCells()[i][j - 1].getBuilding().designacao() == "mnc" &&mapa.getCells()[i][j - 1].getBuilding().getEstado() == 1) {
                                                 for (int z = 0;z < mapa.getCells()[i][j - 1].getWorkers().size(); z++) {
                                                     if (mapa.getCells()[i][j - 1].getWorkers()[l].designacao() == 'M') {
-                                                        if (data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getAco().getCapacidade()) {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
-                                                            break;
-                                                        } else {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao());
+                                                        if(recolheRecursosFund(i,j)){
                                                             break;
                                                         }
                                                     }
@@ -2848,15 +1919,7 @@ void Commands::entregaRecursos() {
                                             } else if (mapa.getCells()[i][j - 1].getBuilding().designacao() == "elec" &&mapa.getCells()[i][j - 1].getBuilding().getEstado() == 1) {
                                                 for (int z = 0;z < mapa.getCells()[i][j - 1].getWorkers().size(); z++) {
                                                     if (mapa.getCells()[i][j - 1].getWorkers()[l].designacao() == 'O') {
-                                                        if (data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getAco().getCapacidade()) {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
-                                                            break;
-                                                        } else {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao());
+                                                        if(recolheRecursosFund(i,j)){
                                                             break;
                                                         }
                                                     }
@@ -2871,15 +1934,7 @@ void Commands::entregaRecursos() {
                                             if (mapa.getCells()[i - 1][j].getBuilding().designacao() == "mnc" &&mapa.getCells()[i - 1][j].getBuilding().getEstado() == 1) {
                                                 for (int z = 0;z < mapa.getCells()[i - 1][j].getWorkers().size(); z++) {
                                                     if (mapa.getCells()[i - 1][j].getWorkers()[l].designacao() == 'M') {
-                                                        if (data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getAco().getCapacidade()) {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
-                                                            break;
-                                                        } else {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao());
+                                                        if(recolheRecursosFund(i,j)){
                                                             break;
                                                         }
                                                     }
@@ -2887,15 +1942,7 @@ void Commands::entregaRecursos() {
                                             } else if (mapa.getCells()[i - 1][j].getBuilding().designacao() == "elec" &&mapa.getCells()[i - 1][j].getBuilding().getEstado() == 1) {
                                                 for (int z = 0;z < mapa.getCells()[i - 1][j].getWorkers().size(); z++) {
                                                     if (mapa.getCells()[i - 1][j].getWorkers()[l].designacao() == 'O') {
-                                                        if (data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getAco().getCapacidade()) {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
-                                                            break;
-                                                        } else {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao());
+                                                        if(recolheRecursosFund(i,j)){
                                                             break;
                                                         }
                                                     }
@@ -2903,15 +1950,7 @@ void Commands::entregaRecursos() {
                                             } else if (mapa.getCells()[i][j - 1].getBuilding().designacao() == "mnc" &&mapa.getCells()[i][j - 1].getBuilding().getEstado() == 1) {
                                                 for (int z = 0;z < mapa.getCells()[i][j - 1].getWorkers().size(); z++) {
                                                     if (mapa.getCells()[i][j - 1].getWorkers()[l].designacao() == 'M') {
-                                                        if (data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getAco().getCapacidade()) {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
-                                                            break;
-                                                        } else {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao());
+                                                        if(recolheRecursosFund(i,j)){
                                                             break;
                                                         }
                                                     }
@@ -2919,15 +1958,7 @@ void Commands::entregaRecursos() {
                                             } else if (mapa.getCells()[i][j - 1].getBuilding().designacao() == "elec" &&mapa.getCells()[i][j - 1].getBuilding().getEstado() == 1) {
                                                 for (int z = 0;z < mapa.getCells()[i][j - 1].getWorkers().size(); z++) {
                                                     if (mapa.getCells()[i][j - 1].getWorkers()[l].designacao() == 'O') {
-                                                        if (data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getAco().getCapacidade()) {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
-                                                            break;
-                                                        } else {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao());
+                                                        if(recolheRecursosFund(i,j)){
                                                             break;
                                                         }
                                                     }
@@ -2958,15 +1989,7 @@ void Commands::entregaRecursos() {
                                             } else if (mapa.getCells()[i][j + 1].getBuilding().designacao() == "elec" &&mapa.getCells()[i][j + 1].getBuilding().getEstado() == 1) {
                                                 for (int z = 0;z < mapa.getCells()[i][j + 1].getWorkers().size(); z++) {
                                                     if (mapa.getCells()[i][j + 1].getWorkers()[l].designacao() == 'O') {
-                                                        if (data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getAco().getCapacidade()) {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
-                                                            break;
-                                                        } else {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao());
+                                                        if(recolheRecursosFund(i,j)){
                                                             break;
                                                         }
                                                     }
@@ -2974,15 +1997,7 @@ void Commands::entregaRecursos() {
                                             } else if (mapa.getCells()[i - 1][j].getBuilding().designacao() == "mnc" &&mapa.getCells()[i - 1][j].getBuilding().getEstado() == 1) {
                                                 for (int z = 0;z < mapa.getCells()[i - 1][j].getWorkers().size(); z++) {
                                                     if (mapa.getCells()[i - 1][j].getWorkers()[l].designacao() == 'M') {
-                                                        if (data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getAco().getCapacidade()) {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
-                                                            break;
-                                                        } else {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao());
+                                                        if(recolheRecursosFund(i,j)){
                                                             break;
                                                         }
                                                     }
@@ -2990,15 +2005,7 @@ void Commands::entregaRecursos() {
                                             } else if (mapa.getCells()[i - 1][j].getBuilding().designacao() == "elec" &&mapa.getCells()[i - 1][j].getBuilding().getEstado() == 1) {
                                                 for (int z = 0;z < mapa.getCells()[i + 1][j].getWorkers().size(); z++) {
                                                     if (mapa.getCells()[i - 1][j].getWorkers()[l].designacao() == 'O') {
-                                                        if (data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getAco().getCapacidade()) {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
-                                                            break;
-                                                        } else {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao());
+                                                        if(recolheRecursosFund(i,j)){
                                                             break;
                                                         }
                                                     }
@@ -3006,15 +2013,7 @@ void Commands::entregaRecursos() {
                                             } else if (mapa.getCells()[i + 1][j].getBuilding().designacao() == "mnc" &&mapa.getCells()[i + 1][j].getBuilding().getEstado() == 1) {
                                                 for (int z = 0;z < mapa.getCells()[i + 1][j].getWorkers().size(); z++) {
                                                     if (mapa.getCells()[i + 1][j].getWorkers()[l].designacao() == 'M') {
-                                                        if (data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getAco().getCapacidade()) {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
-                                                            break;
-                                                        } else {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao());
+                                                        if(recolheRecursosFund(i,j)){
                                                             break;
                                                         }
                                                     }
@@ -3022,15 +2021,7 @@ void Commands::entregaRecursos() {
                                             } else if (mapa.getCells()[i + 1][j].getBuilding().designacao() == "elec" &&mapa.getCells()[i + 1][j].getBuilding().getEstado() == 1) {
                                                 for (int z = 0;z < mapa.getCells()[i + 1][j].getWorkers().size(); z++) {
                                                     if (mapa.getCells()[i + 1][j].getWorkers()[l].designacao() == 'O') {
-                                                        if (data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getAco().getCapacidade()) {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
-                                                            break;
-                                                        } else {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao());
+                                                        if(recolheRecursosFund(i,j)){
                                                             break;
                                                         }
                                                     }
@@ -3044,15 +2035,7 @@ void Commands::entregaRecursos() {
                                             if (mapa.getCells()[i][j + 1].getBuilding().designacao() == "mnc" &&mapa.getCells()[i][j + 1].getBuilding().getEstado() == 1) {
                                                 for (int z = 0;z < mapa.getCells()[i][j + 1].getWorkers().size(); z++) {
                                                     if (mapa.getCells()[i][j + 1].getWorkers()[l].designacao() == 'M') {
-                                                        if (data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getAco().getCapacidade()) {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
-                                                            break;
-                                                        } else {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao());
+                                                        if(recolheRecursosFund(i,j)){
                                                             break;
                                                         }
                                                     }
@@ -3060,15 +2043,7 @@ void Commands::entregaRecursos() {
                                             } else if (mapa.getCells()[i][j + 1].getBuilding().designacao() == "elec" &&mapa.getCells()[i][j + 1].getBuilding().getEstado() == 1) {
                                                 for (int z = 0;z < mapa.getCells()[i][j + 1].getWorkers().size(); z++) {
                                                     if (mapa.getCells()[i][j + 1].getWorkers()[l].designacao() == 'O') {
-                                                        if (data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getAco().getCapacidade()) {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
-                                                            break;
-                                                        } else {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao());
+                                                        if(recolheRecursosFund(i,j)){
                                                             break;
                                                         }
                                                     }
@@ -3076,15 +2051,7 @@ void Commands::entregaRecursos() {
                                             } else if (mapa.getCells()[i][j - 1].getBuilding().designacao() == "mnc" &&mapa.getCells()[i][j - 1].getBuilding().getEstado() == 1) {
                                                 for (int z = 0;z < mapa.getCells()[i][j - 1].getWorkers().size(); z++) {
                                                     if (mapa.getCells()[i][j - 1].getWorkers()[l].designacao() == 'M') {
-                                                        if (data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getAco().getCapacidade()) {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
-                                                            break;
-                                                        } else {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao());
+                                                        if(recolheRecursosFund(i,j)){
                                                             break;
                                                         }
                                                     }
@@ -3092,15 +2059,7 @@ void Commands::entregaRecursos() {
                                             } else if (mapa.getCells()[i][j - 1].getBuilding().designacao() == "elec" &&mapa.getCells()[i][j - 1].getBuilding().getEstado() == 1) {
                                                 for (int z = 0;z < mapa.getCells()[i][j - 1].getWorkers().size(); z++) {
                                                     if (mapa.getCells()[i][j - 1].getWorkers()[l].designacao() == 'O') {
-                                                        if (data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getAco().getCapacidade()) {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
-                                                            break;
-                                                        } else {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao());
+                                                        if(recolheRecursosFund(i,j)){
                                                             break;
                                                         }
                                                     }
@@ -3108,15 +2067,7 @@ void Commands::entregaRecursos() {
                                             } else if (mapa.getCells()[i + 1][j].getBuilding().designacao() == "mnc" &&mapa.getCells()[i + 1][j].getBuilding().getEstado() == 1) {
                                                 for (int z = 0;z < mapa.getCells()[i + 1][j].getWorkers().size(); z++) {
                                                     if (mapa.getCells()[i + 1][j].getWorkers()[l].designacao() == 'M') {
-                                                        if (data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getAco().getCapacidade()) {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
-                                                            break;
-                                                        } else {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao());
+                                                        if(recolheRecursosFund(i,j)){
                                                             break;
                                                         }
                                                     }
@@ -3124,15 +2075,7 @@ void Commands::entregaRecursos() {
                                             } else if (mapa.getCells()[i + 1][j].getBuilding().designacao() == "elec" &&mapa.getCells()[i + 1][j].getBuilding().getEstado() == 1) {
                                                 for (int z = 0;z < mapa.getCells()[i + 1][j].getWorkers().size(); z++) {
                                                     if (mapa.getCells()[i + 1][j].getWorkers()[l].designacao() == 'O') {
-                                                        if (data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getAco().getCapacidade()) {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
-                                                            break;
-                                                        } else {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao());
+                                                        if(recolheRecursosFund(i,j)){
                                                             break;
                                                         }
                                                     }
@@ -3146,15 +2089,7 @@ void Commands::entregaRecursos() {
                                             if (mapa.getCells()[i - 1][j].getBuilding().designacao() == "mnc" &&mapa.getCells()[i - 1][j].getBuilding().getEstado() == 1) {
                                                 for (int z = 0;z < mapa.getCells()[i - 1][j].getWorkers().size(); z++) {
                                                     if (mapa.getCells()[i - 1][j].getWorkers()[l].designacao() == 'M') {
-                                                        if (data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getAco().getCapacidade()) {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
-                                                            break;
-                                                        } else {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao());
+                                                        if(recolheRecursosFund(i,j)){
                                                             break;
                                                         }
                                                     }
@@ -3162,15 +2097,7 @@ void Commands::entregaRecursos() {
                                             } else if (mapa.getCells()[i - 1][j].getBuilding().designacao() == "elec" &&mapa.getCells()[i - 1][j].getBuilding().getEstado() == 1) {
                                                 for (int z = 0;z < mapa.getCells()[i - 1][j].getWorkers().size(); z++) {
                                                     if (mapa.getCells()[i - 1][j].getWorkers()[l].designacao() == 'O') {
-                                                        if (data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getAco().getCapacidade()) {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
-                                                            break;
-                                                        } else {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao());
+                                                        if(recolheRecursosFund(i,j)){
                                                             break;
                                                         }
                                                     }
@@ -3178,15 +2105,7 @@ void Commands::entregaRecursos() {
                                             } else if (mapa.getCells()[i][j - 1].getBuilding().designacao() == "mnc" &&mapa.getCells()[i][j - 1].getBuilding().getEstado() == 1) {
                                                 for (int z = 0;z < mapa.getCells()[i][j - 1].getWorkers().size(); z++) {
                                                     if (mapa.getCells()[i][j - 1].getWorkers()[l].designacao() == 'M') {
-                                                        if (data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getAco().getCapacidade()) {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
-                                                            break;
-                                                        } else {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao());
+                                                        if(recolheRecursosFund(i,j)){
                                                             break;
                                                         }
                                                     }
@@ -3194,15 +2113,7 @@ void Commands::entregaRecursos() {
                                             } else if (mapa.getCells()[i][j - 1].getBuilding().designacao() == "elec" &&mapa.getCells()[i][j - 1].getBuilding().getEstado() == 1) {
                                                 for (int z = 0;z < mapa.getCells()[i][j - 1].getWorkers().size(); z++) {
                                                     if (mapa.getCells()[i][j - 1].getWorkers()[l].designacao() == 'O') {
-                                                        if (data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getAco().getCapacidade()) {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
-                                                            break;
-                                                        } else {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao());
+                                                        if(recolheRecursosFund(i,j)){
                                                             break;
                                                         }
                                                     }
@@ -3210,15 +2121,7 @@ void Commands::entregaRecursos() {
                                             } else if (mapa.getCells()[i + 1][j].getBuilding().designacao() == "mnc" &&mapa.getCells()[i + 1][j].getBuilding().getEstado() == 1) {
                                                 for (int z = 0;z < mapa.getCells()[i + 1][j].getWorkers().size(); z++) {
                                                     if (mapa.getCells()[i + 1][j].getWorkers()[l].designacao() == 'M') {
-                                                        if (data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getAco().getCapacidade()) {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
-                                                            break;
-                                                        } else {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao());
+                                                        if(recolheRecursosFund(i,j)){
                                                             break;
                                                         }
                                                     }
@@ -3226,15 +2129,7 @@ void Commands::entregaRecursos() {
                                             } else if (mapa.getCells()[i + 1][j].getBuilding().designacao() == "elec" &&mapa.getCells()[i + 1][j].getBuilding().getEstado() == 1) {
                                                 for (int z = 0;z < mapa.getCells()[i + 1][j].getWorkers().size(); z++) {
                                                     if (mapa.getCells()[i + 1][j].getWorkers()[l].designacao() == 'O') {
-                                                        if (data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getAco().getCapacidade()) {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
-                                                            break;
-                                                        } else {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao());
+                                                        if(recolheRecursosFund(i,j)){
                                                             break;
                                                         }
                                                     }
@@ -3249,15 +2144,7 @@ void Commands::entregaRecursos() {
                                             if (mapa.getCells()[i][j + 1].getBuilding().designacao() == "mnc" &&mapa.getCells()[i][j + 1].getBuilding().getEstado() == 1) {
                                                 for (int z = 0;z < mapa.getCells()[i][j + 1].getWorkers().size(); z++) {
                                                     if (mapa.getCells()[i][j + 1].getWorkers()[l].designacao() == 'M') {
-                                                        if (data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getAco().getCapacidade()) {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
-                                                            break;
-                                                        } else {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao());
+                                                        if(recolheRecursosFund(i,j)){
                                                             break;
                                                         }
                                                     }
@@ -3265,15 +2152,7 @@ void Commands::entregaRecursos() {
                                             } else if (mapa.getCells()[i][j + 1].getBuilding().designacao() == "elec" &&mapa.getCells()[i][j + 1].getBuilding().getEstado() == 1) {
                                                 for (int z = 0;z < mapa.getCells()[i][j + 1].getWorkers().size(); z++) {
                                                     if (mapa.getCells()[i][j + 1].getWorkers()[l].designacao() == 'O') {
-                                                        if (data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getAco().getCapacidade()) {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
-                                                            break;
-                                                        } else {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao());
+                                                        if(recolheRecursosFund(i,j)){
                                                             break;
                                                         }
                                                     }
@@ -3281,15 +2160,7 @@ void Commands::entregaRecursos() {
                                             } else if (mapa.getCells()[i][j - 1].getBuilding().designacao() == "mnc" &&mapa.getCells()[i][j - 1].getBuilding().getEstado() == 1) {
                                                 for (int z = 0;z < mapa.getCells()[i][j - 1].getWorkers().size(); z++) {
                                                     if (mapa.getCells()[i][j - 1].getWorkers()[l].designacao() == 'M') {
-                                                        if (data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getAco().getCapacidade()) {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
-                                                            break;
-                                                        } else {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao());
+                                                        if(recolheRecursosFund(i,j)){
                                                             break;
                                                         }
                                                     }
@@ -3297,15 +2168,7 @@ void Commands::entregaRecursos() {
                                             } else if (mapa.getCells()[i][j - 1].getBuilding().designacao() == "elec" &&mapa.getCells()[i][j - 1].getBuilding().getEstado() == 1) {
                                                 for (int z = 0;z < mapa.getCells()[i][j - 1].getWorkers().size(); z++) {
                                                     if (mapa.getCells()[i][j - 1].getWorkers()[l].designacao() == 'O') {
-                                                        if (data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getAco().getCapacidade()) {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
-                                                            break;
-                                                        } else {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao());
+                                                        if(recolheRecursosFund(i,j)){
                                                             break;
                                                         }
                                                     }
@@ -3313,15 +2176,7 @@ void Commands::entregaRecursos() {
                                             } else if (mapa.getCells()[i - 1][j].getBuilding().designacao() == "mnc" &&mapa.getCells()[i - 1][j].getBuilding().getEstado() == 1) {
                                                 for (int z = 0;z < mapa.getCells()[i - 1][j].getWorkers().size(); z++) {
                                                     if (mapa.getCells()[i - 1][j].getWorkers()[l].designacao() == 'M') {
-                                                        if (data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getAco().getCapacidade()) {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
-                                                            break;
-                                                        } else {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao());
+                                                        if(recolheRecursosFund(i,j)){
                                                             break;
                                                         }
                                                     }
@@ -3329,15 +2184,7 @@ void Commands::entregaRecursos() {
                                             } else if (mapa.getCells()[i - 1][j].getBuilding().designacao() == "elec" &&mapa.getCells()[i - 1][j].getBuilding().getEstado() == 1) {
                                                 for (int z = 0;z < mapa.getCells()[i - 1][j].getWorkers().size(); z++) {
                                                     if (mapa.getCells()[i - 1][j].getWorkers()[l].designacao() == 'O') {
-                                                        if (data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getAco().getCapacidade()) {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().getCapacidade());
-                                                            break;
-                                                        } else {
-                                                            data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
-                                                            data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
-                                                            data.getAco().setQuantidade(data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao());
+                                                        if(recolheRecursosFund(i,j)){
                                                             break;
                                                         }
                                                     }
@@ -3357,7 +2204,48 @@ void Commands::entregaRecursos() {
     }
 }
 
+int Commands::recolheRecursosElec(int i, int j){
 
+    int vef = 0;
+
+    if (data.getMadeira().Quantidade() - 1 != 0) {
+        if (data.getEletricidade().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getEletricidade().getCapacidade()) {
+            data.getEletricidade().setCapacidade(data.getEletricidade().getCapacidade());
+            vef = 1;
+        } else {
+            data.getEletricidade().addQuantidade((mapa.getCells()[i][j].getBuilding().getProducao()));
+            vef = 1;
+        }
+        if (data.getCarvao().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getCarvao().getCapacidade()) {
+            data.getCarvao().setCapacidade(data.getEletricidade().getCapacidade());
+            vef = 1;
+        } else {
+            data.getCarvao().addQuantidade((mapa.getCells()[i][j].getBuilding().getProducao()));
+            vef = 1;
+        }
+    }
+    if(vef){
+        data.getMadeira().setQuantidade(data.getMadeira().Quantidade() - 1);
+    }
+    return vef;
+}
+int Commands::recolheRecursosFund(int i, int j){
+
+    int vef = 0;
+
+    if (data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getAco().getCapacidade() && data.getCarvao().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao() >=data.getCarvao().getCapacidade()) {
+        data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
+        data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
+        data.getAco().setQuantidade(data.getAco().getCapacidade());
+        vef = 1;
+    } else {
+        data.getCarvao().setQuantidade(data.getCarvao().Quantidade() - 0.5);
+        data.getFerro().setQuantidade(data.getFerro().Quantidade() - 1.5);
+        data.getAco().setQuantidade(data.getAco().Quantidade() +mapa.getCells()[i][j].getBuilding().getProducao());
+        vef = 1;
+    }
+return vef;
+}
 
 void Commands::despedimentos() {
 
@@ -3369,29 +2257,29 @@ void Commands::despedimentos() {
 
                     if(mapa.getCells()[i][j].getBiome().designacao() == "mnt"){
 
-                        if(mapa.getCells()[i][j].getWorkers()[k].designacao() == 'O' && mapa.getCells()[i][j].getWorkers()[k].getDias() >= 10){
+                        if(mapa.getCells()[i][j].getWorkers()[k].designacao() == 'O' && mapa.getCells()[i][j].getWorkers()[k].getDiasContratado() >= 10){
                             if((1+rand()% 100) < 10){
                                 mapa.getCells()[i][j].getWorkers().erase(mapa.getCells()[i][j].getWorkers().begin() + k);
                             }
                         }
-                        if(mapa.getCells()[i][j].getWorkers()[k].designacao() == 'M' && mapa.getCells()[i][j].getWorkers()[k].getDias() >= 1){
+                        if(mapa.getCells()[i][j].getWorkers()[k].designacao() == 'M' && mapa.getCells()[i][j].getWorkers()[k].getDiasContratado()  >= 2){
                             if((1+rand()% 100) < 15){
                                 mapa.getCells()[i][j].getWorkers().erase(mapa.getCells()[i][j].getWorkers().begin() + k);
                             }
                         }
-                        if(mapa.getCells()[i][j].getWorkers()[k].designacao() == 'L' && mapa.getCells()[i][j].getWorkers()[k].getDias() >= 1){
+                        if(mapa.getCells()[i][j].getWorkers()[k].designacao() == 'L' && mapa.getCells()[i][j].getWorkers()[k].getDiasContratado()  >= 1){
                             if((1+rand()% 100) < 5){
                                 mapa.getCells()[i][j].getWorkers().erase(mapa.getCells()[i][j].getWorkers().begin() + k);
                             }
                         }
                     }
                     else{
-                        if(mapa.getCells()[i][j].getWorkers()[k].designacao() == 'O' && mapa.getCells()[i][j].getWorkers()[k].getDias() >= 10){
+                        if(mapa.getCells()[i][j].getWorkers()[k].designacao() == 'O' && mapa.getCells()[i][j].getWorkers()[k].getDiasContratado()  >= 10){
                             if((1+rand()% 100) < 5){
                                 mapa.getCells()[i][j].getWorkers().erase(mapa.getCells()[i][j].getWorkers().begin() + k);
                             }
                         }
-                        if(mapa.getCells()[i][j].getWorkers()[k].designacao() == 'M' && mapa.getCells()[i][j].getWorkers()[k].getDias() >= 1){
+                        if(mapa.getCells()[i][j].getWorkers()[k].designacao() == 'M' && mapa.getCells()[i][j].getWorkers()[k].getDiasContratado()  >= 2){
                             if((1+rand()% 100) < 10){
                                 mapa.getCells()[i][j].getWorkers().erase(mapa.getCells()[i][j].getWorkers().begin() + k);
                             }
@@ -3408,9 +2296,9 @@ void Commands::list(const string& rows,const string& cols) const {
     mapa.list(rows, cols);
 }
 void Commands::list() const{ //aaaa
-    cout << endl << "--Informação Geral--" << endl;
+    cout << endl << "--Informaçao Geral--" << endl;
     cout << "Dia : " << data.getDia() << endl;
-    cout << "Pontuação Atual: " << data.getMoney() +
+    cout << "Pontuaçao Atual: " << data.getMoney() +
                                          data.getFerro().Quantidade() * data.getFerro().Preco() +
                                          data.getAco().Quantidade() * data.getAco().Preco() +
                                          data.getCarvao().Quantidade() * data.getCarvao().Preco() +
@@ -3439,46 +2327,12 @@ void Commands::list() const{ //aaaa
     system("pause");
 }
 
-void save(string name){
-    saves.push_back(Save(name, mapa, data));
-}
-
-void load(string name){
-    Save save;
-    for(int i = 0; i < saves.size(); i++)
-    {   
-        if(saves[i].getName() == name)
-        {
-            save = saves[i];
-        }
-        else
-        {
-            cout << "Save " << name << " nao existe..."
-            return;
-        }
-    }
-    mapa = save.getMapa();
-    data = save.getData();
-}
-
-void erase(string name){
-    for(int i = 0; i < saves.size(); i++)
-    {   
-        if(saves[i].getName() == name)
-        {
-            saves.erase(saves.begin() + i);
-            cout << "Save " << name << " apagado com sucesso!" << endl;
-        }
-        else 
-            cout << "Save " << name << " nao existe..."
-    }
-}
-
 bool isNumber(const string &s){
 
     for(char i : s){
+
         if (isdigit(i) == false) {
-            cout << "As linhas/colunas devem ser numeros inteiros" << endl;
+            cout << "Por favor digite os parametros certos" << endl;
             system("pause");
 
             return false;
@@ -3487,6 +2341,19 @@ bool isNumber(const string &s){
     if (s == "0"){
         cout << "As linhas/colunas nao devem ser 0" << endl;
         system("pause");
+        return false;
+    }
+    return true;
+}
+bool isNumber(const string &s, bool value){
+
+    for(char i : s){
+
+        if (isdigit(i) == false) {
+            return false;
+        }
+    }
+    if (s == "0"){
         return false;
     }
     return true;

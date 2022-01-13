@@ -14,15 +14,15 @@ class Resources {
     int capacidade;
 public:
     Resources(float preco = 0,float quantidade = 0, int capacidade = 0) : preco(preco) ,quantidade(quantidade), capacidade(capacidade){};
-    void adicionaResources(int quant);
-    int Preco() const;
+    void adicionaResources(float quant);
+    float Preco() const;
     float Quantidade() const;
     void setPreco(float preco);
     void setQuantidade(float quantidade);
     void addQuantidade(float quantidade);
     void subtractQuantidade(float quantidade);
-    int getCapacidade() const;
-    void setCapacidade(int quantidade);
+    float getCapacidade() const;
+    void setCapacidade(float quantidade);
 };
 
 class Ferro : public Resources{

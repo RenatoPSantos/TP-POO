@@ -9,8 +9,8 @@ using namespace std;
 
 class Edificios {
 
-    int preco;
-    int precoVigas;
+    float preco;
+    float precoVigas;
     bool estado;
 
     bool efeitos;
@@ -18,78 +18,78 @@ class Edificios {
 protected:
     string nome;
     float producao;
-    int nivel;
+    float nivel;
     float upgradeProducao;
-    int upgradeArmazenamento;
-    int upgradePreco;
-    int upgradePrecoVigas;
-    int armanezamento;
+    float upgradeArmazenamento;
+    float upgradePreco;
+    float upgradePrecoVigas;
+    float armanezamento;
 
 
 
 public:
-    Edificios(int pre = 0,int precoVigas = 0,int prod = 0, int nivel = 1,int upgradeProducao = 1,int upgradeArmazenamento = 1, int upgradePreco = 1, int upgradePrecoVigas = 0, int armanezamento = 100,bool estado = 0 ,bool efeitos = 0)
+    Edificios(float pre = 0,float precoVigas = 0,float prod = 0, float nivel = 1,float upgradeProducao = 1,float upgradeArmazenamento = 1, float upgradePreco = 1, float upgradePrecoVigas = 0, float armanezamento = 100,bool estado = 0 ,bool efeitos = 0)
             : preco(pre),precoVigas(precoVigas),producao(prod),nivel(nivel),upgradeProducao(upgradeProducao),upgradeArmazenamento(upgradeArmazenamento),upgradePreco(upgradePreco),upgradePrecoVigas(upgradePrecoVigas),armanezamento(armanezamento),estado(estado),efeitos(efeitos){};
     ~Edificios();
     void upgradeEdificio();
     void liga();
     void desliga();
     bool getEstado();
-    void setUpgradeProducao(int valor);
-    void setPreco(int valor);
-    int getUpgradePreco() const;
-    int getUpgradePrecoVigas() const;
-    int getUpgradeArmazenamento() const;
-    int getPreco() const;
+    void setUpgradeProducao(float valor);
+    void setPreco(float valor);
+    float getUpgradePreco() const;
+    float getUpgradePrecoVigas() const;
+    float getUpgradeArmazenamento() const;
+    float getPreco() const;
     float getProducao() const;
     float getUpgradeProducao() const;
-    int getArmazenamento() const;
+    float getArmazenamento() const;
 
     void setProducao(float valor);
-    int getNivel() const;
+    float getNivel() const;
     string designacao();
-    int getPrecoVigas() const;
+    float getPrecoVigas() const;
     int getEfeitos();
     void setEfeitos(bool valor);
 
 
-    void setArmazenamento(int valor);
+    void setArmazenamento(float valor);
 };
 
 class MinaFerro : public Edificios{
 
 public:
-    MinaFerro(int pre = 0 ,int precoVigas = 10,int prod = 2,int nivel = 1,int upgradeProducao = 1,int upgradeArmazenamento = 10,int upgradePreco = 15 ,int upgradePrecoVigas = 1, int armanezamento = 100,bool estado = 0,bool efeitos = 0)
+    MinaFerro(float pre = 0 ,float precoVigas = 10,float prod = 2,float nivel = 1,float upgradeProducao = 1,float upgradeArmazenamento = 10,float upgradePreco = 15 ,float upgradePrecoVigas = 1, float armanezamento = 100,bool estado = 0,bool efeitos = 0)
             : Edificios(pre,precoVigas,prod,nivel,upgradeProducao,upgradeArmazenamento,upgradePreco,upgradePrecoVigas,armanezamento,estado,efeitos){ nome = "mnf";};
 };
 
 class MinaCarvao : public Edificios{
 public:
-    MinaCarvao(int pre = 0,int precoVigas = 10,int prod = 2,int nivel = 1,int upgradeProducao = 1,int upgradeArmazenamento = 10,int upgradePreco = 10 ,int upgradePrecoVigas = 1, int armanezamento = 100,bool estado = 0,bool efeitos = 0)
+    MinaCarvao(float pre = 0,float precoVigas = 10,float prod = 2,float nivel = 1,float upgradeProducao = 1,float upgradeArmazenamento = 10,float upgradePreco = 10 ,float upgradePrecoVigas = 1, float armanezamento = 100,bool estado = 0,bool efeitos = 0)
             : Edificios(pre,precoVigas,prod,nivel,upgradeProducao,upgradeArmazenamento,upgradePreco,upgradePrecoVigas,armanezamento,estado,efeitos){ nome = "mnc";};
 };
 
 class CentralEle : public Edificios{
 public:
-    CentralEle(int pre = 15,int precoVigas = 0,int prod = 1,int nivel = 1,int upgradeProducao = 0,int upgradeArmazenamento = 0,int upgradePreco = 0 ,int upgradePrecoVigas = 0, int armanezamento = 100,bool estado = 0,bool efeitos = 0)
+    CentralEle(float pre = 15,float precoVigas = 0,float prod = 1,float nivel = 1,float upgradeProducao = 0,float upgradeArmazenamento = 0,float upgradePreco = 0 ,float upgradePrecoVigas = 0, float armanezamento = 100,bool estado = 0,bool efeitos = 0)
             : Edificios(pre,precoVigas,prod,nivel,upgradeProducao,upgradeArmazenamento,upgradePreco,upgradePrecoVigas,armanezamento,estado,efeitos){ nome = "elec";};
 };
 
 class Bateria : public Edificios{
 public:
-    Bateria(int pre = 10,int precoVigas = 10, int prod = 0 ,int nivel = 1,int upgradeProducao = 0,int upgradeArmazenamento = 20,int upgradePreco = 5 ,int upgradePrecoVigas = 0, int armanezamento = 100,bool estado = 0,bool efeitos = 0)
+    Bateria(float pre = 10,float precoVigas = 10, float prod = 0 ,float nivel = 1,float upgradeProducao = 0,float upgradeArmazenamento = 20,float upgradePreco = 5 ,float upgradePrecoVigas = 0, float armanezamento = 100,bool estado = 0,bool efeitos = 0)
             : Edificios(pre,precoVigas,prod,nivel,upgradeProducao,upgradeArmazenamento,upgradePreco,upgradePrecoVigas,armanezamento,estado,efeitos){nome = "bat";};
 };
 
 class Fundicao : public Edificios{
 public:
-    Fundicao(int pre = 10,int precoVigas = 0,int prod = 1,int nivel = 1,int upgradeProducao = 0,int upgradeArmazenamento = 0,int upgradePreco = 0 ,int upgradePrecoVigas = 0, int armanezamento = 100,bool estado = 0,bool efeitos = 0)
+    Fundicao(float pre = 10,float precoVigas = 0,float prod = 1,float nivel = 1,float upgradeProducao = 0,float upgradeArmazenamento = 0,float upgradePreco = 0 ,float upgradePrecoVigas = 0, float armanezamento = 100,bool estado = 0,bool efeitos = 0)
             : Edificios(pre,precoVigas,prod,nivel,upgradeProducao,upgradeArmazenamento,upgradePreco,upgradePrecoVigas,armanezamento,estado,efeitos){nome = "fun";};
 };
 class Serracao : public Edificios{
 
 public:
-    Serracao(int pre = 10 ,int precoVigas = 0,int prod = 2,int nivel = 1,int upgradeProducao = 1,int upgradeArmazenamento = 10,int upgradePreco = 20 ,int upgradePrecoVigas = 0, int armanezamento = 100,bool estado = 0,bool efeitos = 0)
+    Serracao(float pre = 10 ,float precoVigas = 0,float prod = 2,float nivel = 1,float upgradeProducao = 1,float upgradeArmazenamento = 10,float upgradePreco = 20 ,float upgradePrecoVigas = 0, float armanezamento = 100,bool estado = 0,bool efeitos = 0)
             : Edificios(pre,precoVigas,prod,nivel,upgradeProducao,upgradeArmazenamento,upgradePreco,upgradePrecoVigas,armanezamento,estado,efeitos){ nome = "serr";};
 };
 #endif //TRABALHO_EDIFICIOS_H

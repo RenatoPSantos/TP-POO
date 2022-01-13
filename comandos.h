@@ -11,7 +11,7 @@
 #include "map.h"
 #include "recursos.h"
 #include "edificios.h"
-#include "saves.h"
+
 
 using namespace std;
 
@@ -22,29 +22,29 @@ class Commands{
     Map& mapa;
     Data& data;
     bool next, quit;
-    vector<Save> saves;
+   /* vector<Save> saves;*/
 public:
     Commands(Map& mapa, Data& data);
-    void setCommands(string command);
+    void setCommands(const string& command);
     int execCommands(); //executa comandos obtidos na consola
     int execFile(); //executa comandos obtidos numa file (comando exec)
     int execConfig(vector<string>names,vector<int>values);
     bool checkArguments(int number) const; //verifica se os comandos têm um número certo de argumentos
-    void update(string command); //atualiza comandos guardados pela classe
+    void update(const string& command); //atualiza comandos guardados pela classe
     void list(const string& rows,const string& cols) const; //obtém informação de uma Cell
     void list() const; //Obtém informação geral do jogo
     void setNext(bool state);
     bool getNext() const;
     void setQuit(bool state);
     bool getQuit() const;
-    void vende(string tipo,int quant);
+    void vende(string tipo,float quant);
     void vende(int linha,int coluna);
     void efeitos();
     void despedimentos();
     void entregaRecursos();
     int cons(string* commands, int row, int col);
-    void increaseCapacity(Edificios edificio, int quantidade = 100);
-    void decreaseCapacity(Edificios edificio, int quantidade = -100);
+    void increaseCapacity(Edificios edificio, float quantidade = 100);
+    void decreaseCapacity(Edificios edificio, float quantidade = -100);
     void printScreen() const;
     void upgrade(string * commands);
     string listWorkers(char type) const;
@@ -52,13 +52,15 @@ public:
     int getProd(string type) const;
     void adicionaDias();
 
-    void save(string name);
-    void load(string name);
-    void erase(string name);
+    int recolheRecursosElec(int i, int j);
+    int recolheRecursosFund(int i, int j);
+
+    
 
 };
 
 bool isNumber(const string& s); //verifica se string introduzida pelo utilizador é um número inteiro
+bool isNumber(const string &s, bool value);
 bool isInteger(const string& s);
 void clsConsole(); //dá print em '/n' para limpar o ecrã
 

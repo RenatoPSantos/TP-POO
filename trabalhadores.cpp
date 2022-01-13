@@ -28,7 +28,7 @@ Trabalhadores::Trabalhadores(int dia, int sal, int diasTr) :  salario(sal){
     diasTrab = t.diasTrab;
 } */
 
-void Trabalhadores::setSalario(int valor) {
+void Trabalhadores::setSalario(float valor) {
 
     salario = valor;
 
@@ -39,10 +39,10 @@ void Trabalhadores::addDias(int valor) {
 void Trabalhadores::setDias(int valor){
     diasTrab = valor;
 }
-int Trabalhadores::getDias() {
+int Trabalhadores::getDias() const {
     return diasTrab;
 }
-char Trabalhadores::designacao() {
+char Trabalhadores::designacao() const {
     return nome;
 }
 string Trabalhadores::getId() {
@@ -54,9 +54,17 @@ int Trabalhadores::getQuantity() const{
 void Trabalhadores::setDiasPantano(int valor) {
     diasPantano = valor;
 }
-int Trabalhadores::getDiasPantano(){
+int Trabalhadores::getDiasPantano() const{
     return diasPantano;
 }
-int Trabalhadores::getSalario() const{
+float Trabalhadores::getSalario() const{
     return salario;
+}
+
+void Trabalhadores::setDiasContratado(int valor) {
+    diasContratado = valor;
+}
+
+int Trabalhadores::getDiasContratado() const {
+    return diasContratado;
 }
