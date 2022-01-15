@@ -40,18 +40,6 @@ C:/Users/User/Desktop/PORTAL/Universidade/POO/TP-POO-main/edificios.h
 string
 -
 
-C:/Users/User/Desktop/PORTAL/Universidade/POO/TP-POO-main/main.cpp
-iostream
--
-string
--
-vector
--
-ctime
--
-map.h
-C:/Users/User/Desktop/PORTAL/Universidade/POO/TP-POO-main/map.h
-
 C:/Users/User/Desktop/PORTAL/Universidade/POO/TP-POO-main/map.cpp
 iostream
 -
@@ -92,18 +80,6 @@ string
 iostream
 -
 
-C:/Users/User/Desktop/PORTAL/Universidade/POO/TP-POO-main/trabalhadores.cpp
-string
--
-vector
--
-trabalhadores.h
-C:/Users/User/Desktop/PORTAL/Universidade/POO/TP-POO-main/trabalhadores.h
-comandos.h
-C:/Users/User/Desktop/PORTAL/Universidade/POO/TP-POO-main/comandos.h
-recursos.h
-C:/Users/User/Desktop/PORTAL/Universidade/POO/TP-POO-main/recursos.h
-
 C:/Users/User/Desktop/PORTAL/Universidade/POO/TP-POO-main/trabalhadores.h
 iostream
 -
@@ -119,10 +95,6 @@ fstream
 -
 comandos.h
 C:/Users/User/Desktop/PORTAL/Universidade/POO/TP-POO-main/comandos.h
-
-C:/Users/User/Desktop/PORTAL/Universidade/POO/TP-POO-main/zonas.cpp
-zonas.h
-C:/Users/User/Desktop/PORTAL/Universidade/POO/TP-POO-main/zonas.h
 
 C:/Users/User/Desktop/PORTAL/Universidade/POO/TP-POO-main/zonas.h
 stdlib.h
