@@ -34,9 +34,9 @@ public:
     void upgradeEdificio();
     void liga();
     void desliga();
-    bool getEstado();
-    void setUpgradeProducao(float valor);
-    void setPreco(float valor);
+    string designacao();
+
+    bool getEstado() const;
     float getUpgradePreco() const;
     float getUpgradePrecoVigas() const;
     float getUpgradeArmazenamento() const;
@@ -44,16 +44,17 @@ public:
     float getProducao() const;
     float getUpgradeProducao() const;
     float getArmazenamento() const;
-
-    void setProducao(float valor);
     float getNivel() const;
-    string designacao();
     float getPrecoVigas() const;
-    int getEfeitos();
+    int getEfeitos() const;
+
+    void setUpgradeProducao(float valor);
+    void setPreco(float valor);
     void setEfeitos(bool valor);
+    void setProducao(float valor);
 
 
-    void setArmazenamento(float valor);
+
 };
 
 class MinaFerro : public Edificios{
@@ -89,7 +90,7 @@ public:
 class Serracao : public Edificios{
 
 public:
-    Serracao(float pre = 10 ,float precoVigas = 0,float prod = 2,float nivel = 1,float upgradeProducao = 1,float upgradeArmazenamento = 10,float upgradePreco = 20 ,float upgradePrecoVigas = 0, float armanezamento = 100,bool estado = 0,bool efeitos = 0)
+    Serracao(float pre = 10 ,float precoVigas = 0,float prod = 2,float nivel = 1,float upgradeProducao = 0,float upgradeArmazenamento = 0,float upgradePreco = 0 ,float upgradePrecoVigas = 0, float armanezamento = 100,bool estado = 0,bool efeitos = 0)
             : Edificios(pre,precoVigas,prod,nivel,upgradeProducao,upgradeArmazenamento,upgradePreco,upgradePrecoVigas,armanezamento,estado,efeitos){ nome = "serr";};
 };
 #endif //TRABALHO_EDIFICIOS_H

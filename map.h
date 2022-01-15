@@ -24,13 +24,16 @@ public:
     ~Cell();
     void setBuilding(string type);        //altera a construção da célula
     void setBiome(string type);           //altera o bioma da célula
+
     void destroyBuilding();               //remove a construção da célula
     void addWorker(Trabalhadores& worker);
     void removeWorker(char type);         //remove trabalhador
+    int countWorkers() const;             //retorna o número total de trabalhadores numa célula específica
+
     Zona& getBiome();                     //retorna o bioma
     Edificios& getBuilding();             //retorna a construção de uma célula em específico
     vector<Trabalhadores>& getWorkers();  //retorna os trabalhadores de uma célula em específico
-    int countWorkers() const;             //retorna o número total de trabalhadores numa célula específica
+
 
 };
 
@@ -43,7 +46,7 @@ public:
     Map(int rows, int cols);                                    //createmap() e createCell()
     int getRows();
     int getCols();
-    void print();                                               //imprime mapa
+    void print();                                                //imprime mapa
     void list(const string& rows,const string& cols);           //equivale a list ()
     string* stringController(string* str);                      //formata strings para impressão do mapa
     bool insertBuilding(string *comandos);                      //constroi edificio

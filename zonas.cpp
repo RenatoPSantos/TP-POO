@@ -7,19 +7,17 @@
 string Zona::designacao() const{
     return nome;
 }
-void Zona::setProducao (float valor) {
-    prod = valor;
-}
+
 void Zona::setTotalArvores(float valor) {
     totalArvores = valor;
 }
-float Zona::getProducao() {
+float Zona::getProducao() const {
     return prod;
 }
-float Zona::getTotalArvores() {
+float Zona::getTotalArvores() const {
     return totalArvores;
 }
-int Zona::getDiasAtivos() {
+int Zona::getDiasAtivos() const {
     return diasAtivos;
 }
 void Zona::setDiasAtivos(int valor) {
@@ -30,6 +28,6 @@ void Zona::setDiasAtivos(int valor) {
 void Zona::setDias(int valor){
     dias = valor;
 }
-int Zona::getDias() {
+int Zona::getDias() const {
     return dias;
 }

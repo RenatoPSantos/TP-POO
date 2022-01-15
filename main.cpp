@@ -11,10 +11,14 @@ using namespace std;
 
 int main() {
     srand( (unsigned int) time(nullptr) );
-    int rows,cols;
+    int rows,cols,vef=1;
 
-    cout << "rows, cols" << endl;
-    cin >> rows >> cols;
+    while(vef){
+        cout << "Tamanho do mapa: " ;
+        cin >> rows >> cols;
+        vef =(checkTamanho(rows,cols));
+    }
+
     Map mapa(rows, cols);
 
     Ferro ferro;
@@ -26,11 +30,6 @@ int main() {
 
     Data data(ferro, aco, carvao, madeira, vigas, eletricidade);
 
-    data.getVigas().setQuantidade(50);
-
-    data.getMadeira().setQuantidade(50);
-   
-
     Commands commands(mapa, data);
 
     while(1) {
@@ -39,7 +38,8 @@ int main() {
         cout << "Comando: ";
         getline(cin >> ws, command);
         commands.setCommands(command);
-        if(commands.getNext() == true)
+        clsConsole();
+        if(commands.getNext())
         {
             commands.adicionaDias();
             commands.efeitos();
@@ -48,10 +48,9 @@ int main() {
             data.setDia(data.getDia() + 1);
 
 
-
             commands.setNext(false);
         }
-        if(commands.getQuit() == true)
+        if(commands.getQuit())
         {
             commands.entregaRecursos();
             break;

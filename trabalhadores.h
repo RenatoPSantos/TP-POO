@@ -24,7 +24,7 @@ class Trabalhadores {
 protected:
     char nome;
 public:
-    Trabalhadores(int dia,int sal = 0,int diasTr = 0);
+    Trabalhadores(int dia,int sal = 0,int diasTr = 0, int diasPa = 0);
     /* Trabalhadores(const Trabalhadores &t); */
     char designacao() const;
     void setSalario(float valor);
@@ -45,19 +45,19 @@ public:
 class Operario : public Trabalhadores{
 
 public:
-    Operario(int dia,int sal = 15,int diasTr = 0) : Trabalhadores(dia,sal,diasTr){nome = 'O';};
+    Operario(int dia,int sal = 15,int diasTr = 0, int diasPa = 0) : Trabalhadores(dia,sal,diasTr,diasPa){nome = 'O';};
 
 };
 class Lenhador : public Trabalhadores {
 
 public:
-    Lenhador(int dia,int sal = 2,int diasTr = 0) : Trabalhadores(dia,sal,diasTr) {nome = 'L';
+    Lenhador(int dia,int sal = 2,int diasTr = 0, int diasPa = 0) : Trabalhadores(dia,sal,diasTr,diasPa) {nome = 'L';
     };
 };
 class Mineiro : public Trabalhadores{
 
 public:
-    Mineiro(int dia,int sal = 10,int diasTr = 0) : Trabalhadores(dia,sal,diasTr){nome = 'M';};
+    Mineiro(int dia,int sal = 10,int diasTr = 0, int diasPa = 0) : Trabalhadores(dia,sal,diasTr,diasPa){nome = 'M';};
 };
 
 #endif //TRABALHO_TRABALHADORES_H

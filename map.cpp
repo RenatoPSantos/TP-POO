@@ -11,7 +11,9 @@ using namespace std;
 Cell::Cell() {
     n_workers = 0;
 }
+Cell::~Cell() {
 
+}
 void Cell::setBuilding(string type) {
     if(type == "mnf")
     {
@@ -127,9 +129,7 @@ int Cell::countWorkers() const {
     return n_workers;
 }
 
-Cell::~Cell() {
 
-}
 
 Map::Map(int rows, int cols) : rows(rows), cols(cols) {
 
@@ -235,7 +235,7 @@ bool Map::insertBuilding(string *comandos){
     int rows = stoi(comandos[2]) -1;
     int cols = stoi(comandos[3]) -1;
 
-    string buildings[6] = {"mnf","mnc","elec","bat","fun","edx"};
+    string buildings[6] = {"mnf","mnc","elec","bat","fun","serr"};
 
     for(i=0;i<6;i++){
         if(comandos[1] == buildings[i]){
@@ -294,7 +294,7 @@ void Map::list(const string& rows,const string& cols){
     int irows = stoi(rows);
     int icols = stoi(cols);
 
-    cout << "\n--Informacoes--"<< endl;
+    cout << "--Informacoes--"<< endl;
 
     if (Cells[irows-1][icols-1].getBiome().designacao() == "pas")
         cout << "Bioma -> Pastagem" << endl;
@@ -356,7 +356,7 @@ void Map::list(const string& rows,const string& cols){
         cout << "Numero Operarios -> " << o << endl;
         cout << "Ids -> " << ido << endl;
     }
-    cout << "Numero total de trabalhadores -> " << Cells[irows-1][icols-1].countWorkers() << endl;
+    cout << "Numero total de trabalhadores -> " << Cells[irows-1][icols-1].countWorkers() << endl << endl;
     system("pause");
 }
 

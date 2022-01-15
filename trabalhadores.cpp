@@ -9,7 +9,7 @@ using namespace std;
 
 int Trabalhadores::quantity = 0;
 
-Trabalhadores::Trabalhadores(int dia, int sal, int diasTr) :  salario(sal){
+Trabalhadores::Trabalhadores(int dia, int sal, int diasTr,int diasPa) :  salario(sal){
 
         string stringDia, stringWorkers;
 
@@ -21,6 +21,7 @@ Trabalhadores::Trabalhadores(int dia, int sal, int diasTr) :  salario(sal){
 
         id = stringWorkers + '.' + stringDia;
         diasTrab = diasTr;
+        diasPantano = diasPa;
 }
 /* Trabalhadores::Trabalhadores(const Trabalhadores &t){
     salario = t.salario;

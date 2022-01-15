@@ -24,7 +24,7 @@ void Edificios::upgradeEdificio(){
    }
 }
 
-bool Edificios::getEstado() {
+bool Edificios::getEstado() const {
     return estado;
 }
 void Edificios::liga() {
@@ -37,6 +37,7 @@ void Edificios::desliga(){
 string Edificios::designacao() {
     return nome;
 }
+
 float Edificios::getUpgradePreco() const{
     return upgradePreco;
 }
@@ -49,14 +50,8 @@ float Edificios::getNivel() const{
 float Edificios::getPrecoVigas() const{
     return precoVigas;
 }
-int Edificios::getEfeitos() {
+int Edificios::getEfeitos() const {
     return efeitos;
-}
-void Edificios::setProducao(float valor) {
-    producao = valor;
-}
-void Edificios::setUpgradeProducao(float valor) {
-    upgradeProducao = valor;
 }
 float Edificios::getProducao() const {
     return producao;
@@ -64,21 +59,26 @@ float Edificios::getProducao() const {
 float Edificios::getUpgradeProducao() const {
     return upgradeProducao;
 }
-void Edificios::setEfeitos(bool valor) {
-    efeitos = valor;
-}
-void Edificios::setPreco(float valor) {
-    efeitos = valor;
-}
-float Edificios::getArmazenamento() const {
-    return armanezamento;
-}
-void Edificios::setArmazenamento(float valor) {
-    armanezamento = valor;
-}
 float Edificios::getUpgradePrecoVigas() const{
     return upgradePrecoVigas;
 }
 float Edificios::getUpgradeArmazenamento() const{
     return upgradeArmazenamento;
 }
+float Edificios::getArmazenamento() const {
+    return armanezamento;
+}
+
+void Edificios::setEfeitos(bool valor) {
+    efeitos = valor;
+}
+void Edificios::setPreco(float valor) {
+    efeitos = valor;
+}
+void Edificios::setProducao(float valor) {
+    producao = valor;
+}
+void Edificios::setUpgradeProducao(float valor) {
+    upgradeProducao = valor;
+}
+

@@ -24,16 +24,15 @@ protected:
 public:
     Zona(){}
     string designacao() const;
+
     void setTotalArvores(float valor) ;
-    void setProducao(float valor);
-    float getTotalArvores() ;
-    float getProducao();
-    int getDiasAtivos();
+    float getTotalArvores() const;
+    float getProducao() const;
+    int getDiasAtivos() const;
     void setDiasAtivos(int valor);
 
-    int getDias();
+    int getDias() const;
     void setDias(int valor);
-
 
 };
 class Montanha : public Zona{
@@ -53,15 +52,25 @@ public:
 };
 class Floresta : public Zona{
 
+
 public:
-     Floresta(){nome = "flr";};
+    Floresta(){
+        nome = "flr";
+        totalArvores = rand() % 21 + 20;
+        maxArvores = 100;
+        diasAtivos = 0;
+        dias = 0;
+        prod = 1;
+            };
+
 
 };
 class Pantano : public Zona{
 
 
 public:
-    Pantano(){ nome = "pnt";};
+    Pantano(){ nome = "pnt";
+                dias = 0;};
 
 };
 class Tundra : public Zona{

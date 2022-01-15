@@ -32,7 +32,7 @@ void Commands::printScreen() const {
     cout << "Numero de trabalhadores -> " << countWorkers() << endl;
     cout << "Ids Mineiros -> " << listWorkers('M') << endl;
     cout << "Ids Lenhadores -> " << listWorkers('L') << endl;
-    cout << "Ids Operarios -> " << listWorkers('O') << endl;
+    cout << "Ids Operarios -> " << listWorkers('O') << endl << endl;
 }
 void Commands::setCommands(const string& command){
     int i = 0;
@@ -65,28 +65,11 @@ int Commands::execCommands() {
     if (commands[0] == "exec") {
         if (checkArguments(1))
         {
-            if (commands[1].substr(commands[1].length() - 4) != ".txt") {
-                commands[1]+=".txt";
-            }
-            fstream file;
-            file.open(commands[1].c_str(), ios::in);
-            if (file.is_open()) {
-                string reader;
-                vector<string> configs;
-                while (getline(file, reader)){
-
-                    configs.push_back(reader);
-                }
-                file.close();
-                for(int i = 0; i < configs.size(); i++)
-                {
-                    update(configs[i]);
-                    execCommands();
-                }
+            if(execConfig(commands[1])){
                 return 1;
             }
             cout << "Falha ao abrir o ficheiro" << endl;
-            return 1;
+            system("pause");
         }
     }
     if (commands[0] == "cons") {
@@ -198,56 +181,7 @@ int Commands::execCommands() {
     }
     if (commands[0] == "cont") {
         if (checkArguments(1)){
-            if(commands[1] != "oper" && commands[1] != "len" && commands[1] != "miner"){
-                cout << "Tipo de trabalhador invalido!";
-                return 1;
-            }
-            if(commands[1] == "oper"){
-                Operario oper(data.getDia());
-                for (int i = 0; i < mapa.getCells().size(); i++) {
-                    for (int j = 0; j < mapa.getCells()[0].size(); j++) {
-                        if (mapa.getCells()[i][j].getBiome().designacao() == "pas") {
-                            mapa.getCells()[i][j].addWorker(oper);
-                            if(data.getMoney() >= mapa.getCells()[i][j].getWorkers()[mapa.getCells()[i][j].getWorkers().size() - 1].getSalario())
-                                data.removeMoney(mapa.getCells()[i][j].getWorkers()[mapa.getCells()[i][j].getWorkers().size() - 1].getSalario());
-                            else
-                                mapa.getCells()[i][j].getWorkers().erase(mapa.getCells()[i][j].getWorkers().begin() + mapa.getCells()[i][j].getWorkers().size() - 1);
-                            return 1;
-                        }
-                    }
-                }
-            }
-            if(commands[1] == "len"){
-                Lenhador len(data.getDia());
-                for (int i = 0; i < mapa.getCells().size(); i++) {
-                    for (int j = 0; j < mapa.getCells()[0].size(); j++) {
-                        if (mapa.getCells()[i][j].getBiome().designacao() == "pas") {
-                            mapa.getCells()[i][j].addWorker(len);
-                            if(data.getMoney() >= mapa.getCells()[i][j].getWorkers()[mapa.getCells()[i][j].getWorkers().size() - 1].getSalario())
-                                data.removeMoney(mapa.getCells()[i][j].getWorkers()[mapa.getCells()[i][j].getWorkers().size() - 1].getSalario());
-                            else
-                                mapa.getCells()[i][j].getWorkers().erase(mapa.getCells()[i][j].getWorkers().begin() + mapa.getCells()[i][j].getWorkers().size() - 1);
-                            return 1;
-                        }
-                    }
-                }
-            }
-            if(commands[1] == "miner"){
-                Mineiro min(data.getDia());
-                for (int i = 0; i < mapa.getCells().size(); i++) {
-                    for (int j = 0; j < mapa.getCells()[0].size(); j++) {
-                        if (mapa.getCells()[i][j].getBiome().designacao() == "pas") {
-                            mapa.getCells()[i][j].addWorker(min);
-                            if(data.getMoney() >= mapa.getCells()[i][j].getWorkers()[mapa.getCells()[i][j].getWorkers().size() - 1].getSalario())
-                                data.removeMoney(mapa.getCells()[i][j].getWorkers()[mapa.getCells()[i][j].getWorkers().size() - 1].getSalario());
-                            else
-                                mapa.getCells()[i][j].getWorkers().erase(mapa.getCells()[i][j].getWorkers().begin() + mapa.getCells()[i][j].getWorkers().size() - 1);
-                            return 1;
-                        }
-                    }
-                }
-            }
-            return 1;
+            contTrabalhador(commands[1]);
         }
         return 1;
 
@@ -255,9 +189,7 @@ int Commands::execCommands() {
     if(commands[0] == "upgrade"){
         if(checkArguments(2)){
             if (isNumber(commands[1]) && isNumber(commands[2]) && mapa.checkRowsCols( commands[1], commands[2])) {
-                cout << "Nivel = " << mapa.getCells()[stoi(commands[1]) - 1][stoi(commands[1]) - 1].getBuilding().getNivel() << endl;
-                cout << "1.Preco para upgrade = " << mapa.getCells()[stoi(commands[1]) - 1][stoi(commands[1]) - 1].getBuilding().getUpgradePreco() << endl;
-                cout << "1.Vigas para upgrade = " << mapa.getCells()[stoi(commands[1]) - 1][stoi(commands[1]) - 1].getBuilding().getUpgradePrecoVigas() << endl;
+
                 upgrade(commands);
                 return 1;
             }
@@ -265,7 +197,7 @@ int Commands::execCommands() {
         return 1;
     }
     if (commands[0] == "list") {
-        if (commands[1].empty()) {
+        if (checkArguments(0)) {
             list();
             return 1;
         }
@@ -297,18 +229,27 @@ int Commands::execCommands() {
         }
     if (commands[0] == "save") {
         if (checkArguments(1)) {
+            cout << "Nao foi Implementado" << endl;
+
+            system("pause");
             return 1;
         }
 
     }
     if (commands[0] == "load") {
         if (checkArguments(1)) {
+            cout << "Nao foi Implementado" << endl;
+
+            system("pause");
             return 1;
         }
 
     }
     if (commands[0] == "apaga") {
         if (checkArguments(1)) {
+            cout << "Nao foi Implementado" << endl;
+
+            system("pause");
             return 1;
         }
 
@@ -317,7 +258,9 @@ int Commands::execCommands() {
 
         if (checkArguments(1) == 1) {
             cout << "Nao foi Implementado" << endl;
+
             system("pause");
+            return 1;
         }
     }
     if (commands[0] == "debcash") {
@@ -358,6 +301,7 @@ int Commands::execCommands() {
         }
     }else {
         cout << "O comando que inseriu esta errado" << endl;
+        system("pause");
         return 0;
     }
     system("pause");
@@ -389,54 +333,38 @@ int Commands::countWorkers() const{
         }
     return counter;
 }
-int Commands::execConfig(vector<string> names,vector<int> values){
+int Commands::execConfig(string nome){
 
-    if(names.size() != values.size()){
-        cout << "O ficheiro config possui diferente numero de atributos"<< endl;
+    if (nome.substr(nome.length() - 4) != ".txt") {
+        nome+=".txt";
+    }
+    fstream file;
+    file.open(nome.c_str(), ios::in);
+    if (file.is_open()) {
+        string reader;
+        vector<string> configs;
+        while (getline(file, reader)){
+
+            configs.push_back(reader);
+        }
+        file.close();
+        for(int i = 0; i < configs.size(); i++)
+        {
+            update(configs[i]);
+            execCommands();
+        }
         return 1;
     }
+    return 0;
 
-    for(int i = 0; i < names.size();i++){ //dada
 
-        if(values[i] >= 0){
-
-            if(names[i] == "mnf"){
-
-            }
-            if(names[i] == "mnc"){
-
-            }
-            if(names[i] == "elec"){
-
-            }
-            if(names[i] == "bat"){
-
-            }
-            if(names[i] == "fun"){
-
-            }
-            if(names[i] == "Edificiox"){
-
-            }
-            if(names[i] == "oper"){
-
-            }
-            if(names[i] == "len"){
-
-            }
-            if(names[i] == "min"){
-
-            }
-        }
-    }
-    return 1;
 }
 void Commands::upgrade(string *commands) {
     int row = stoi(commands[1]) - 1;
     int col = stoi(commands[2]) - 1;
-    if(mapa.getCells()[row][col].getBuilding().getNivel() < 5){
+    if(mapa.getCells()[row][col].getBuilding().getNivel() < 5 && mapa.getCells()[row][col].getBuilding().getUpgradePreco() != 0 && mapa.getCells()[row][col].getBuilding().getUpgradePreco() != 0){
         if(data.getVigas().Quantidade() >= mapa.getCells()[row][col].getBuilding().getUpgradePrecoVigas()) {
-            if (data.getMoney() >= mapa.getCells()[row][col].getBuilding().getUpgradePreco()) { cout << "Nivel antes : " << mapa.getCells()[row][col].getBuilding().getNivel()<< endl;
+            if (data.getMoney() >= mapa.getCells()[row][col].getBuilding().getUpgradePreco()) {
 
                 data.removeMoney(mapa.getCells()[row][col].getBuilding().getUpgradePreco());
                 data.getVigas().setQuantidade(data.getVigas().Quantidade() - mapa.getCells()[row][col].getBuilding().getUpgradePrecoVigas());
@@ -446,14 +374,21 @@ void Commands::upgrade(string *commands) {
                 return;
             } else {
                 cout << "Dinheiro insuficiente" << endl;
+                system("pause");
                 return;
             }
         }else{
             cout << "Vigas insuficientes" << endl;
+            system("pause");
             return;
         }
-    }else{
+    }else if(mapa.getCells()[row][col].getBuilding().getNivel() == 5){
         cout << "O edificio ja esta a nivel maximo" << endl;
+        system("pause");
+    }
+    if(mapa.getCells()[row][col].getBuilding().getUpgradePreco() == 0 && mapa.getCells()[row][col].getBuilding().getUpgradePreco() == 0){
+        cout << "Este edificio nao possui upgrades" << endl;
+        system("pause");
     }
 }
 
@@ -605,10 +540,7 @@ void Commands::efeitos() {
                    }
                }
                if(mapa.getCells()[i][j].getBiome().designacao() == "flr"){
-                   cout << "total de arvores: " << mapa.getCells()[i][j].getBiome().getTotalArvores() << endl;
-                   cout << "total de producao: " << mapa.getCells()[i][j].getBiome().getProducao() << endl;
-                   cout << "total de dias ativos: " << mapa.getCells()[i][j].getBiome().getDiasAtivos() << endl;
-                   cout << "total de dias: " << mapa.getCells()[i][j].getBiome().getDias() << endl << endl;
+
                    if(mapa.getCells()[i][j].getBuilding().designacao() != ""){
 
                        if(mapa.getCells()[i][j].getBiome().getTotalArvores()> 0){
@@ -697,6 +629,9 @@ void Commands::decreaseCapacity(Edificios edificio, float quantidade){
     if(str == "fun"){
         data.getAco().setCapacidade(quantidade);
     }
+    if(str == "serr"){
+        data.getVigas().setCapacidade(quantidade);
+    }
 }
 void Commands::increaseCapacity(Edificios edificio, float quantidade)
 {
@@ -716,6 +651,9 @@ void Commands::increaseCapacity(Edificios edificio, float quantidade)
     if(str == "fun"){
         data.getAco().setCapacidade(quantidade);
     }
+    if(str == "serr"){
+        data.getVigas().setCapacidade(quantidade);
+    }
 }
 
 int Commands::cons(string* commands, int row, int col){
@@ -731,13 +669,13 @@ int Commands::cons(string* commands, int row, int col){
 
     if(data.getVigas().Quantidade() >= mapa.getCells()[row][col].getBuilding().getPrecoVigas()) {
         if (data.getMoney() >= mapa.getCells()[row][col].getBuilding().getPreco()) {
-                cout << "dinheiro antes da venda " << data.getMoney() << endl;
+
                 data.removeMoney(mapa.getCells()[row][col].getBuilding().getPreco());
                 data.getVigas().setQuantidade(data.getVigas().Quantidade() - mapa.getCells()[row][col].getBuilding().getPrecoVigas());
-                cout << "dinheiro depois da venda " << data.getMoney() << endl;
+
                 return 1;
             } else {
-                cout << "Dinheiro insuficiente" << endl;
+
                 decreaseCapacity(mapa.getCells()[row][col].getBuilding());
                 mapa.getCells()[row][col].destroyBuilding();
                 return 0;
@@ -746,11 +684,9 @@ int Commands::cons(string* commands, int row, int col){
         if (data.getMoney() >= mapa.getCells()[row][col].getBuilding().getPreco() +
             falta * 10)
         {
-
-                cout << "dinheiro antes da venda " << data.getMoney() << endl;
                 data.removeMoney(mapa.getCells()[row][col].getBuilding().getPreco() + 10 * falta );
                 data.getVigas().setQuantidade(data.getVigas().Quantidade() - (10 - falta));
-                cout << "dinheiro depois da venda " << data.getMoney() << endl;
+
                 return 1;
 
         } else {
@@ -767,8 +703,6 @@ void Commands::entregaRecursos() {
 
     for (int i = 0; i < mapa.getRows(); i++) {
         for (int j = 0; j < mapa.getCols(); j++) {
-
-            if (mapa.getCells()[i][j].getBuilding().designacao() != "") {
 
                 if (mapa.getCells()[i][j].getBuilding().designacao() == "mnf" && mapa.getCells()[i][j].getBuilding().getEstado()==1) {
                     for (int k = 0; k < mapa.getCells()[i][j].getWorkers().size(); k++) {
@@ -820,24 +754,10 @@ void Commands::entregaRecursos() {
                 if (mapa.getCells()[i][j].getBuilding().designacao() == "serr" &&mapa.getCells()[i][j].getBuilding().getEstado() == 1){
                         for (int k = 0; k < mapa.getCells()[i][j].getWorkers().size(); k++) {
                             if (mapa.getCells()[i][j].getWorkers()[k].designacao() == 'O') {
-                                if(data.getVigas().Quantidade() + mapa.getCells()[i][j].getBuilding().getProducao() <=data.getVigas().getCapacidade()){
                                      if(data.getMadeira().Quantidade()>=1){
                                         data.getMadeira().setQuantidade(data.getMadeira().Quantidade()-1);
                                         data.getVigas().setQuantidade(data.getVigas().Quantidade()+1);
                                     }
-                                    else{
-                                        break;
-                                    }
-                                }
-                                else{
-                                    if(data.getMadeira().Quantidade()>=1){
-                                        data.getMadeira().setQuantidade(data.getMadeira().Quantidade()-1);
-                                        data.getVigas().setQuantidade(data.getVigas().getCapacidade());
-                                    }
-                                    else{
-                                        break;
-                                    }
-                                }
                             }
                         }
                 }
@@ -2199,7 +2119,7 @@ void Commands::entregaRecursos() {
                     }
 
                 }
-            }
+
         }
     }
 }
@@ -2296,9 +2216,9 @@ void Commands::list(const string& rows,const string& cols) const {
     mapa.list(rows, cols);
 }
 void Commands::list() const{ //aaaa
-    cout << endl << "--Informaçao Geral--" << endl;
+    cout << endl << "--Informacao Geral--" << endl;
     cout << "Dia : " << data.getDia() << endl;
-    cout << "Pontuaçao Atual: " << data.getMoney() +
+    cout << "Pontuacao Atual: " << data.getMoney() +
                                          data.getFerro().Quantidade() * data.getFerro().Preco() +
                                          data.getAco().Quantidade() * data.getAco().Preco() +
                                          data.getCarvao().Quantidade() * data.getCarvao().Preco() +
@@ -2323,9 +2243,79 @@ void Commands::list() const{ //aaaa
     cout << "Numero de trabalhadores -> " << countWorkers() << endl;
     cout << "Ids Mineiros -> " << listWorkers('M') << endl;
     cout << "Ids Lenhadores -> " << listWorkers('L') << endl;
-    cout << "Ids Operarios -> " << listWorkers('O') << endl;
+    cout << "Ids Operarios -> " << listWorkers('O') << endl << endl;
     system("pause");
 }
+
+int Commands::contTrabalhador(string nome) {
+
+
+    if(nome == "oper"){
+        Operario oper(data.getDia());
+        for (int i = 0; i < mapa.getCells().size(); i++) {
+            for (int j = 0; j < mapa.getCells()[0].size(); j++) {
+                if (mapa.getCells()[i][j].getBiome().designacao() == "pas") {
+                    mapa.getCells()[i][j].addWorker(oper);
+                    if(data.getMoney() >= mapa.getCells()[i][j].getWorkers()[mapa.getCells()[i][j].getWorkers().size() - 1].getSalario())
+                        data.removeMoney(mapa.getCells()[i][j].getWorkers()[mapa.getCells()[i][j].getWorkers().size() - 1].getSalario());
+                    else
+                        mapa.getCells()[i][j].getWorkers().erase(mapa.getCells()[i][j].getWorkers().begin() + mapa.getCells()[i][j].getWorkers().size() - 1);
+                    cout << "O jogador nao possui dinheiro suficiente para contratar este trabalhador"<< endl;
+                    return 1;
+                }
+            }
+        }
+    }
+    else if(nome == "len"){
+        Lenhador len(data.getDia());
+        for (int i = 0; i < mapa.getCells().size(); i++) {
+            for (int j = 0; j < mapa.getCells()[0].size(); j++) {
+                if (mapa.getCells()[i][j].getBiome().designacao() == "pas") {
+                    mapa.getCells()[i][j].addWorker(len);
+                    if(data.getMoney() >= mapa.getCells()[i][j].getWorkers()[mapa.getCells()[i][j].getWorkers().size() - 1].getSalario())
+                        data.removeMoney(mapa.getCells()[i][j].getWorkers()[mapa.getCells()[i][j].getWorkers().size() - 1].getSalario());
+                    else
+                        mapa.getCells()[i][j].getWorkers().erase(mapa.getCells()[i][j].getWorkers().begin() + mapa.getCells()[i][j].getWorkers().size() - 1);
+                    cout << "O jogador nao possui dinheiro suficiente para contratar este trabalhador"<< endl;
+                    return 1;
+                }
+            }
+        }
+    }
+    else if(nome == "miner"){
+        Mineiro min(data.getDia());
+        for (int i = 0; i < mapa.getCells().size(); i++) {
+            for (int j = 0; j < mapa.getCells()[0].size(); j++) {
+                if (mapa.getCells()[i][j].getBiome().designacao() == "pas") {
+                    mapa.getCells()[i][j].addWorker(min);
+                    if(data.getMoney() >= mapa.getCells()[i][j].getWorkers()[mapa.getCells()[i][j].getWorkers().size() - 1].getSalario())
+                        data.removeMoney(mapa.getCells()[i][j].getWorkers()[mapa.getCells()[i][j].getWorkers().size() - 1].getSalario());
+                    else
+                        mapa.getCells()[i][j].getWorkers().erase(mapa.getCells()[i][j].getWorkers().begin() + mapa.getCells()[i][j].getWorkers().size() - 1);
+                    cout << "O jogador nao possui dinheiro suficiente para contratar este trabalhador"<< endl;
+                    return 1;
+                }
+            }
+        }
+    }
+    else{
+        cout << "Nome de trabalhdor invalido"<< endl;
+        system("pause");
+    }
+    return 1;
+}
+
+int checkTamanho(int rows,int cols) {
+            if(rows < 4 || cols < 4 || rows > 8 || cols > 16){
+                cout << "O mapa tem limite de linhas/colunas" << endl;
+                cout << "Linhas ->   Minimo = 4   Maximo = 8" << endl;
+                cout << "Colunas ->   Minimo = 4   Maximo = 16"<< endl << endl;
+                system("pause");
+                return 1;
+            }
+            return 0;
+}
+
 
 bool isNumber(const string &s){
 
