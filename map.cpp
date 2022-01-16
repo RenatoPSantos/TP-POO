@@ -168,7 +168,6 @@ Map::Map(int rows, int cols) : rows(rows), cols(cols) {
         }
         Str.push_back(temp);
     }
-    cout << "Map created";
 }
 
 void Map::print() //atualiza e imprime ilha
@@ -294,33 +293,35 @@ void Map::list(const string& rows,const string& cols){
     int irows = stoi(rows);
     int icols = stoi(cols);
 
-    cout << "--Informacoes--"<< endl;
+    cout << endl << "--Informacoes--"<< endl;
 
     if (Cells[irows-1][icols-1].getBiome().designacao() == "pas")
         cout << "Bioma -> Pastagem" << endl;
-    if (Cells[irows-1][icols-1].getBiome().designacao() == "flr")
+    if (Cells[irows-1][icols-1].getBiome().designacao() == "flr") {
         cout << "Bioma -> Floresta" << endl;
+        cout << "Total de Arvores -> " << Cells[irows-1][icols-1].getBiome().getTotalArvores() << endl;
+    }
     if (Cells[irows-1][icols-1].getBiome().designacao() == "mnt")
         cout << "Bioma -> Montanha" << endl;
     if (Cells[irows-1][icols-1].getBiome().designacao() == "dsr")
         cout << "Bioma -> Deserto" << endl;
     if (Cells[irows-1][icols-1].getBiome().designacao() == "pnt")
         cout << "Bioma -> Pantano" << endl;
-    if (Cells[irows-1][icols-1].getBiome().designacao() == "znX") //Desenvolver
-        cout << "Bioma -> Zona X" << endl;
+    if (Cells[irows-1][icols-1].getBiome().designacao() == "tnd")
+        cout << "Bioma -> Tundra" << endl;
 
     if(Cells[irows-1][icols-1].getBuilding().designacao() == ""){
         cout << endl << "Construcao -> Vazio " << endl;
     }
     else{
         cout << endl << "Construcao -> " << Cells[irows-1][icols-1].getBuilding().designacao() <<
-        " de nível " << Cells[irows-1][icols-1].getBuilding().getNivel() <<  endl;
+        " de nivel " << Cells[irows-1][icols-1].getBuilding().getNivel() <<  endl;
         cout << "Producao -> "<< Cells[irows-1][icols-1].getBuilding().getProducao() << endl;
         if(Cells[irows-1][icols-1].getBuilding().getNivel() >= 5)
-            cout << "Custo de aumento de nível -> " << Cells[irows-1][icols-1].getBuilding().getUpgradePreco();
+            cout << "Custo de aumento de nivel -> " << Cells[irows-1][icols-1].getBuilding().getUpgradePreco();
     }
     if(Cells[irows-1][icols-1].getWorkers().empty()){
-        cout << endl << "Trabalhadores -> Nenhums" << endl;
+        cout << endl << "Trabalhadores -> Nenhuns" << endl;
     }
     else{
         int m = 0, o = 0, l = 0;
@@ -329,34 +330,33 @@ void Map::list(const string& rows,const string& cols){
             if(Cells[irows-1][icols-1].getWorkers()[i].designacao() == 'M')
             {
                 m++;
-                string idm = idm + Cells[irows-1][icols-1].getWorkers()[i].getId() + " ";
+                idm = idm + Cells[irows-1][icols-1].getWorkers()[i].getId() + " ";
             }
             if(Cells[irows-1][icols-1].getWorkers()[i].designacao() == 'L')
             {
                 l++;
-                string idl = idl + Cells[irows-1][icols-1].getWorkers()[i].getId() + " ";
+                idl = idl + Cells[irows-1][icols-1].getWorkers()[i].getId() + " ";
             }
             if(Cells[irows-1][icols-1].getWorkers()[i].designacao() == 'O')
             {
                 o++;
-                string ido = ido + Cells[irows-1][icols-1].getWorkers()[i].getId() + " ";
+                ido = ido + Cells[irows-1][icols-1].getWorkers()[i].getId() + " ";
             }
         }
-        cout << endl << "Lista Trabalhadores ";
+        cout << endl << "|Lista Trabalhadores| " << endl;
         cout << endl;
 
         cout << "Numero Mineiros -> " << m << endl;
         cout << "Ids -> " << idm << endl;
-        cout << endl;
+
 
         cout << "Numero Lenhadores -> " << l << endl;
         cout << "Ids -> " << idl << endl;
-        cout << endl;
 
         cout << "Numero Operarios -> " << o << endl;
-        cout << "Ids -> " << ido << endl;
+        cout << "Ids -> " << ido << endl << endl;
     }
-    cout << "Numero total de trabalhadores -> " << Cells[irows-1][icols-1].countWorkers() << endl << endl;
+    cout << "Numero total de trabalhadores -> " << Cells[irows-1][icols-1].getWorkers().size() << endl << endl;
     system("pause");
 }
 

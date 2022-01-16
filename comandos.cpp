@@ -41,7 +41,7 @@ void Commands::setCommands(const string& command){
     while(iss >> word)
     {
         commands[i] = word;
-        if(i == 3)
+        if(i == 4)
             break;
         i++;
     }
@@ -71,9 +71,10 @@ int Commands::execCommands() {
             cout << "Falha ao abrir o ficheiro" << endl;
             system("pause");
         }
+        return 1;
     }
     if (commands[0] == "cons") {
-        if (checkArguments(3) == 1) {
+        if (checkArguments(3)) {
             if (isNumber(commands[2]) && isNumber(commands[3])) {
                 if (mapa.checkRowsCols(commands[2], commands[3])) {
                     cons(commands, stoi(commands[2]) , stoi(commands[3]) );
@@ -96,7 +97,7 @@ int Commands::execCommands() {
         if (checkArguments(2)) {
             if(isNumber(commands[1]) && isNumber(commands[2])){
                 if(mapa.checkRowsCols(commands[1],commands[2])) {
-                    if (mapa.getCells()[stoi(commands[1])-1][stoi(commands[2])-1].getBuilding().designacao() != "") {
+                    if (!mapa.getCells()[stoi(commands[1])-1][stoi(commands[2])-1].getBuilding().designacao().empty()) {
                         mapa.getCells()[stoi(commands[1])-1][stoi(commands[2])-1].getBuilding().liga();
                     } else {
                         cout << "Nao existe edificio nestas coordenadas" << endl;
@@ -120,7 +121,7 @@ int Commands::execCommands() {
         if (checkArguments(2)) {
             if(isNumber(commands[1]) && isNumber(commands[2])){
                 if(mapa.checkRowsCols(commands[1],commands[2])) {
-                    if (mapa.getCells()[stoi(commands[1])-1][stoi(commands[2])-1].getBuilding().designacao() != "") {
+                    if (!mapa.getCells()[stoi(commands[1])-1][stoi(commands[2])-1].getBuilding().designacao().empty()) {
                         mapa.getCells()[stoi(commands[1])-1][stoi(commands[2])-1].getBuilding().desliga();
 
                 } else {
@@ -197,18 +198,19 @@ int Commands::execCommands() {
         return 1;
     }
     if (commands[0] == "list") {
-        if (checkArguments(0)) {
-            list();
-            return 1;
-        }
-        if (checkArguments(2)) {
+        if (!commands[1].empty() && !commands[2].empty()) {
             if (isNumber(commands[1]) && isNumber(commands[2]) &&
                 mapa.checkRowsCols( commands[1], commands[2])) {
                 list(commands[1], commands[2]);
                 return 1;
             }
             return 1;
-        } else {
+        }
+        else if (checkArguments(0)) {
+            list();
+            return 1;
+        }
+        else {
             return 1;
         }
     }
@@ -226,7 +228,7 @@ int Commands::execCommands() {
                 return 0;
             }
             return 1;
-        }
+    }
     if (commands[0] == "save") {
         if (checkArguments(1)) {
             cout << "Nao foi Implementado" << endl;
@@ -234,6 +236,7 @@ int Commands::execCommands() {
             system("pause");
             return 1;
         }
+        return 1;
 
     }
     if (commands[0] == "load") {
@@ -243,6 +246,7 @@ int Commands::execCommands() {
             system("pause");
             return 1;
         }
+        return 1;
 
     }
     if (commands[0] == "apaga") {
@@ -252,6 +256,7 @@ int Commands::execCommands() {
             system("pause");
             return 1;
         }
+        return 1;
 
     }
     if (commands[0] == "config") {
@@ -262,6 +267,7 @@ int Commands::execCommands() {
             system("pause");
             return 1;
         }
+        return 1;
     }
     if (commands[0] == "debcash") {
         if (checkArguments(1)) {
@@ -272,9 +278,10 @@ int Commands::execCommands() {
             }
             return 1;
         }
+        return 1;
     }
     if (commands[0] == "debed") {
-        if (checkArguments(3) == 1) {
+        if (checkArguments(3)) {
             if(isNumber(commands[2]) && isNumber(commands[3])){
                 if(mapa.checkRowsCols(commands[2],commands[3])){
                     mapa.insertBuilding(commands);
@@ -294,11 +301,19 @@ int Commands::execCommands() {
         }
         return 1;
     }
+    if(commands[0] == "inf"){
+        if(checkArguments(0)){
+                inf();
+
+        }
+        return 1;
+    }
     if (commands[0] == "debkill") {
         if (checkArguments(1)) {
             mapa.killWorker(commands[1]);
             return 1;
         }
+        return 1;
     }else {
         cout << "O comando que inseriu esta errado" << endl;
         system("pause");
@@ -359,9 +374,9 @@ int Commands::execConfig(string nome){
 
 
 }
-void Commands::upgrade(string *commands) {
-    int row = stoi(commands[1]) - 1;
-    int col = stoi(commands[2]) - 1;
+void Commands::upgrade(string *comandos) {
+    int row = stoi(comandos[1]) - 1;
+    int col = stoi(comandos[2]) - 1;
     if(mapa.getCells()[row][col].getBuilding().getNivel() < 5 && mapa.getCells()[row][col].getBuilding().getUpgradePreco() != 0 && mapa.getCells()[row][col].getBuilding().getUpgradePreco() != 0){
         if(data.getVigas().Quantidade() >= mapa.getCells()[row][col].getBuilding().getUpgradePrecoVigas()) {
             if (data.getMoney() >= mapa.getCells()[row][col].getBuilding().getUpgradePreco()) {
@@ -396,7 +411,7 @@ void Commands::adicionaDias() {
     for(int i = 0;i < mapa.getRows(); i++){
         for(int j= 0; j < mapa.getCols();j++) {
 
-            if ((mapa.getCells()[i][j].getBuilding().designacao() != "" && mapa.getCells()[i][j].getBuilding().getEstado() == 1)) {
+            if ((!mapa.getCells()[i][j].getBuilding().designacao().empty() && mapa.getCells()[i][j].getBuilding().getEstado() == 1)) {
                 for (int k = 0; k < mapa.getCells()[i][j].getWorkers().size(); k++) {
 
                     if(mapa.getCells()[i][j].getBuilding().designacao() == "elec" || mapa.getCells()[i][j].getBuilding().designacao() == "fun" || mapa.getCells()[i][j].getBuilding().designacao() == "serr"&& mapa.getCells()[i][j].getWorkers()[k].designacao() == 'O'){
@@ -420,7 +435,8 @@ void Commands::adicionaDias() {
 }
 
 bool Commands::checkArguments(int number) const{
-    if(commands[number].empty()){
+
+    if(commands[number] == ""){
         cout << "Numero de argumentos invalido" << endl;
         cout << "Este comando utiliza " << number <<  " argumento(s)" << endl;
 
@@ -428,6 +444,18 @@ bool Commands::checkArguments(int number) const{
 
         return false;
     }
+    for(int i = number+1;i<5;i++){
+        if(commands[i] != ""){
+            cout << "Numero de argumentos invalido" << endl;
+            cout << "Este comando utiliza " << number <<  " argumento(s)" << endl;
+
+            system("pause");
+
+            return false;
+        }
+
+    }
+
     return true;
 }
 
@@ -438,15 +466,13 @@ void Commands::setNext(bool state){
 bool Commands::getNext() const{
     return next;
 }
-void Commands::setQuit(bool state){
-    quit = state;
-}
+
 bool Commands::getQuit() const{
     return quit;
 }
 void Commands::vende(int linha, int coluna) {
 
-    if(mapa.getCells()[linha][coluna].getBuilding().designacao() != ""){
+    if(!mapa.getCells()[linha][coluna].getBuilding().designacao().empty()){
 
             data.addMoney(mapa.getCells()[linha][coluna].getBuilding().getPreco() + mapa.getCells()[linha][coluna].getBuilding().getPrecoVigas() * 10 +(mapa.getCells()[linha][coluna].getBuilding().getNivel()-1) *(mapa.getCells()[linha][coluna].getBuilding().getUpgradePreco() +mapa.getCells()[linha][coluna].getBuilding().getUpgradePrecoVigas()));
             decreaseCapacity(mapa.getCells()[linha][coluna].getBuilding(), -(mapa.getCells()[linha][coluna].getBuilding().getArmazenamento()+ (mapa.getCells()[linha][coluna].getBuilding().getNivel()-1) * mapa.getCells()[linha][coluna].getBuilding().getUpgradeArmazenamento()));
@@ -458,7 +484,7 @@ void Commands::vende(int linha, int coluna) {
     }
 }
 
-void Commands::vende(string tipo, float quant) {
+void Commands::vende(const string& tipo, float quant) {
     if(tipo == "ferro"){
         if(data.getFerro().Quantidade()>=quant){
             data.getFerro().setQuantidade(data.getFerro().Quantidade()-quant);
@@ -472,7 +498,7 @@ void Commands::vende(string tipo, float quant) {
         }
     }
     if(tipo == "aco"){
-        if(data.getCarvao().Quantidade()>quant){
+        if(data.getCarvao().Quantidade()>=quant){
             data.getCarvao().setQuantidade(data.getCarvao().Quantidade()-quant);
 
             data.addMoney(quant * data.getCarvao().Preco());
@@ -484,8 +510,8 @@ void Commands::vende(string tipo, float quant) {
             return;
         }
     }
-    if(tipo == "mad"){
-        if(data.getMadeira().Quantidade()>quant){
+    if(tipo == "madeira"){
+        if(data.getMadeira().Quantidade()>=quant){
             data.getMadeira().setQuantidade(data.getMadeira().Quantidade()-quant);
 
             data.addMoney(quant * data.getMadeira().Preco());
@@ -496,8 +522,8 @@ void Commands::vende(string tipo, float quant) {
             return;
         }
     }
-    if(tipo == "viga"){
-        if(data.getVigas().Quantidade()>quant){
+    if(tipo == "vigas"){
+        if(data.getVigas().Quantidade()>=quant){
             data.getVigas().setQuantidade(data.getVigas().Quantidade()-quant);
 
             data.addMoney(quant * data.getVigas().Preco());
@@ -508,8 +534,8 @@ void Commands::vende(string tipo, float quant) {
             return;
         }
     }
-    if(tipo == "eletr"){
-        if(data.getEletricidade().Quantidade()>quant){
+    if(tipo == "eletricidade"){
+        if(data.getEletricidade().Quantidade()>=quant){
             data.getEletricidade().setQuantidade(data.getEletricidade().Quantidade()-quant);
 
             data.addMoney(quant * data.getEletricidade().Preco());
@@ -535,13 +561,13 @@ void Commands::efeitos() {
                        mapa.getCells()[i][j].getBuilding().setProducao(mapa.getCells()[i][j].getBuilding().getProducao()/2);
                        mapa.getCells()[i][j].getBuilding().setUpgradeProducao(mapa.getCells()[i][j].getBuilding().getUpgradeProducao()/2);
 
-                       mapa.getCells()[i][j].getBuilding().setEfeitos(1);
+                       mapa.getCells()[i][j].getBuilding().setEfeitos(true);
 
                    }
                }
                if(mapa.getCells()[i][j].getBiome().designacao() == "flr"){
 
-                   if(mapa.getCells()[i][j].getBuilding().designacao() != ""){
+                   if(!mapa.getCells()[i][j].getBuilding().designacao().empty()){
 
                        if(mapa.getCells()[i][j].getBiome().getTotalArvores()> 0){
                            mapa.getCells()[i][j].getBiome().setTotalArvores(mapa.getCells()[i][j].getBiome().getTotalArvores()-1);
@@ -554,7 +580,7 @@ void Commands::efeitos() {
                        mapa.getCells()[i][j].getBiome().setDiasAtivos(mapa.getCells()[i][j].getBiome().getDiasAtivos() + 1);
 
                        if(mapa.getCells()[i][j].getBiome().getDiasAtivos() == 2){
-                           if(mapa.getCells()[i][j].getBiome().getTotalArvores() < 100) {
+                           if(mapa.getCells()[i][j].getBiome().getTotalArvores() < mapa.getCells()[i][j].getBiome().getMaxArvores()) {
                                mapa.getCells()[i][j].getBiome().setDiasAtivos(0);
                                mapa.getCells()[i][j].getBiome().setTotalArvores(mapa.getCells()[i][j].getBiome().getTotalArvores() + 1);
                            }
@@ -568,7 +594,7 @@ void Commands::efeitos() {
                        mapa.getCells()[i][j].getBuilding().setProducao(mapa.getCells()[i][j].getBuilding().getProducao()*2);
                        mapa.getCells()[i][j].getBuilding().setPreco(mapa.getCells()[i][j].getBuilding().getPreco()*2);
 
-                       mapa.getCells()[i][j].getBuilding().setEfeitos(1);
+                       mapa.getCells()[i][j].getBuilding().setEfeitos(true);
                    }
 
 
@@ -605,7 +631,7 @@ void Commands::efeitos() {
                if(mapa.getCells()[i][j].getBiome().designacao() == "tnd" && mapa.getCells()[i][j].getBuilding().getEfeitos() == 0 && mapa.getCells()[i][j].getBuilding().designacao() == "fun"){
 
                     mapa.getCells()[i][j].getBuilding().setProducao(mapa.getCells()[i][j].getBuilding().getProducao()+1);
-                    mapa.getCells()[i][j].getBuilding().setEfeitos(1);
+                    mapa.getCells()[i][j].getBuilding().setEfeitos(true);
                }
 
        }
@@ -656,13 +682,13 @@ void Commands::increaseCapacity(Edificios edificio, float quantidade)
     }
 }
 
-int Commands::cons(string* commands, int row, int col){
+int Commands::cons(string* comandos, int row, int col){
 
     row = row - 1;
     col = col - 1;
-    string type = commands[1];
+    string type = comandos[1];
 
-    if(mapa.insertBuilding(commands) == false)
+    if(!mapa.insertBuilding(comandos))
         return 0;
     increaseCapacity(mapa.getCells()[row][col].getBuilding());
     float falta = mapa.getCells()[row][col].getBuilding().getPrecoVigas() - data.getVigas().Quantidade();
@@ -690,9 +716,12 @@ int Commands::cons(string* commands, int row, int col){
                 return 1;
 
         } else {
-            cout << "Dinheiro insuficiente" << endl;
+
             decreaseCapacity(mapa.getCells()[row][col].getBuilding());
             mapa.getCells()[row][col].destroyBuilding();
+
+            cout << "Dinheiro insuficiente" << endl;
+            system("pause");
             return 0;
         }
     }
@@ -731,20 +760,18 @@ void Commands::entregaRecursos() {
                     }
                 }
                 if (mapa.getCells()[i][j].getBiome().designacao() == "flr") {
-                    if (mapa.getCells()[i][j].getBuilding().designacao() == "") {
+                    if (mapa.getCells()[i][j].getBuilding().designacao().empty()) {
                         for (int k = 0; k < mapa.getCells()[i][j].getWorkers().size(); k++) {
                             if (mapa.getCells()[i][j].getWorkers()[k].designacao() == 'L') {
                                 if (mapa.getCells()[i][j].getWorkers()[k].getDias() <= 4) {
                                     if (mapa.getCells()[i][j].getBiome().getTotalArvores() >=mapa.getCells()[i][j].getBiome().getProducao() &&mapa.getCells()[i][j].getBiome().getTotalArvores() > 0) {
                                         data.getMadeira().setQuantidade(data.getMadeira().Quantidade() +mapa.getCells()[i][j].getBiome().getProducao());
                                         mapa.getCells()[i][j].getBiome().setTotalArvores(mapa.getCells()[i][j].getBiome().getTotalArvores() - 1);
-                                        break;
+
                                     }
 
-                                    break;
                                 } else {
                                     mapa.getCells()[i][j].getWorkers()[k].setDias(0);
-                                    break;
                                 }
                             }
 
@@ -2247,7 +2274,7 @@ void Commands::list() const{ //aaaa
     system("pause");
 }
 
-int Commands::contTrabalhador(string nome) {
+int Commands::contTrabalhador(const string& nome) {
 
 
     if(nome == "oper"){
@@ -2256,12 +2283,16 @@ int Commands::contTrabalhador(string nome) {
             for (int j = 0; j < mapa.getCells()[0].size(); j++) {
                 if (mapa.getCells()[i][j].getBiome().designacao() == "pas") {
                     mapa.getCells()[i][j].addWorker(oper);
-                    if(data.getMoney() >= mapa.getCells()[i][j].getWorkers()[mapa.getCells()[i][j].getWorkers().size() - 1].getSalario())
+                    if(data.getMoney() >= mapa.getCells()[i][j].getWorkers()[mapa.getCells()[i][j].getWorkers().size() - 1].getSalario()){
                         data.removeMoney(mapa.getCells()[i][j].getWorkers()[mapa.getCells()[i][j].getWorkers().size() - 1].getSalario());
-                    else
+                        return 1;
+                    }
+                    else{
                         mapa.getCells()[i][j].getWorkers().erase(mapa.getCells()[i][j].getWorkers().begin() + mapa.getCells()[i][j].getWorkers().size() - 1);
-                    cout << "O jogador nao possui dinheiro suficiente para contratar este trabalhador"<< endl;
-                    return 1;
+                        cout << "O jogador nao possui dinheiro suficiente para contratar este trabalhador"<< endl;
+                        system("pause");
+                        return 1;
+                    }
                 }
             }
         }
@@ -2272,12 +2303,15 @@ int Commands::contTrabalhador(string nome) {
             for (int j = 0; j < mapa.getCells()[0].size(); j++) {
                 if (mapa.getCells()[i][j].getBiome().designacao() == "pas") {
                     mapa.getCells()[i][j].addWorker(len);
-                    if(data.getMoney() >= mapa.getCells()[i][j].getWorkers()[mapa.getCells()[i][j].getWorkers().size() - 1].getSalario())
-                        data.removeMoney(mapa.getCells()[i][j].getWorkers()[mapa.getCells()[i][j].getWorkers().size() - 1].getSalario());
-                    else
+                    if(data.getMoney() >= mapa.getCells()[i][j].getWorkers()[mapa.getCells()[i][j].getWorkers().size() - 1].getSalario()) {
+                        data.removeMoney(mapa.getCells()[i][j].getWorkers()[mapa.getCells()[i][j].getWorkers().size() -1].getSalario());
+                        return 1;
+                    }
+                    else{
                         mapa.getCells()[i][j].getWorkers().erase(mapa.getCells()[i][j].getWorkers().begin() + mapa.getCells()[i][j].getWorkers().size() - 1);
-                    cout << "O jogador nao possui dinheiro suficiente para contratar este trabalhador"<< endl;
-                    return 1;
+                        cout << "O jogador nao possui dinheiro suficiente para contratar este trabalhador"<< endl;
+                        return 1;
+                    }
                 }
             }
         }
@@ -2288,12 +2322,15 @@ int Commands::contTrabalhador(string nome) {
             for (int j = 0; j < mapa.getCells()[0].size(); j++) {
                 if (mapa.getCells()[i][j].getBiome().designacao() == "pas") {
                     mapa.getCells()[i][j].addWorker(min);
-                    if(data.getMoney() >= mapa.getCells()[i][j].getWorkers()[mapa.getCells()[i][j].getWorkers().size() - 1].getSalario())
+                    if(data.getMoney() >= mapa.getCells()[i][j].getWorkers()[mapa.getCells()[i][j].getWorkers().size() - 1].getSalario()){
                         data.removeMoney(mapa.getCells()[i][j].getWorkers()[mapa.getCells()[i][j].getWorkers().size() - 1].getSalario());
-                    else
+                        return 1;
+                    }
+                    else{
                         mapa.getCells()[i][j].getWorkers().erase(mapa.getCells()[i][j].getWorkers().begin() + mapa.getCells()[i][j].getWorkers().size() - 1);
-                    cout << "O jogador nao possui dinheiro suficiente para contratar este trabalhador"<< endl;
-                    return 1;
+                        cout << "O jogador nao possui dinheiro suficiente para contratar este trabalhador"<< endl;
+                        return 1;
+                    }
                 }
             }
         }
@@ -2303,6 +2340,37 @@ int Commands::contTrabalhador(string nome) {
         system("pause");
     }
     return 1;
+}
+
+void Commands::clearCommands() {
+    for(int i = 0;i<5;i++){
+        commands[i] = "";
+    }
+}
+
+void Commands::inf() {
+    cout << endl << "-----Informacoes-----" << endl;
+
+    cout << "--Buildings----------------------------------------------------------------------------------------" << endl;
+    cout << "                 mnf                mnc                elec       bat                 fun       serr" << endl;
+    cout << "Preco-------->   100/10 vigas       100/10 vigas       15         10 e 10 vigas       10        10" << endl;
+    cout << "Producao----->   +2                 +2                 +1         0                   +1        +1  "  << endl;
+    cout << "UpgradePreco->   15 e 1 viga        10                 0          5                   0         0" << endl;
+    cout << "Upgrade------>   +1 e 10 de espaco  +1 e 10 de espaco             10 de espaco                      " << endl << endl;
+
+    cout << "--Trabalhadores-----------------------------"<< endl;
+    cout << "                 Mineiro  Lenhador  Operario" << endl ;
+    cout << "Preco-------->   10       20        15    " << endl << endl;
+
+    cout << "--Recursos--------------------------------------------------------------"<< endl;
+    cout << "                 Ferro  Aco   Carvao     Madeira  Vigas     Eletricidade" << endl;
+    cout << "Preco(kg)---->   1      2     1          1        2         1" << endl << endl;
+
+
+
+
+    system("pause");
+
 }
 
 int checkTamanho(int rows,int cols) {

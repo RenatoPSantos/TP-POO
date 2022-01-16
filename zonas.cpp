@@ -31,3 +31,7 @@ void Zona::setDias(int valor){
 int Zona::getDias() const {
     return dias;
 }
+
+float Zona::getMaxArvores() {
+    return maxArvores;
+}

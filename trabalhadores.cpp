@@ -1,17 +1,18 @@
 #include <string>
-#include <vector>
+
 
 #include "trabalhadores.h"
-#include "comandos.h"
-#include "recursos.h"
 
 using namespace std;
 
 int Trabalhadores::quantity = 0;
 
-Trabalhadores::Trabalhadores(int dia, int sal, int diasTr,int diasPa) :  salario(sal){
+Trabalhadores::Trabalhadores(int dia, float sal, int diasTr,int diasPa) :  salario(sal){
 
         string stringDia, stringWorkers;
+        nome = ' ';
+
+
 
 
         quantity++;
@@ -22,21 +23,11 @@ Trabalhadores::Trabalhadores(int dia, int sal, int diasTr,int diasPa) :  salario
         id = stringWorkers + '.' + stringDia;
         diasTrab = diasTr;
         diasPantano = diasPa;
+        diasContratado = 0;
 }
-/* Trabalhadores::Trabalhadores(const Trabalhadores &t){
-    salario = t.salario;
-    id = t.id;
-    diasTrab = t.diasTrab;
-} */
 
-void Trabalhadores::setSalario(float valor) {
 
-    salario = valor;
 
-}
-void Trabalhadores::addDias(int valor) {
-    diasTrab += valor;
-}
 void Trabalhadores::setDias(int valor){
     diasTrab = valor;
 }
@@ -48,9 +39,6 @@ char Trabalhadores::designacao() const {
 }
 string Trabalhadores::getId() {
     return id;
-}
-int Trabalhadores::getQuantity() const{
-    return quantity;
 }
 void Trabalhadores::setDiasPantano(int valor) {
     diasPantano = valor;

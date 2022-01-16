@@ -32,9 +32,10 @@ int main() {
 
     Commands commands(mapa, data);
 
-    while(1) {
+    while(true) {
         commands.printScreen();
         string command;
+        commands.clearCommands();
         cout << "Comando: ";
         getline(cin >> ws, command);
         commands.setCommands(command);
@@ -57,7 +58,7 @@ int main() {
         }
     }
   cout << "Dinheiro Final: " << data.getMoney() << endl;
-  cout << "Pontuação Final: " << data.getMoney() +
+  cout << "Pontuacao Final: " << data.getMoney() +
                                  data.getFerro().Quantidade() * data.getFerro().Preco() +
                                  data.getAco().Quantidade() * data.getAco().Preco() +
                                  data.getCarvao().Quantidade() * data.getCarvao().Preco() +

@@ -11,49 +11,39 @@ using namespace std;
 class Resources {
     float preco;
     float quantidade;
-    int capacidade;
+    float capacidade;
 public:
-    Resources(float preco = 0,float quantidade = 0, int capacidade = 0) : preco(preco) ,quantidade(quantidade), capacidade(capacidade){};
-    void adicionaResources(float quant);
+    explicit Resources(float preco = 0,float quantidade = 0, float capacidade = 0) : preco(preco) ,quantidade(quantidade), capacidade(capacidade){};
     float Preco() const;
     float Quantidade() const;
-    void setPreco(float preco);
     void setQuantidade(float quantidade);
     void addQuantidade(float quantidade);
-    void subtractQuantidade(float quantidade);
     float getCapacidade() const;
-    void setCapacidade(float quantidade);
+    void setCapacidade(float valor);
 };
-
 class Ferro : public Resources{
-    
 public:
-    Ferro(float pre = 1,float quant = 0) : Resources(pre,quant){};
+    explicit Ferro(float pre = 1,float quant = 0) : Resources(pre,quant){};
 };
-
 class Aco : public Resources{
 public:
-    Aco(float pre = 2, float quant = 0) : Resources(pre, quant) {};
+    explicit Aco(float pre = 2, float quant = 0) : Resources(pre, quant) {};
 };
-
 class Carvao : public Resources{
 public:
-    Carvao(float pre = 1, float quant = 0) : Resources(pre, quant) {};
+    explicit Carvao(float pre = 1, float quant = 0) : Resources(pre, quant) {};
 };
-
 class Madeira : public Resources{
 public:
-    Madeira(float pre = 1, float quant = 0, int capacidade = -1) : Resources(pre, quant) {};
+    explicit Madeira(float pre = 1, float quant = 0) : Resources(pre, quant) {};
 };
-
 class Vigas : public Resources{
 public:
-    explicit Vigas(float pre = 2, float quant = 0, int capacidade = -1) : Resources(pre, quant) {};
+    explicit Vigas(float pre = 2, float quant = 0) : Resources(pre, quant) {};
 };
-
 class Eletricidade: public Resources{
 public:
-    Eletricidade(float pre = 1, float quant = 0) : Resources(pre, quant) {};
+    explicit Eletricidade(float pre = 1, float quant = 0) : Resources(pre, quant) {};
 };
 
 class Data{
@@ -71,13 +61,12 @@ public:
     void setDia(int d);
     void addMoney(float valor);
     void removeMoney(float valor);
-    float getMoney();
+    float getMoney() const;
     Ferro& getFerro();
     Aco& getAco();
     Carvao& getCarvao();
     Madeira& getMadeira();
     Vigas& getVigas();
     Eletricidade& getEletricidade();
-
 };
 #endif //TRABALHO_RECURSOS_H

@@ -5,19 +5,11 @@
 #include "recursos.h"
 using namespace std;
 
-void Resources::adicionaResources(float quant) {
-
-    quantidade += quant;
-}
-
 float Resources::Preco() const{
     return preco;
 }
 float Resources::Quantidade() const{
     return quantidade;
-}
-void Resources::setPreco(float p){
-    preco = p;
 }
 void Resources::setQuantidade(float q){
     quantidade = q;
@@ -25,19 +17,16 @@ void Resources::setQuantidade(float q){
 void Resources::addQuantidade(float ammount){
     quantidade += ammount;
 }
-void Resources::subtractQuantidade(float ammount){
-    quantidade -= ammount;
-}
 float Resources::getCapacidade() const{
     return capacidade;
 }
-void Resources::setCapacidade(float quantidade){
-    capacidade += quantidade;
+void Resources::setCapacidade(float valor){
+    capacidade += valor;
 }
 Data::Data(Ferro& ferro, Aco& aco, Carvao& carvao, Madeira& madeira, Vigas& vigas, Eletricidade& eletricidade)
 : ferro(ferro), aco(aco), carvao(carvao), madeira(madeira), vigas(vigas), eletricidade(eletricidade){
     day = 1 ;
-    money = 200;
+    money = 50;
 }
 
 Ferro& Data::getFerro(){
@@ -66,7 +55,7 @@ void Data::addMoney(float valor) {
 void Data::removeMoney(float valor){
     money = money - valor;
 }
-float Data::getMoney() {
+float Data::getMoney() const {
     return money;
 }
 int Data::getDia() const{

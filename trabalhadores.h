@@ -24,16 +24,13 @@ class Trabalhadores {
 protected:
     char nome;
 public:
-    Trabalhadores(int dia,int sal = 0,int diasTr = 0, int diasPa = 0);
-    /* Trabalhadores(const Trabalhadores &t); */
+    Trabalhadores(int dia,float sal = 0,int diasTr = 0, int diasPa = 0);
+    
     char designacao() const;
-    void setSalario(float valor);
     float getSalario() const;
     string getId();
     int getDias() const;
     void setDias(int valor);
-    void addDias(int valor);
-    int getQuantity() const;
 
     void setDiasContratado(int valor);
     int getDiasContratado() const;
@@ -51,7 +48,7 @@ public:
 class Lenhador : public Trabalhadores {
 
 public:
-    Lenhador(int dia,int sal = 2,int diasTr = 0, int diasPa = 0) : Trabalhadores(dia,sal,diasTr,diasPa) {nome = 'L';
+    Lenhador(int dia,int sal = 20,int diasTr = 0, int diasPa = 0) : Trabalhadores(dia,sal,diasTr,diasPa) {nome = 'L';
     };
 };
 class Mineiro : public Trabalhadores{
